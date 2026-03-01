@@ -28,10 +28,13 @@ export const InterAgentFeed = ({ agentId }: InterAgentFeedProps) => {
   }, []);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const messages = useMemo(() => getIntercomMessages(agentId), [agentId, refreshKey]);
+  const messages = useMemo(
+    () => getIntercomMessages(agentId),
+    [agentId, refreshKey],
+  );
 
   return (
-    <div className="flex h-full flex-col" data-testid="intercom-feed">
+    <div className="flex min-h-0 flex-1 flex-col" data-testid="intercom-feed">
       <div className="flex items-center gap-2 border-b border-border px-5 py-3">
         <MessageSquare className="h-4 w-4 text-primary" aria-hidden="true" />
         <h2 className="text-sm font-semibold text-foreground">{t("title")}</h2>
@@ -44,7 +47,9 @@ export const InterAgentFeed = ({ agentId }: InterAgentFeedProps) => {
         <p className="mb-3 text-xs text-muted-foreground">{t("description")}</p>
 
         {messages.length === 0 ? (
-          <p className="py-8 text-center text-xs text-muted-foreground">{t("noMessages")}</p>
+          <p className="py-8 text-center text-xs text-muted-foreground">
+            {t("noMessages")}
+          </p>
         ) : (
           <div className="space-y-2">
             {messages
@@ -53,12 +58,20 @@ export const InterAgentFeed = ({ agentId }: InterAgentFeedProps) => {
               .map((msg) => (
                 <div key={msg.id} className="ui-card p-2">
                   <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
-                    <span className="font-semibold text-primary">{msg.fromAgentId}</span>
+                    <span className="font-semibold text-primary">
+                      {msg.fromAgentId}
+                    </span>
                     <ArrowRight className="h-2.5 w-2.5" />
-                    <span className="font-semibold text-primary">{msg.toAgentId}</span>
-                    <span className="ml-auto">{new Date(msg.timestamp).toLocaleTimeString()}</span>
+                    <span className="font-semibold text-primary">
+                      {msg.toAgentId}
+                    </span>
+                    <span className="ml-auto">
+                      {new Date(msg.timestamp).toLocaleTimeString()}
+                    </span>
                   </div>
-                  <p className={`mt-1 text-xs ${MESSAGE_TYPE_COLORS[msg.type]}`}>
+                  <p
+                    className={`mt-1 text-xs ${MESSAGE_TYPE_COLORS[msg.type]}`}
+                  >
                     {msg.content}
                   </p>
                   <span className="mt-0.5 inline-block rounded-full bg-surface-2 px-1.5 py-0.5 text-[9px] capitalize text-muted-foreground">

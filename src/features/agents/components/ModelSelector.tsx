@@ -1,14 +1,26 @@
 "use client";
 
-import { useState, useRef, useEffect, useMemo } from "react";
-import { ChevronDown, Search, Zap, Globe, Brain, Code, Sparkles, Gauge } from "lucide-react";
+import { useState, useRef, useEffect, useMemo, useCallback } from "react";
+import {
+  ChevronDown,
+  Search,
+  Zap,
+  Globe,
+  Brain,
+  Code,
+  Sparkles,
+  Gauge,
+  Settings,
+} from "lucide-react";
 import type { GatewayModelChoice } from "@/lib/gateway/models";
 import { useTranslations } from "next-intl";
+import { PROVIDER_REGISTRY } from "@/features/providers/providerRegistry";
 
 type ModelSelectorProps = {
   models: GatewayModelChoice[];
   value: string;
   onChange: (value: string | null) => void;
+  onConfigureProviders?: () => void;
 };
 
 const CATEGORY_ICONS: Record<string, typeof Zap> = {
@@ -29,7 +41,16 @@ const CATEGORY_COLORS: Record<string, string> = {
   general: "text-slate-500",
 };
 
-export const ModelSelector = ({ models, value, onChange }: ModelSelectorProps) => {
+const PROVIDER_NAMES: Record<string, string> = Object.fromEntries(
+  PROVIDER_REGISTRY.map((p) => [p.id, p.name]),
+);
+
+export const ModelSelector = ({
+  models,
+  value,
+  onChange,
+  onConfigureProviders,
+}: ModelSelectorProps) => {
   const t = useTranslations("modelSelector");
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -39,20 +60,32 @@ export const ModelSelector = ({ models, value, onChange }: ModelSelectorProps) =
   useEffect(() => {
     if (open) {
       searchRef.current?.focus();
-    } else {
-      setSearch("");
     }
   }, [open]);
+
+  const handleToggle = useCallback(() => {
+    setOpen((prev) => {
+      if (prev) setSearch("");
+      return !prev;
+    });
+  }, []);
 
   useEffect(() => {
     if (!open) return;
     const onClickOutside = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
         setOpen(false);
+        setSearch("");
       }
     };
     const onEscape = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
+      if (e.key === "Escape") {
+        setOpen(false);
+        setSearch("");
+      }
     };
     document.addEventListener("mousedown", onClickOutside);
     document.addEventListener("keydown", onEscape);
@@ -81,7 +114,7 @@ export const ModelSelector = ({ models, value, onChange }: ModelSelectorProps) =
         (m) =>
           m.name.toLowerCase().includes(q) ||
           m.id.toLowerCase().includes(q) ||
-          provider.toLowerCase().includes(q)
+          provider.toLowerCase().includes(q),
       );
       if (filtered.length > 0) result[provider] = filtered;
     }
@@ -91,30 +124,27 @@ export const ModelSelector = ({ models, value, onChange }: ModelSelectorProps) =
   const selectedModel = models.find((m) => `${m.provider}/${m.id}` === value);
   const displayName = selectedModel?.name ?? (value || t("selectModel"));
 
-  const providerNames: Record<string, string> = {
-    anthropic: "Anthropic",
-    openai: "OpenAI",
-    perplexity: "Perplexity",
-    google: "Google",
-    mistral: "Mistral",
-    custom: "Custom",
-  };
-
   return (
     <div className="relative" ref={containerRef}>
       <button
         type="button"
         className="ui-input ui-control-important inline-flex h-6 items-center gap-1 rounded-md px-1.5 text-[10px] font-semibold text-foreground"
-        onClick={() => setOpen(!open)}
+        onClick={handleToggle}
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label={t("chooseModel")}
       >
         {selectedModel?.provider ? (
-          <span className="h-2 w-2 rounded-full bg-primary" aria-hidden="true" />
+          <span
+            className="h-2 w-2 rounded-full bg-primary"
+            aria-hidden="true"
+          />
         ) : null}
         <span className="max-w-[14ch] truncate">{displayName}</span>
-        <ChevronDown className="h-3 w-3 shrink-0 text-muted-foreground" aria-hidden="true" />
+        <ChevronDown
+          className="h-3 w-3 shrink-0 text-muted-foreground"
+          aria-hidden="true"
+        />
       </button>
 
       {open ? (
@@ -126,7 +156,10 @@ export const ModelSelector = ({ models, value, onChange }: ModelSelectorProps) =
           {models.length > 5 ? (
             <div className="border-b border-border px-3 py-2">
               <div className="relative">
-                <Search className="absolute left-2 top-1/2 h-3 w-3 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
+                <Search
+                  className="absolute left-2 top-1/2 h-3 w-3 -translate-y-1/2 text-muted-foreground"
+                  aria-hidden="true"
+                />
                 <input
                   ref={searchRef}
                   type="text"
@@ -140,62 +173,97 @@ export const ModelSelector = ({ models, value, onChange }: ModelSelectorProps) =
           ) : null}
 
           <div className="max-h-64 overflow-y-auto p-1">
-            {Object.entries(filteredGrouped).map(([provider, providerModels]) => (
-              <div key={provider}>
-                <p className="px-2 pb-0.5 pt-2 text-[9px] font-bold uppercase tracking-widest text-muted-foreground">
-                  {providerNames[provider] ?? provider}
-                </p>
-                {providerModels.map((model) => {
-                  const modelKey = `${model.provider}/${model.id}`;
-                  const isSelected = modelKey === value;
-                  const CategoryIcon = CATEGORY_ICONS[model.reasoning ? "reasoning" : "general"] ?? Gauge;
-                  const categoryColor = CATEGORY_COLORS[model.reasoning ? "reasoning" : "general"] ?? "text-slate-500";
+            {Object.entries(filteredGrouped).map(
+              ([provider, providerModels]) => (
+                <div key={provider}>
+                  <p className="px-2 pb-0.5 pt-2 text-[9px] font-bold uppercase tracking-widest text-muted-foreground">
+                    {PROVIDER_NAMES[provider] ?? provider}
+                  </p>
+                  {providerModels.map((model) => {
+                    const modelKey = `${model.provider}/${model.id}`;
+                    const isSelected = modelKey === value;
+                    const CategoryIcon =
+                      CATEGORY_ICONS[
+                        model.reasoning ? "reasoning" : "general"
+                      ] ?? Gauge;
+                    const categoryColor =
+                      CATEGORY_COLORS[
+                        model.reasoning ? "reasoning" : "general"
+                      ] ?? "text-slate-500";
 
-                  return (
-                    <button
-                      key={modelKey}
-                      type="button"
-                      role="option"
-                      aria-selected={isSelected}
-                      className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left transition-colors ${
-                        isSelected
-                          ? "bg-primary/10 text-foreground"
-                          : "text-foreground hover:bg-surface-2"
-                      }`}
-                      onClick={() => {
-                        onChange(modelKey);
-                        setOpen(false);
-                      }}
-                    >
-                      <CategoryIcon className={`h-3 w-3 shrink-0 ${categoryColor}`} aria-hidden="true" />
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-[11px] font-medium">{model.name}</p>
-                        {model.contextWindow ? (
-                          <p className="text-[9px] text-muted-foreground">
-                            {model.contextWindow >= 1000000
-                              ? `${(model.contextWindow / 1000000).toFixed(0)}M`
-                              : `${(model.contextWindow / 1000).toFixed(0)}k`}{" "}
-                            {t("context")}
+                    return (
+                      <button
+                        key={modelKey}
+                        type="button"
+                        role="option"
+                        aria-selected={isSelected}
+                        className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left transition-colors ${
+                          isSelected
+                            ? "bg-primary/10 text-foreground"
+                            : "text-foreground hover:bg-surface-2"
+                        }`}
+                        onClick={() => {
+                          onChange(modelKey);
+                          setOpen(false);
+                          setSearch("");
+                        }}
+                      >
+                        <CategoryIcon
+                          className={`h-3 w-3 shrink-0 ${categoryColor}`}
+                          aria-hidden="true"
+                        />
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-[11px] font-medium">
+                            {model.name}
                           </p>
+                          {model.contextWindow ? (
+                            <p className="text-[9px] text-muted-foreground">
+                              {model.contextWindow >= 1000000
+                                ? `${(model.contextWindow / 1000000).toFixed(0)}M`
+                                : `${(model.contextWindow / 1000).toFixed(0)}k`}{" "}
+                              {t("context")}
+                            </p>
+                          ) : null}
+                        </div>
+                        {model.reasoning ? (
+                          <span className="rounded bg-violet-500/10 px-1 text-[8px] font-bold text-violet-500">
+                            {t("think")}
+                          </span>
                         ) : null}
-                      </div>
-                      {model.reasoning ? (
-                        <span className="rounded bg-violet-500/10 px-1 text-[8px] font-bold text-violet-500">
-                          {t("think")}
-                        </span>
-                      ) : null}
-                      {isSelected ? (
-                        <span className="h-1.5 w-1.5 rounded-full bg-primary" aria-hidden="true" />
-                      ) : null}
-                    </button>
-                  );
-                })}
-              </div>
-            ))}
+                        {isSelected ? (
+                          <span
+                            className="h-1.5 w-1.5 rounded-full bg-primary"
+                            aria-hidden="true"
+                          />
+                        ) : null}
+                      </button>
+                    );
+                  })}
+                </div>
+              ),
+            )}
             {Object.keys(filteredGrouped).length === 0 ? (
-              <p className="px-3 py-4 text-center text-[11px] text-muted-foreground">
-                {t("noModels")}
-              </p>
+              <div className="px-3 py-4 text-center">
+                <p className="text-[11px] text-muted-foreground">
+                  {models.length === 0
+                    ? t("noConfiguredProviders")
+                    : t("noModels")}
+                </p>
+                {models.length === 0 && onConfigureProviders ? (
+                  <button
+                    type="button"
+                    className="mt-2 inline-flex items-center gap-1 text-[11px] font-medium text-primary hover:underline"
+                    onClick={() => {
+                      onConfigureProviders();
+                      setOpen(false);
+                      setSearch("");
+                    }}
+                  >
+                    <Settings className="h-3 w-3" aria-hidden="true" />
+                    {t("configureProviders")}
+                  </button>
+                ) : null}
+              </div>
             ) : null}
           </div>
         </div>

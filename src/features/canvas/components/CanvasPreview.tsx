@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { MonitorPlay } from "lucide-react";
 import type { CanvasLayout } from "../types";
@@ -19,7 +19,7 @@ export const CanvasPreview = ({ layout = null }: CanvasPreviewProps) => {
   );
 
   return (
-    <div className="flex h-full flex-col" data-testid="canvas-preview">
+    <div className="flex min-h-0 flex-1 flex-col" data-testid="canvas-preview">
       <div className="flex items-center gap-2 border-b border-border px-5 py-3">
         <MonitorPlay className="h-4 w-4 text-primary" aria-hidden="true" />
         <h2 className="text-sm font-semibold text-foreground">{t("title")}</h2>

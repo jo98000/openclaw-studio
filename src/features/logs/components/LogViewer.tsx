@@ -4,7 +4,13 @@ import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { ScrollText } from "lucide-react";
 import type { LogLevel, LogEntry } from "../types";
-import { initLogStore, getLogs, clearLogs, exportLogs, getLogCount } from "../logStore";
+import {
+  initLogStore,
+  getLogs,
+  clearLogs,
+  exportLogs,
+  getLogCount,
+} from "../logStore";
 import { LogFilterBar } from "./LogFilterBar";
 
 const LEVEL_COLORS: Record<LogLevel, string> = {
@@ -19,11 +25,15 @@ const LogRow = ({ entry }: { entry: LogEntry }) => (
     <span className="shrink-0 text-muted-foreground">
       {new Date(entry.timestamp).toLocaleTimeString()}
     </span>
-    <span className={`w-10 shrink-0 font-semibold uppercase ${LEVEL_COLORS[entry.level]}`}>
+    <span
+      className={`w-10 shrink-0 font-semibold uppercase ${LEVEL_COLORS[entry.level]}`}
+    >
       {entry.level}
     </span>
     <span className="shrink-0 text-primary">[{entry.agentId}]</span>
-    <span className="min-w-0 flex-1 break-all text-foreground">{entry.message}</span>
+    <span className="min-w-0 flex-1 break-all text-foreground">
+      {entry.message}
+    </span>
   </div>
 );
 
@@ -41,11 +51,12 @@ export const LogViewer = () => {
   }, []);
 
   const entries = useMemo(
-    () => getLogs({
-      level: level || undefined,
-      agentId: agentId || undefined,
-      search: search || undefined,
-    }),
+    () =>
+      getLogs({
+        level: level || undefined,
+        agentId: agentId || undefined,
+        search: search || undefined,
+      }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [level, agentId, search, refreshKey],
   );
@@ -85,7 +96,7 @@ export const LogViewer = () => {
   }, [level, agentId, search]);
 
   return (
-    <div className="flex h-full flex-col" data-testid="log-viewer">
+    <div className="flex min-h-0 flex-1 flex-col" data-testid="log-viewer">
       <div className="flex items-center gap-2 border-b border-border px-5 py-3">
         <ScrollText className="h-4 w-4 text-primary" aria-hidden="true" />
         <h2 className="text-sm font-semibold text-foreground">{t("title")}</h2>
@@ -112,7 +123,9 @@ export const LogViewer = () => {
         className="flex-1 overflow-y-auto"
       >
         {entries.length === 0 ? (
-          <p className="py-8 text-center text-xs text-muted-foreground">{t("noLogs")}</p>
+          <p className="py-8 text-center text-xs text-muted-foreground">
+            {t("noLogs")}
+          </p>
         ) : (
           entries.map((entry) => <LogRow key={entry.id} entry={entry} />)
         )}
@@ -123,7 +136,8 @@ export const LogViewer = () => {
           type="button"
           onClick={() => {
             setAutoScroll(true);
-            if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+            if (scrollRef.current)
+              scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
           }}
           className="mx-5 mb-2 rounded-md bg-primary px-3 py-1 text-[10px] font-semibold text-primary-foreground"
         >

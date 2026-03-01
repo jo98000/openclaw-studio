@@ -129,6 +129,19 @@ export const buildStaticModelCatalog = (
 };
 
 /**
+ * Filter models to only include those from configured providers.
+ * If no providers are configured, returns all models (backward compatibility).
+ */
+export const filterModelsByConfiguredProviders = (
+  models: GatewayModelChoice[],
+  configuredProviderIds: string[],
+): GatewayModelChoice[] => {
+  if (configuredProviderIds.length === 0) return models;
+  const providerSet = new Set(configuredProviderIds);
+  return models.filter((m) => providerSet.has(m.provider));
+};
+
+/**
  * Merge gateway models with the static catalog.
  * Gateway models take priority (they may have runtime info),
  * then static catalog fills in the rest.

@@ -20,11 +20,15 @@ export type ProviderId =
   | "litellm"
   | "custom";
 
+export type ProviderAuthType = "apiKey" | "accessToken";
+
 export type ProviderStatus = "configured" | "unconfigured" | "error";
 
 export type ProviderConfig = {
   id: ProviderId;
-  apiKey: string;
+  apiKey?: string;
+  accessToken?: string;
+  authType: ProviderAuthType;
   baseUrl?: string;
   enabled: boolean;
 };
@@ -37,6 +41,7 @@ export type ProviderDefinition = {
   iconColor: string;
   models: ProviderModelInfo[];
   supportsCustomEndpoint: boolean;
+  supportsAccessToken: boolean;
 };
 
 export type ProviderModelInfo = {

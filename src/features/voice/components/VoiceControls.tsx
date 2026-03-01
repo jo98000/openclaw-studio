@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { Mic, MicOff, Volume2, VolumeX, Settings2 } from "lucide-react";
-import type { VoiceConfig, VoiceProvider } from "../types";
+import type { VoiceProvider } from "../types";
 import { VOICE_PROVIDERS } from "../types";
 import {
   initVoiceStore,
@@ -20,7 +20,6 @@ type VoiceControlsProps = {
 
 export const VoiceControls = ({ agentId }: VoiceControlsProps) => {
   const t = useTranslations("voice");
-  const [refreshKey, setRefreshKey] = useState(0);
   const [showSettings, setShowSettings] = useState(false);
 
   useEffect(() => {
@@ -92,7 +91,7 @@ export const VoiceControls = ({ agentId }: VoiceControlsProps) => {
   const providerInfo = VOICE_PROVIDERS.find((p) => p.id === provider);
 
   return (
-    <div className="flex h-full flex-col" data-testid="voice-controls">
+    <div className="flex min-h-0 flex-1 flex-col" data-testid="voice-controls">
       <div className="flex items-center gap-2 border-b border-border px-5 py-3">
         <Mic className="h-4 w-4 text-primary" aria-hidden="true" />
         <h2 className="text-sm font-semibold text-foreground">{t("title")}</h2>
@@ -127,7 +126,9 @@ export const VoiceControls = ({ agentId }: VoiceControlsProps) => {
                 ) : (
                   <Mic className="h-3.5 w-3.5" />
                 )}
-                {session?.state === "listening" ? t("stopListening") : t("startListening")}
+                {session?.state === "listening"
+                  ? t("stopListening")
+                  : t("startListening")}
               </button>
 
               <button
@@ -179,7 +180,9 @@ export const VoiceControls = ({ agentId }: VoiceControlsProps) => {
                   </label>
                   <select
                     value={provider}
-                    onChange={(e) => setProvider(e.target.value as VoiceProvider)}
+                    onChange={(e) =>
+                      setProvider(e.target.value as VoiceProvider)
+                    }
                     className="ui-input w-full text-xs"
                   >
                     {VOICE_PROVIDERS.map((p) => (
@@ -266,7 +269,11 @@ export const VoiceControls = ({ agentId }: VoiceControlsProps) => {
                   {t("currentConfig")}
                 </p>
                 <p className="mt-1 text-xs text-foreground">
-                  {VOICE_PROVIDERS.find((p) => p.id === currentConfig.provider)?.label} — {currentConfig.language} — {currentConfig.speed}x
+                  {
+                    VOICE_PROVIDERS.find((p) => p.id === currentConfig.provider)
+                      ?.label
+                  }{" "}
+                  — {currentConfig.language} — {currentConfig.speed}x
                 </p>
               </div>
             ) : null}

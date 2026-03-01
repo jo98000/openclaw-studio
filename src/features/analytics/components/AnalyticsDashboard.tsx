@@ -4,7 +4,12 @@ import { useState, useEffect, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { BarChart3 } from "lucide-react";
 import type { TimeRange } from "../types";
-import { initCollector, getMetrics, getTimeSeries, getAgentLeaderboard } from "../analyticsCollector";
+import {
+  initCollector,
+  getMetrics,
+  getTimeSeries,
+  getAgentLeaderboard,
+} from "../analyticsCollector";
 import { MetricCard } from "./MetricCard";
 import { TimeSeriesChart } from "./TimeSeriesChart";
 import { AgentLeaderboard } from "./AgentLeaderboard";
@@ -40,11 +45,16 @@ export const AnalyticsDashboard = () => {
   const leaderboard = useMemo(() => getAgentLeaderboard(range), [range]);
 
   return (
-    <div className="flex h-full flex-col" data-testid="analytics-dashboard">
+    <div
+      className="flex min-h-0 flex-1 flex-col"
+      data-testid="analytics-dashboard"
+    >
       <div className="flex items-center justify-between border-b border-border px-5 py-3">
         <div className="flex items-center gap-2">
           <BarChart3 className="h-4 w-4 text-primary" aria-hidden="true" />
-          <h2 className="text-sm font-semibold text-foreground">{t("title")}</h2>
+          <h2 className="text-sm font-semibold text-foreground">
+            {t("title")}
+          </h2>
         </div>
         <div className="flex gap-1">
           {TIME_RANGES.map((tr) => (

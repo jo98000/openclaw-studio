@@ -25,7 +25,8 @@
     "canvas": "Canvas",
     "intercom": "Agent Intercom",
     "voice": "Voice",
-    "gatewayConnection": "Gateway connection"
+    "gatewayConnection": "Gateway connection",
+    "noProvidersConfigured": "No providers configured"
   },
   "fleet": {
     "title": "Agents ({count})",
@@ -73,15 +74,18 @@
   "providers": {
     "title": "AI Providers",
     "configured": "{count}/{total}",
-    "description": "Configure API keys to unlock different AI models. Each agent can use a different provider.",
+    "description": "Configure API keys to unlock different AI models. Only configured providers appear in the model selector.",
     "active": "Active",
     "customModels": "Custom models — configure endpoint",
     "keySet": "Key set",
     "addApiKey": "Add API Key",
     "removeProvider": "Remove provider",
+    "authMethod": "Authentication method",
     "apiKeyLabel": "API Key",
     "apiKeyPlaceholder": "sk-...",
     "apiKeyRequired": "API key is required",
+    "accessTokenLabel": "Access Token",
+    "accessTokenPlaceholder": "Bearer token...",
     "baseUrlLabel": "Base URL",
     "baseUrlOptional": "optional",
     "baseUrlPlaceholder": "https://api.openai.com/v1",
@@ -89,7 +93,15 @@
     "documentation": "{name} documentation",
     "availableModels": "Available models",
     "searchPlaceholder": "Search providers...",
-    "noResults": "No providers match your search."
+    "noResults": "No providers match your search.",
+    "configuredSection": "Configured",
+    "availableSection": "Available",
+    "allConfigured": "All providers are configured.",
+    "testConnection": "Test connection",
+    "connectionValid": "Connection successful",
+    "connectionFailed": "Connection failed: {error}",
+    "showSecret": "Show secret",
+    "hideSecret": "Hide secret"
   },
   "credentials": {
     "title": "Credentials",
@@ -355,7 +367,9 @@
     "context": "context",
     "think": "THINK",
     "noModels": "No models found",
-    "selectModel": "Select model"
+    "selectModel": "Select model",
+    "configureProviders": "Configure AI Providers",
+    "noConfiguredProviders": "No providers configured yet"
   },
   "systemSkills": {
     "title": "System skill setup",

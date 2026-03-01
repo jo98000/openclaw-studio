@@ -52,7 +52,7 @@ export const SkillsBrowser = () => {
   }, [search, category]);
 
   const selectedSkill = selectedSkillId
-    ? SKILLS_REGISTRY.find((s) => s.id === selectedSkillId) ?? null
+    ? (SKILLS_REGISTRY.find((s) => s.id === selectedSkillId) ?? null)
     : null;
 
   const handleInstall = useCallback(
@@ -79,11 +79,13 @@ export const SkillsBrowser = () => {
   const installedCount = installed.length;
 
   return (
-    <div className="flex h-full flex-col" data-testid="skills-browser">
+    <div className="flex min-h-0 flex-1 flex-col" data-testid="skills-browser">
       <div className="flex items-center justify-between border-b border-border px-5 py-3">
         <div className="flex items-center gap-2">
           <Puzzle className="h-4 w-4 text-primary" aria-hidden="true" />
-          <h2 className="text-sm font-semibold text-foreground">{t("title")}</h2>
+          <h2 className="text-sm font-semibold text-foreground">
+            {t("title")}
+          </h2>
           <span className="rounded-full bg-surface-2 px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
             {installedCount} {t("installed")}
           </span>
@@ -94,7 +96,10 @@ export const SkillsBrowser = () => {
         <p className="mb-3 text-xs text-muted-foreground">{t("description")}</p>
 
         <div className="relative mb-3">
-          <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
+          <Search
+            className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground"
+            aria-hidden="true"
+          />
           <input
             type="text"
             value={search}
@@ -135,7 +140,9 @@ export const SkillsBrowser = () => {
         </div>
 
         {filtered.length === 0 && (
-          <p className="py-8 text-center text-xs text-muted-foreground">{t("noResults")}</p>
+          <p className="py-8 text-center text-xs text-muted-foreground">
+            {t("noResults")}
+          </p>
         )}
       </div>
 

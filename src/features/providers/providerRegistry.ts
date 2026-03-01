@@ -8,6 +8,7 @@ export const PROVIDER_REGISTRY: ProviderDefinition[] = [
     docsUrl: "https://docs.anthropic.com",
     iconColor: "#D97757",
     supportsCustomEndpoint: false,
+    supportsAccessToken: false,
     models: [
       {
         id: "claude-opus-4-6-20260301",
@@ -58,6 +59,7 @@ export const PROVIDER_REGISTRY: ProviderDefinition[] = [
     docsUrl: "https://platform.openai.com/docs",
     iconColor: "#10A37F",
     supportsCustomEndpoint: true,
+    supportsAccessToken: true,
     models: [
       {
         id: "gpt-4.1",
@@ -108,6 +110,7 @@ export const PROVIDER_REGISTRY: ProviderDefinition[] = [
     docsUrl: "https://docs.perplexity.ai",
     iconColor: "#20808D",
     supportsCustomEndpoint: false,
+    supportsAccessToken: false,
     models: [
       {
         id: "sonar-pro",
@@ -134,6 +137,7 @@ export const PROVIDER_REGISTRY: ProviderDefinition[] = [
     docsUrl: "https://ai.google.dev/docs",
     iconColor: "#4285F4",
     supportsCustomEndpoint: false,
+    supportsAccessToken: true,
     models: [
       {
         id: "gemini-2.5-pro",
@@ -168,6 +172,7 @@ export const PROVIDER_REGISTRY: ProviderDefinition[] = [
     docsUrl: "https://docs.mistral.ai",
     iconColor: "#FF7000",
     supportsCustomEndpoint: false,
+    supportsAccessToken: false,
     models: [
       {
         id: "mistral-large-latest",
@@ -210,6 +215,7 @@ export const PROVIDER_REGISTRY: ProviderDefinition[] = [
     docsUrl: "https://console.groq.com/docs",
     iconColor: "#F55036",
     supportsCustomEndpoint: false,
+    supportsAccessToken: false,
     models: [
       {
         id: "llama-3.3-70b-versatile",
@@ -244,6 +250,7 @@ export const PROVIDER_REGISTRY: ProviderDefinition[] = [
     docsUrl: "https://openrouter.ai/docs",
     iconColor: "#6366F1",
     supportsCustomEndpoint: false,
+    supportsAccessToken: true,
     models: [
       {
         id: "openrouter/auto",
@@ -262,6 +269,7 @@ export const PROVIDER_REGISTRY: ProviderDefinition[] = [
     docsUrl: "https://ollama.com",
     iconColor: "#1A1A1A",
     supportsCustomEndpoint: true,
+    supportsAccessToken: false,
     models: [
       {
         id: "llama3.3",
@@ -296,6 +304,7 @@ export const PROVIDER_REGISTRY: ProviderDefinition[] = [
     docsUrl: "https://platform.deepseek.com/docs",
     iconColor: "#4D6BFE",
     supportsCustomEndpoint: false,
+    supportsAccessToken: false,
     models: [
       {
         id: "deepseek-chat",
@@ -322,6 +331,7 @@ export const PROVIDER_REGISTRY: ProviderDefinition[] = [
     docsUrl: "https://docs.together.ai",
     iconColor: "#0EA5E9",
     supportsCustomEndpoint: false,
+    supportsAccessToken: false,
     models: [
       {
         id: "meta-llama/Llama-3.3-70B-Instruct-Turbo",
@@ -348,6 +358,7 @@ export const PROVIDER_REGISTRY: ProviderDefinition[] = [
     docsUrl: "https://docs.fireworks.ai",
     iconColor: "#FF6B2B",
     supportsCustomEndpoint: false,
+    supportsAccessToken: false,
     models: [
       {
         id: "accounts/fireworks/models/llama-v3p3-70b-instruct",
@@ -366,6 +377,7 @@ export const PROVIDER_REGISTRY: ProviderDefinition[] = [
     docsUrl: "https://docs.cohere.com",
     iconColor: "#39594D",
     supportsCustomEndpoint: false,
+    supportsAccessToken: false,
     models: [
       {
         id: "command-r-plus",
@@ -392,6 +404,7 @@ export const PROVIDER_REGISTRY: ProviderDefinition[] = [
     docsUrl: "https://docs.aws.amazon.com/bedrock",
     iconColor: "#FF9900",
     supportsCustomEndpoint: true,
+    supportsAccessToken: true,
     models: [
       {
         id: "anthropic.claude-sonnet-4-5-20250414-v1:0",
@@ -418,6 +431,7 @@ export const PROVIDER_REGISTRY: ProviderDefinition[] = [
     docsUrl: "https://learn.microsoft.com/azure/ai-services/openai",
     iconColor: "#0078D4",
     supportsCustomEndpoint: true,
+    supportsAccessToken: true,
     models: [
       {
         id: "gpt-4o",
@@ -436,6 +450,7 @@ export const PROVIDER_REGISTRY: ProviderDefinition[] = [
     docsUrl: "https://developers.cloudflare.com/workers-ai",
     iconColor: "#F48120",
     supportsCustomEndpoint: true,
+    supportsAccessToken: true,
     models: [
       {
         id: "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
@@ -454,6 +469,7 @@ export const PROVIDER_REGISTRY: ProviderDefinition[] = [
     docsUrl: "https://build.nvidia.com",
     iconColor: "#76B900",
     supportsCustomEndpoint: true,
+    supportsAccessToken: false,
     models: [
       {
         id: "meta/llama-3.1-405b-instruct",
@@ -472,6 +488,7 @@ export const PROVIDER_REGISTRY: ProviderDefinition[] = [
     docsUrl: "https://huggingface.co/docs/api-inference",
     iconColor: "#FFD21E",
     supportsCustomEndpoint: true,
+    supportsAccessToken: true,
     models: [
       {
         id: "meta-llama/Llama-3.3-70B-Instruct",
@@ -490,6 +507,7 @@ export const PROVIDER_REGISTRY: ProviderDefinition[] = [
     docsUrl: "https://docs.x.ai",
     iconColor: "#000000",
     supportsCustomEndpoint: false,
+    supportsAccessToken: false,
     models: [
       {
         id: "grok-3",
@@ -517,6 +535,7 @@ export const PROVIDER_REGISTRY: ProviderDefinition[] = [
     docsUrl: "https://docs.litellm.ai",
     iconColor: "#1E40AF",
     supportsCustomEndpoint: true,
+    supportsAccessToken: false,
     models: [
       {
         id: "litellm/auto",
@@ -535,6 +554,7 @@ export const PROVIDER_REGISTRY: ProviderDefinition[] = [
     docsUrl: "",
     iconColor: "#6B7280",
     supportsCustomEndpoint: true,
+    supportsAccessToken: true,
     models: [],
   },
 ];

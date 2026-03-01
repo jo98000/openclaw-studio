@@ -2,7 +2,14 @@
 
 import { useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
-import { Webhook, Plus, Trash2, Pencil, ToggleLeft, ToggleRight } from "lucide-react";
+import {
+  Webhook,
+  Plus,
+  Trash2,
+  Pencil,
+  ToggleLeft,
+  ToggleRight,
+} from "lucide-react";
 import { toast } from "sonner";
 import type { WebhookConfig } from "../types";
 import {
@@ -17,7 +24,9 @@ import { WebhookCreateModal } from "./WebhookCreateModal";
 export const WebhooksPanel = () => {
   const t = useTranslations("webhooks");
   const [webhooks, setWebhooks] = useState<WebhookConfig[]>(loadWebhooks);
-  const [editingWebhook, setEditingWebhook] = useState<WebhookConfig | null>(null);
+  const [editingWebhook, setEditingWebhook] = useState<WebhookConfig | null>(
+    null,
+  );
   const [showEditor, setShowEditor] = useState(false);
 
   const handleSave = useCallback(
@@ -59,11 +68,13 @@ export const WebhooksPanel = () => {
   const enabledCount = webhooks.filter((w) => w.enabled).length;
 
   return (
-    <div className="flex h-full flex-col" data-testid="webhooks-panel">
+    <div className="flex min-h-0 flex-1 flex-col" data-testid="webhooks-panel">
       <div className="flex items-center justify-between border-b border-border px-5 py-3">
         <div className="flex items-center gap-2">
           <Webhook className="h-4 w-4 text-primary" aria-hidden="true" />
-          <h2 className="text-sm font-semibold text-foreground">{t("title")}</h2>
+          <h2 className="text-sm font-semibold text-foreground">
+            {t("title")}
+          </h2>
           <span className="rounded-full bg-surface-2 px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
             {enabledCount}/{webhooks.length}
           </span>
@@ -84,7 +95,9 @@ export const WebhooksPanel = () => {
         <p className="mb-3 text-xs text-muted-foreground">{t("description")}</p>
 
         {webhooks.length === 0 ? (
-          <p className="py-8 text-center text-xs text-muted-foreground">{t("noWebhooks")}</p>
+          <p className="py-8 text-center text-xs text-muted-foreground">
+            {t("noWebhooks")}
+          </p>
         ) : (
           <div className="space-y-2">
             {webhooks.map((wh) => (
@@ -105,8 +118,12 @@ export const WebhooksPanel = () => {
                   )}
                 </button>
                 <div className="min-w-0 flex-1">
-                  <span className="truncate text-sm font-medium text-foreground">{wh.name}</span>
-                  <p className="truncate text-[11px] text-muted-foreground">{wh.url}</p>
+                  <span className="truncate text-sm font-medium text-foreground">
+                    {wh.name}
+                  </span>
+                  <p className="truncate text-[11px] text-muted-foreground">
+                    {wh.url}
+                  </p>
                   <p className="text-[10px] text-muted-foreground">
                     {wh.events.length} {t("eventsLabel")}
                   </p>

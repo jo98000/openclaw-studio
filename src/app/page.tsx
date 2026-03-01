@@ -121,8 +121,11 @@ import {
   type GatewayModelPolicySnapshot,
   buildStaticModelCatalog,
   mergeModelCatalogs,
+  filterModelsByConfiguredProviders,
 } from "@/lib/gateway/models";
 import { PROVIDER_REGISTRY } from "@/features/providers/providerRegistry";
+import { ProviderStoreProvider } from "@/features/providers/ProviderStoreProvider";
+import { useProviderStore } from "@/features/providers/providerStore";
 import {
   AgentStoreProvider,
   getFilteredAgents,
@@ -360,13 +363,21 @@ const AgentStudioPage = () => {
   const [gatewayModelsError, setGatewayModelsError] = useState<string | null>(
     null,
   );
+  const { getConfiguredProviderIds } = useProviderStore();
+  const configuredProviderIds = useMemo(
+    () => getConfiguredProviderIds(),
+    [getConfiguredProviderIds],
+  );
   const allModels = useMemo(
     () =>
-      mergeModelCatalogs(
-        gatewayModels,
-        buildStaticModelCatalog(PROVIDER_REGISTRY),
+      filterModelsByConfiguredProviders(
+        mergeModelCatalogs(
+          gatewayModels,
+          buildStaticModelCatalog(PROVIDER_REGISTRY),
+        ),
+        configuredProviderIds,
       ),
-    [gatewayModels],
+    [gatewayModels, configuredProviderIds],
   );
   const [gatewayConfigSnapshot, setGatewayConfigSnapshot] =
     useState<GatewayModelPolicySnapshot | null>(null);
@@ -1502,6 +1513,8 @@ const AgentStudioPage = () => {
             onCanvas={() => setShowCanvas(true)}
             onIntercom={() => setShowIntercom(true)}
             onVoice={() => setShowVoice(true)}
+            configuredProviderCount={configuredProviderIds.length}
+            totalProviderCount={PROVIDER_REGISTRY.length}
           />
           <div className="flex min-h-0 flex-1 flex-col gap-4 px-3 pb-3 pt-3 sm:px-4 sm:pb-4 sm:pt-4 md:px-6 md:pb-6 md:pt-4">
             {settingsRouteActive ? (
@@ -1572,11 +1585,16 @@ const AgentStudioPage = () => {
           onCanvas={() => setShowCanvas((prev) => !prev)}
           onIntercom={() => setShowIntercom((prev) => !prev)}
           onVoice={() => setShowVoice((prev) => !prev)}
+          configuredProviderCount={configuredProviderIds.length}
+          totalProviderCount={PROVIDER_REGISTRY.length}
         />
         <div className="flex min-h-0 flex-1 flex-col gap-3 px-3 pb-3 pt-2 sm:px-4 sm:pb-4 sm:pt-3 md:px-5 md:pb-5 md:pt-3">
           {showProvidersPanel ? (
             <div className="pointer-events-none fixed inset-x-0 top-12 z-[140] flex justify-center px-3 sm:px-4 md:px-5">
-              <div className="glass-panel pointer-events-auto w-full max-w-3xl !bg-card">
+              <div
+                className="glass-panel pointer-events-auto flex w-full max-w-3xl flex-col overflow-hidden !bg-card"
+                style={{ maxHeight: "calc(100vh - 5rem)" }}
+              >
                 <ErrorBoundary fallbackLabel={tp("providersError")}>
                   <ProvidersPanel />
                 </ErrorBoundary>
@@ -1594,7 +1612,10 @@ const AgentStudioPage = () => {
           ) : null}
           {showChannelsPanel ? (
             <div className="pointer-events-none fixed inset-x-0 top-12 z-[140] flex justify-center px-3 sm:px-4 md:px-5">
-              <div className="glass-panel pointer-events-auto w-full max-w-3xl !bg-card">
+              <div
+                className="glass-panel pointer-events-auto flex w-full max-w-3xl flex-col overflow-hidden !bg-card"
+                style={{ maxHeight: "calc(100vh - 5rem)" }}
+              >
                 <ErrorBoundary fallbackLabel={tp("channelsError")}>
                   <ChannelsPanel />
                 </ErrorBoundary>
@@ -1612,7 +1633,10 @@ const AgentStudioPage = () => {
           ) : null}
           {showRoutingPanel ? (
             <div className="pointer-events-none fixed inset-x-0 top-12 z-[140] flex justify-center px-3 sm:px-4 md:px-5">
-              <div className="glass-panel pointer-events-auto w-full max-w-3xl !bg-card">
+              <div
+                className="glass-panel pointer-events-auto flex w-full max-w-3xl flex-col overflow-hidden !bg-card"
+                style={{ maxHeight: "calc(100vh - 5rem)" }}
+              >
                 <ErrorBoundary fallbackLabel={tp("routingError")}>
                   <RoutingPanel agents={agents} />
                 </ErrorBoundary>
@@ -1630,7 +1654,10 @@ const AgentStudioPage = () => {
           ) : null}
           {showWebhooksPanel ? (
             <div className="pointer-events-none fixed inset-x-0 top-12 z-[140] flex justify-center px-3 sm:px-4 md:px-5">
-              <div className="glass-panel pointer-events-auto w-full max-w-3xl !bg-card">
+              <div
+                className="glass-panel pointer-events-auto flex w-full max-w-3xl flex-col overflow-hidden !bg-card"
+                style={{ maxHeight: "calc(100vh - 5rem)" }}
+              >
                 <ErrorBoundary fallbackLabel={tp("webhooksError")}>
                   <WebhooksPanel />
                 </ErrorBoundary>
@@ -1648,7 +1675,10 @@ const AgentStudioPage = () => {
           ) : null}
           {showSkillsBrowser ? (
             <div className="pointer-events-none fixed inset-x-0 top-12 z-[140] flex justify-center px-3 sm:px-4 md:px-5">
-              <div className="glass-panel pointer-events-auto w-full max-w-3xl !bg-card">
+              <div
+                className="glass-panel pointer-events-auto flex w-full max-w-3xl flex-col overflow-hidden !bg-card"
+                style={{ maxHeight: "calc(100vh - 5rem)" }}
+              >
                 <ErrorBoundary fallbackLabel={tp("skillsError")}>
                   <SkillsBrowser />
                 </ErrorBoundary>
@@ -1666,7 +1696,10 @@ const AgentStudioPage = () => {
           ) : null}
           {showAnalytics ? (
             <div className="pointer-events-none fixed inset-x-0 top-12 z-[140] flex justify-center px-3 sm:px-4 md:px-5">
-              <div className="glass-panel pointer-events-auto w-full max-w-4xl !bg-card">
+              <div
+                className="glass-panel pointer-events-auto flex w-full max-w-4xl flex-col overflow-hidden !bg-card"
+                style={{ maxHeight: "calc(100vh - 5rem)" }}
+              >
                 <ErrorBoundary fallbackLabel={tp("analyticsError")}>
                   <AnalyticsDashboard />
                 </ErrorBoundary>
@@ -1685,8 +1718,8 @@ const AgentStudioPage = () => {
           {showLogViewer ? (
             <div className="pointer-events-none fixed inset-x-0 top-12 z-[140] flex justify-center px-3 sm:px-4 md:px-5">
               <div
-                className="glass-panel pointer-events-auto w-full max-w-4xl !bg-card"
-                style={{ maxHeight: "70vh" }}
+                className="glass-panel pointer-events-auto flex w-full max-w-4xl flex-col overflow-hidden !bg-card"
+                style={{ maxHeight: "calc(100vh - 5rem)" }}
               >
                 <ErrorBoundary fallbackLabel={tp("logViewerError")}>
                   <LogViewer />
@@ -1706,8 +1739,8 @@ const AgentStudioPage = () => {
           {showCanvas ? (
             <div className="pointer-events-none fixed inset-x-0 top-12 z-[140] flex justify-center px-3 sm:px-4 md:px-5">
               <div
-                className="glass-panel pointer-events-auto w-full max-w-3xl !bg-card"
-                style={{ maxHeight: "70vh" }}
+                className="glass-panel pointer-events-auto flex w-full max-w-3xl flex-col overflow-hidden !bg-card"
+                style={{ maxHeight: "calc(100vh - 5rem)" }}
               >
                 <ErrorBoundary fallbackLabel={tp("canvasPreviewError")}>
                   <CanvasPreview />
@@ -1727,8 +1760,8 @@ const AgentStudioPage = () => {
           {showIntercom ? (
             <div className="pointer-events-none fixed inset-x-0 top-12 z-[140] flex justify-center px-3 sm:px-4 md:px-5">
               <div
-                className="glass-panel pointer-events-auto w-full max-w-3xl !bg-card"
-                style={{ maxHeight: "70vh" }}
+                className="glass-panel pointer-events-auto flex w-full max-w-3xl flex-col overflow-hidden !bg-card"
+                style={{ maxHeight: "calc(100vh - 5rem)" }}
               >
                 <ErrorBoundary fallbackLabel={tp("interAgentFeedError")}>
                   <InterAgentFeed />
@@ -1747,7 +1780,10 @@ const AgentStudioPage = () => {
           ) : null}
           {showVoice ? (
             <div className="pointer-events-none fixed inset-x-0 top-12 z-[140] flex justify-center px-3 sm:px-4 md:px-5">
-              <div className="glass-panel pointer-events-auto w-full max-w-3xl !bg-card">
+              <div
+                className="glass-panel pointer-events-auto flex w-full max-w-3xl flex-col overflow-hidden !bg-card"
+                style={{ maxHeight: "calc(100vh - 5rem)" }}
+              >
                 <ErrorBoundary fallbackLabel={tp("voiceControlsError")}>
                   <VoiceControls />
                 </ErrorBoundary>
@@ -1765,7 +1801,10 @@ const AgentStudioPage = () => {
           ) : null}
           {connectionPanelVisible ? (
             <div className="pointer-events-none fixed inset-x-0 top-12 z-[140] flex justify-center px-3 sm:px-4 md:px-5">
-              <div className="glass-panel pointer-events-auto w-full max-w-4xl !bg-card px-4 py-4 sm:px-6 sm:py-6">
+              <div
+                className="glass-panel pointer-events-auto flex w-full max-w-4xl flex-col overflow-hidden !bg-card px-4 py-4 sm:px-6 sm:py-6"
+                style={{ maxHeight: "calc(100vh - 5rem)" }}
+              >
                 <ConnectionPanel
                   gatewayUrl={gatewayUrl}
                   token={token}
@@ -2415,8 +2454,10 @@ const AgentStudioPage = () => {
 
 export default function Home() {
   return (
-    <AgentStoreProvider>
-      <AgentStudioPage />
-    </AgentStoreProvider>
+    <ProviderStoreProvider>
+      <AgentStoreProvider>
+        <AgentStudioPage />
+      </AgentStoreProvider>
+    </ProviderStoreProvider>
   );
 }

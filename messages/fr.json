@@ -25,7 +25,8 @@
     "canvas": "Canvas",
     "intercom": "Intercom agents",
     "voice": "Voix",
-    "gatewayConnection": "Connexion gateway"
+    "gatewayConnection": "Connexion gateway",
+    "noProvidersConfigured": "Aucun fournisseur configuré"
   },
   "fleet": {
     "title": "Agents ({count})",
@@ -89,7 +90,18 @@
     "documentation": "Documentation {name}",
     "availableModels": "Modèles disponibles",
     "searchPlaceholder": "Rechercher des fournisseurs...",
-    "noResults": "Aucun fournisseur ne correspond à votre recherche."
+    "noResults": "Aucun fournisseur ne correspond à votre recherche.",
+    "authMethod": "Méthode d'authentification",
+    "accessTokenLabel": "Jeton d'accès",
+    "accessTokenPlaceholder": "Jeton Bearer...",
+    "configuredSection": "Configurés",
+    "availableSection": "Disponibles",
+    "allConfigured": "Tous les fournisseurs sont configurés.",
+    "testConnection": "Tester la connexion",
+    "connectionValid": "Connexion réussie",
+    "connectionFailed": "Connexion échouée : {error}",
+    "showSecret": "Afficher le secret",
+    "hideSecret": "Masquer le secret"
   },
   "credentials": {
     "title": "Identifiants",
@@ -355,7 +367,9 @@
     "context": "contexte",
     "think": "RÉFLEXION",
     "noModels": "Aucun modèle trouvé",
-    "selectModel": "Choisir un modèle"
+    "selectModel": "Choisir un modèle",
+    "configureProviders": "Configurer les fournisseurs IA",
+    "noConfiguredProviders": "Aucun fournisseur configuré"
   },
   "systemSkills": {
     "title": "Configuration système des skills",

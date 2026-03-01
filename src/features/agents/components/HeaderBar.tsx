@@ -3,7 +3,19 @@ import { useTranslations } from "next-intl";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LocaleSwitcher } from "@/components/LocaleSwitcher";
 import type { GatewayStatus } from "@/lib/gateway/GatewayClient";
-import { Plug, Layers, Radio, GitBranch, Webhook, Puzzle, BarChart3, ScrollText, MonitorPlay, MessageSquare, Mic } from "lucide-react";
+import {
+  Plug,
+  Layers,
+  Radio,
+  GitBranch,
+  Webhook,
+  Puzzle,
+  BarChart3,
+  ScrollText,
+  MonitorPlay,
+  MessageSquare,
+  Mic,
+} from "lucide-react";
 import { resolveGatewayStatusBadgeClass } from "./colorSemantics";
 
 type HeaderBarProps = {
@@ -20,6 +32,8 @@ type HeaderBarProps = {
   onIntercom?: () => void;
   onVoice?: () => void;
   showConnectionSettings?: boolean;
+  configuredProviderCount?: number;
+  totalProviderCount?: number;
 };
 
 export const HeaderBar = ({
@@ -36,6 +50,8 @@ export const HeaderBar = ({
   onIntercom,
   onVoice,
   showConnectionSettings = true,
+  configuredProviderCount = 0,
+  totalProviderCount = 0,
 }: HeaderBarProps) => {
   const t = useTranslations("header");
   const [menuOpen, setMenuOpen] = useState(false);
@@ -76,6 +92,23 @@ export const HeaderBar = ({
               {t("connecting")}
             </span>
           ) : null}
+          {onProviders ? (
+            <button
+              type="button"
+              className="ui-btn-icon ui-btn-icon-xs relative"
+              data-testid="providers-direct-toggle"
+              aria-label={t("aiProviders")}
+              onClick={onProviders}
+            >
+              <Layers className="h-3.5 w-3.5" />
+              {configuredProviderCount === 0 && totalProviderCount > 0 ? (
+                <span
+                  className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-destructive"
+                  aria-label={t("noProvidersConfigured")}
+                />
+              ) : null}
+            </button>
+          ) : null}
           <LocaleSwitcher />
           <ThemeToggle />
           {showConnectionSettings ? (
@@ -103,8 +136,16 @@ export const HeaderBar = ({
                       }}
                       data-testid="providers-toggle"
                     >
-                      <Layers className="mr-2 inline h-3 w-3" aria-hidden="true" />
+                      <Layers
+                        className="mr-2 inline h-3 w-3"
+                        aria-hidden="true"
+                      />
                       {t("aiProviders")}
+                      {configuredProviderCount > 0 ? (
+                        <span className="ml-auto text-[9px] text-muted-foreground">
+                          {configuredProviderCount}/{totalProviderCount}
+                        </span>
+                      ) : null}
                     </button>
                   ) : null}
                   {onChannels ? (
@@ -117,7 +158,10 @@ export const HeaderBar = ({
                       }}
                       data-testid="channels-toggle"
                     >
-                      <Radio className="mr-2 inline h-3 w-3" aria-hidden="true" />
+                      <Radio
+                        className="mr-2 inline h-3 w-3"
+                        aria-hidden="true"
+                      />
                       {t("channels")}
                     </button>
                   ) : null}
@@ -131,7 +175,10 @@ export const HeaderBar = ({
                       }}
                       data-testid="routing-toggle"
                     >
-                      <GitBranch className="mr-2 inline h-3 w-3" aria-hidden="true" />
+                      <GitBranch
+                        className="mr-2 inline h-3 w-3"
+                        aria-hidden="true"
+                      />
                       {t("routing")}
                     </button>
                   ) : null}
@@ -145,7 +192,10 @@ export const HeaderBar = ({
                       }}
                       data-testid="webhooks-toggle"
                     >
-                      <Webhook className="mr-2 inline h-3 w-3" aria-hidden="true" />
+                      <Webhook
+                        className="mr-2 inline h-3 w-3"
+                        aria-hidden="true"
+                      />
                       {t("webhooks")}
                     </button>
                   ) : null}
@@ -159,7 +209,10 @@ export const HeaderBar = ({
                       }}
                       data-testid="skills-toggle"
                     >
-                      <Puzzle className="mr-2 inline h-3 w-3" aria-hidden="true" />
+                      <Puzzle
+                        className="mr-2 inline h-3 w-3"
+                        aria-hidden="true"
+                      />
                       {t("skillsBrowser")}
                     </button>
                   ) : null}
@@ -173,7 +226,10 @@ export const HeaderBar = ({
                       }}
                       data-testid="canvas-toggle"
                     >
-                      <MonitorPlay className="mr-2 inline h-3 w-3" aria-hidden="true" />
+                      <MonitorPlay
+                        className="mr-2 inline h-3 w-3"
+                        aria-hidden="true"
+                      />
                       {t("canvas")}
                     </button>
                   ) : null}
@@ -187,7 +243,10 @@ export const HeaderBar = ({
                       }}
                       data-testid="intercom-toggle"
                     >
-                      <MessageSquare className="mr-2 inline h-3 w-3" aria-hidden="true" />
+                      <MessageSquare
+                        className="mr-2 inline h-3 w-3"
+                        aria-hidden="true"
+                      />
                       {t("intercom")}
                     </button>
                   ) : null}
@@ -216,7 +275,10 @@ export const HeaderBar = ({
                       }}
                       data-testid="analytics-toggle"
                     >
-                      <BarChart3 className="mr-2 inline h-3 w-3" aria-hidden="true" />
+                      <BarChart3
+                        className="mr-2 inline h-3 w-3"
+                        aria-hidden="true"
+                      />
                       {t("analytics")}
                     </button>
                   ) : null}
@@ -230,7 +292,10 @@ export const HeaderBar = ({
                       }}
                       data-testid="logs-toggle"
                     >
-                      <ScrollText className="mr-2 inline h-3 w-3" aria-hidden="true" />
+                      <ScrollText
+                        className="mr-2 inline h-3 w-3"
+                        aria-hidden="true"
+                      />
                       {t("logs")}
                     </button>
                   ) : null}

@@ -1,5 +1,5 @@
 import { useTranslations } from "next-intl";
-import { Check, KeyRound, Settings } from "lucide-react";
+import { Check, KeyRound, Settings, Shield, Globe } from "lucide-react";
 import type { ProviderWithStatus } from "../types";
 
 type ProviderCardProps = {
@@ -11,6 +11,9 @@ export const ProviderCard = ({ provider, onConfigure }: ProviderCardProps) => {
   const t = useTranslations("providers");
   const tc = useTranslations("common");
   const isConfigured = provider.status === "configured";
+  const isOllama = provider.id === "ollama";
+  const authType = provider.config?.authType ?? "apiKey";
+  const secret = provider.config?.apiKey || provider.config?.accessToken || "";
 
   return (
     <div
@@ -31,8 +34,20 @@ export const ProviderCard = ({ provider, onConfigure }: ProviderCardProps) => {
             {provider.name.slice(0, 2).toUpperCase()}
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-foreground">{provider.name}</h3>
-            <p className="text-[11px] text-muted-foreground">{provider.description}</p>
+            <div className="flex items-center gap-1.5">
+              <h3 className="text-sm font-semibold text-foreground">
+                {provider.name}
+              </h3>
+              {provider.models.length > 0 ? (
+                <span className="rounded-full bg-surface-2 px-1.5 py-0.5 text-[9px] font-medium text-muted-foreground">
+                  {provider.models.length}{" "}
+                  {provider.models.length === 1 ? "model" : "models"}
+                </span>
+              ) : null}
+            </div>
+            <p className="text-[11px] text-muted-foreground">
+              {provider.description}
+            </p>
           </div>
         </div>
         {isConfigured ? (
@@ -55,16 +70,35 @@ export const ProviderCard = ({ provider, onConfigure }: ProviderCardProps) => {
           ))}
         </div>
       ) : (
-        <p className="text-[10px] text-muted-foreground italic">{t("customModels")}</p>
+        <p className="text-[10px] text-muted-foreground italic">
+          {t("customModels")}
+        </p>
       )}
 
       {isConfigured ? (
         <div className="flex items-center justify-between">
           <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
-            <KeyRound className="h-3 w-3" aria-hidden="true" />
-            {provider.config?.apiKey
-              ? `${provider.config.apiKey.slice(0, 7)}${"*".repeat(8)}`
-              : t("keySet")}
+            {isOllama ? (
+              <>
+                <Globe className="h-3 w-3" aria-hidden="true" />
+                {provider.config?.baseUrl || "localhost:11434"}
+              </>
+            ) : authType === "accessToken" ? (
+              <>
+                <Shield className="h-3 w-3" aria-hidden="true" />
+                <span className="text-[9px] font-medium text-muted-foreground/70">
+                  Token
+                </span>
+                {secret
+                  ? ` ${secret.slice(0, 7)}${"*".repeat(8)}`
+                  : t("keySet")}
+              </>
+            ) : (
+              <>
+                <KeyRound className="h-3 w-3" aria-hidden="true" />
+                {secret ? `${secret.slice(0, 7)}${"*".repeat(8)}` : t("keySet")}
+              </>
+            )}
           </span>
           <button
             type="button"
