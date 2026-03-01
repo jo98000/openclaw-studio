@@ -2,9 +2,9 @@ import type { AgentStatus } from "@/features/agents/state/store";
 import type { GatewayStatus } from "@/lib/gateway/GatewayClient";
 
 export const AGENT_STATUS_LABEL: Record<AgentStatus, string> = {
-  idle: "Inactif",
-  running: "En cours",
-  error: "Erreur",
+  idle: "agentIdle",
+  running: "agentRunning",
+  error: "agentError",
 };
 
 export const AGENT_STATUS_BADGE_CLASS: Record<AgentStatus, string> = {
@@ -14,9 +14,9 @@ export const AGENT_STATUS_BADGE_CLASS: Record<AgentStatus, string> = {
 };
 
 export const GATEWAY_STATUS_LABEL: Record<GatewayStatus, string> = {
-  disconnected: "Déconnecté",
-  connecting: "Connexion",
-  connected: "Connecté",
+  disconnected: "gatewayDisconnected",
+  connecting: "gatewayConnecting",
+  connected: "gatewayConnected",
 };
 
 export const GATEWAY_STATUS_BADGE_CLASS: Record<GatewayStatus, string> = {

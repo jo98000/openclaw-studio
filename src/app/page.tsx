@@ -1713,17 +1713,60 @@ const AgentStudioPage = () => {
               </aside>
               <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
                 <div className="flex items-start justify-between border-b border-border/60 px-6 py-4">
-                  <div>
+                  <div className="min-w-0 flex-1">
                     <div className="text-lg font-semibold text-foreground">
                       {inspectSidebarAgent?.name ?? settingsRouteAgentId ?? "Agent settings"}
                     </div>
-                    <div className="mt-1 font-mono text-[11px] text-muted-foreground">
-                      Model: {settingsHeaderModel}{" "}
-                      <span className="mx-2 text-border">|</span>
-                      Thinking: {settingsHeaderThinking}
+                    <div className="mt-2 flex flex-wrap items-center gap-3">
+                      <label className="flex items-center gap-1.5 font-mono text-[11px] text-muted-foreground">
+                        <span className="font-semibold tracking-[0.04em]">Model</span>
+                        <select
+                          className="ui-input h-6 min-w-[140px] rounded-md px-1.5 text-[11px] font-semibold text-foreground"
+                          value={inspectSidebarAgent?.model ?? ""}
+                          onChange={(e) => {
+                            const agentId = inspectSidebarAgent?.agentId;
+                            const sessionKey = inspectSidebarAgent?.sessionKey;
+                            if (!agentId || !sessionKey) return;
+                            const next = e.target.value.trim();
+                            void handleModelChange(agentId, sessionKey, next || null);
+                          }}
+                        >
+                          <option value="">Default (gateway)</option>
+                          {gatewayModels.map((m) => {
+                            const key = `${m.provider}/${m.id}`;
+                            return (
+                              <option key={key} value={key}>
+                                {m.name || key}{m.reasoning ? " (Reasoning)" : ""}
+                              </option>
+                            );
+                          })}
+                        </select>
+                      </label>
+                      <label className="flex items-center gap-1.5 font-mono text-[11px] text-muted-foreground">
+                        <span className="font-semibold tracking-[0.04em]">Thinking</span>
+                        <select
+                          className="ui-input h-6 rounded-md px-1.5 text-[11px] font-semibold text-foreground"
+                          value={inspectSidebarAgent?.thinkingLevel ?? ""}
+                          onChange={(e) => {
+                            const agentId = inspectSidebarAgent?.agentId;
+                            const sessionKey = inspectSidebarAgent?.sessionKey;
+                            if (!agentId || !sessionKey) return;
+                            const next = e.target.value.trim();
+                            void handleThinkingChange(agentId, sessionKey, next || null);
+                          }}
+                        >
+                          <option value="">Default</option>
+                          <option value="off">Off</option>
+                          <option value="minimal">Minimal</option>
+                          <option value="low">Low</option>
+                          <option value="medium">Medium</option>
+                          <option value="high">High</option>
+                          <option value="xhigh">XHigh</option>
+                        </select>
+                      </label>
                     </div>
                   </div>
-                  <div className="rounded-md border border-border/70 bg-surface-1 px-3 py-1 font-mono text-[11px] text-muted-foreground">
+                  <div className="shrink-0 rounded-md border border-border/70 bg-surface-1 px-3 py-1 font-mono text-[11px] text-muted-foreground">
                     [{personalityHasUnsavedChanges ? "Unsaved" : "Saved ✓"}]
                   </div>
                 </div>
@@ -1756,6 +1799,16 @@ const AgentStudioPage = () => {
                             }
                             showHeader={false}
                             agent={inspectSidebarAgent}
+                            models={gatewayModels}
+                            onModelChange={(value) =>
+                              handleModelChange(inspectSidebarAgent.agentId, inspectSidebarAgent.sessionKey, value)
+                            }
+                            onThinkingChange={(value) =>
+                              handleThinkingChange(inspectSidebarAgent.agentId, inspectSidebarAgent.sessionKey, value)
+                            }
+                            onRename={(name) =>
+                              settingsMutationController.handleRenameAgent(inspectSidebarAgent.agentId, name)
+                            }
                             onClose={handleBackToChat}
                             permissionsDraft={settingsAgentPermissionsDraft ?? undefined}
                             onUpdateAgentPermissions={(draft) =>

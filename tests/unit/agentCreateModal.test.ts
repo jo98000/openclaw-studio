@@ -38,7 +38,7 @@ describe("AgentCreateModal", () => {
     const onSubmit = vi.fn();
     openModal({ onSubmit });
 
-    fireEvent.change(screen.getByLabelText("Agent name"), {
+    fireEvent.change(screen.getByLabelText("Name"), {
       target: { value: "Execution Operator" },
     });
     goToLastStep();
@@ -56,7 +56,7 @@ describe("AgentCreateModal", () => {
     const onSubmit = vi.fn();
     openModal({ onSubmit });
 
-    fireEvent.change(screen.getByLabelText("Agent name"), {
+    fireEvent.change(screen.getByLabelText("Name"), {
       target: { value: "Keyboard Agent" },
     });
     // Each form submit advances one step; third submit triggers launch
@@ -76,7 +76,7 @@ describe("AgentCreateModal", () => {
 
     // Step 0 has Next button, not Launch agent
     expect(screen.getByRole("button", { name: /Next/i })).toBeInTheDocument();
-    expect(screen.getByLabelText("Agent name")).toBeInTheDocument();
+    expect(screen.getByLabelText("Name")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Shuffle avatar selection" })).toBeInTheDocument();
     // Step indicator shows Identity, AI & Model, Capabilities
     expect(screen.getByText("Identity")).toBeInTheDocument();
@@ -90,7 +90,7 @@ describe("AgentCreateModal", () => {
     const onSubmit = vi.fn();
     openModal({ onSubmit });
 
-    fireEvent.change(screen.getByLabelText("Agent name"), {
+    fireEvent.change(screen.getByLabelText("Name"), {
       target: { value: "   " },
     });
     // Next button should be disabled when name is blank
@@ -128,7 +128,7 @@ describe("AgentCreateModal", () => {
       }))
     );
 
-    fireEvent.change(screen.getByLabelText("Agent name"), {
+    fireEvent.change(screen.getByLabelText("Name"), {
       target: { value: "My Draft Name" },
     });
 
@@ -141,6 +141,6 @@ describe("AgentCreateModal", () => {
       }))
     );
 
-    expect(screen.getByLabelText("Agent name")).toHaveValue("My Draft Name");
+    expect(screen.getByLabelText("Name")).toHaveValue("My Draft Name");
   });
 });

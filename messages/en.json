@@ -241,6 +241,7 @@
   "chat": {
     "jumpToLatest": "Jump to latest",
     "stop": "Stop",
+    "stopUnavailable": "Stop unavailable",
     "stopping": "Stopping",
     "send": "Send",
     "typeMessage": "type a message",
@@ -536,7 +537,22 @@
     "agentIdMissing": "Agent ID is missing for this agent.",
     "gatewayClientUnavailable": "Gateway client is not available.",
     "failedToLoadFiles": "Failed to load agent files.",
-    "failedToSaveFiles": "Failed to save agent files."
+    "failedToSaveFiles": "Failed to save agent files.",
+    "close": "Close",
+    "agentIdentity": "Agent identity",
+    "agentName": "Agent name",
+    "modelLabel": "Model",
+    "modelDefault": "Default (gateway setting)",
+    "reasoning": "Reasoning",
+    "thinkingLabel": "Thinking level",
+    "thinkingDefault": "Default",
+    "thinkingOff": "Off",
+    "thinkingMinimal": "Minimal",
+    "thinkingLow": "Low",
+    "thinkingMedium": "Medium",
+    "thinkingHigh": "High",
+    "thinkingXHigh": "XHigh",
+    "permissions": "Permissions"
   },
   "webhookEvents": {
     "agentStarted": "Agent started",

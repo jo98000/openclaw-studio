@@ -29,6 +29,7 @@ export const ConnectionPanel = ({
   onClose,
 }: ConnectionPanelProps) => {
   const t = useTranslations("connection");
+  const ts = useTranslations("status");
   const isConnected = status === "connected";
   const isConnecting = status === "connecting";
 
@@ -40,7 +41,7 @@ export const ConnectionPanel = ({
             className={`ui-chip inline-flex items-center px-3 py-1 font-mono text-[10px] font-semibold tracking-[0.08em] ${resolveGatewayStatusBadgeClass(status)}`}
             data-status={status}
           >
-            {resolveGatewayStatusLabel(status)}
+            {ts(resolveGatewayStatusLabel(status))}
           </span>
           <button
             className="ui-btn-secondary px-4 py-2 text-xs font-semibold tracking-[0.05em] text-foreground disabled:cursor-not-allowed disabled:opacity-60"

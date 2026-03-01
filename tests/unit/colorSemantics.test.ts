@@ -12,29 +12,29 @@ import {
 } from "@/features/agents/components/colorSemantics";
 
 describe("colorSemantics", () => {
-  it("maps agent statuses to semantic badge classes and labels", () => {
-    expect(AGENT_STATUS_LABEL.idle).toBe("Idle");
-    expect(AGENT_STATUS_LABEL.running).toBe("Running");
-    expect(AGENT_STATUS_LABEL.error).toBe("Error");
+  it("maps agent statuses to semantic badge classes and i18n label keys", () => {
+    expect(AGENT_STATUS_LABEL.idle).toBe("agentIdle");
+    expect(AGENT_STATUS_LABEL.running).toBe("agentRunning");
+    expect(AGENT_STATUS_LABEL.error).toBe("agentError");
 
     expect(AGENT_STATUS_BADGE_CLASS.idle).toBe("ui-badge-status-idle");
     expect(AGENT_STATUS_BADGE_CLASS.running).toBe("ui-badge-status-running");
     expect(AGENT_STATUS_BADGE_CLASS.error).toBe("ui-badge-status-error");
 
-    expect(resolveAgentStatusLabel("idle")).toBe("Idle");
+    expect(resolveAgentStatusLabel("idle")).toBe("agentIdle");
     expect(resolveAgentStatusBadgeClass("running")).toBe("ui-badge-status-running");
   });
 
-  it("maps gateway statuses to semantic badge classes and labels", () => {
-    expect(GATEWAY_STATUS_LABEL.disconnected).toBe("Disconnected");
-    expect(GATEWAY_STATUS_LABEL.connecting).toBe("Connecting");
-    expect(GATEWAY_STATUS_LABEL.connected).toBe("Connected");
+  it("maps gateway statuses to semantic badge classes and i18n label keys", () => {
+    expect(GATEWAY_STATUS_LABEL.disconnected).toBe("gatewayDisconnected");
+    expect(GATEWAY_STATUS_LABEL.connecting).toBe("gatewayConnecting");
+    expect(GATEWAY_STATUS_LABEL.connected).toBe("gatewayConnected");
 
     expect(GATEWAY_STATUS_BADGE_CLASS.disconnected).toBe("ui-badge-status-disconnected");
     expect(GATEWAY_STATUS_BADGE_CLASS.connecting).toBe("ui-badge-status-connecting");
     expect(GATEWAY_STATUS_BADGE_CLASS.connected).toBe("ui-badge-status-connected");
 
-    expect(resolveGatewayStatusLabel("connected")).toBe("Connected");
+    expect(resolveGatewayStatusLabel("connected")).toBe("gatewayConnected");
     expect(resolveGatewayStatusBadgeClass("disconnected")).toBe("ui-badge-status-disconnected");
   });
 

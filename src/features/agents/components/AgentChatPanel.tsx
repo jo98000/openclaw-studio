@@ -835,7 +835,7 @@ const AgentChatComposer = memo(function AgentChatComposer({
   const tc = useTranslations("chat");
   const stopReason = stopDisabledReason?.trim() ?? "";
   const stopDisabled = !canSend || stopBusy || Boolean(stopReason);
-  const stopAriaLabel = stopReason ? `${tc("stop")}: ${stopReason}` : tc("stop");
+  const stopAriaLabel = stopReason ? `${tc("stopUnavailable")}: ${stopReason}` : tc("stop");
   const modelSelectedLabel = useMemo(() => {
     if (modelOptions.length === 0) return tc("noModels");
     return modelOptions.find((option) => option.value === modelValue)?.label ?? modelValue;

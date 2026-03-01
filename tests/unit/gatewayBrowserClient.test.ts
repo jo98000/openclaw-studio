@@ -83,7 +83,7 @@ describe("GatewayBrowserClient", () => {
       }),
     } as MessageEvent);
 
-    await vi.runAllTicks();
+    await vi.runAllTimersAsync();
 
     expect(MockWebSocket.sent).toHaveLength(1);
     const frame = JSON.parse(MockWebSocket.sent[0] ?? "{}");
@@ -123,7 +123,7 @@ describe("GatewayBrowserClient", () => {
       }),
     } as MessageEvent);
 
-    await vi.runAllTicks();
+    await vi.runAllTimersAsync();
     await vi.runAllTimersAsync();
     await Promise.resolve();
 

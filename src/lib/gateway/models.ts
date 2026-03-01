@@ -79,14 +79,14 @@ export const buildGatewayModelChoices = (
 ) => {
   const allowedKeys = buildAllowedModelKeys(snapshot);
   if (allowedKeys.length === 0) return catalog;
-  const filtered = catalog.filter((entry) => allowedKeys.includes(`${entry.provider}/${entry.id}`));
-  const filteredKeys = new Set(filtered.map((entry) => `${entry.provider}/${entry.id}`));
+  // Show ALL catalog models — config extras are appended but never filter out catalog entries
+  const catalogKeys = new Set(catalog.map((entry) => `${entry.provider}/${entry.id}`));
   const extras: GatewayModelChoice[] = [];
   for (const key of allowedKeys) {
-    if (filteredKeys.has(key)) continue;
+    if (catalogKeys.has(key)) continue;
     const [provider, id] = key.split("/");
     if (!provider || !id) continue;
     extras.push({ provider, id, name: key });
   }
-  return [...filtered, ...extras];
+  return [...catalog, ...extras];
 };

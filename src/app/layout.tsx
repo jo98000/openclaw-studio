@@ -5,6 +5,8 @@ import { getLocale, getMessages } from "next-intl/server";
 import { Toaster } from "@/components/Toaster";
 import "./globals.css";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "OpenClaw Studio",
   description: "Focused operator studio for the OpenClaw gateway.",

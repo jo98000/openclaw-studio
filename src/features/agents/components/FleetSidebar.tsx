@@ -34,6 +34,7 @@ export const FleetSidebar = ({
   createBusy = false,
 }: FleetSidebarProps) => {
   const t = useTranslations("fleet");
+  const ts = useTranslations("status");
   const [searchQuery, setSearchQuery] = useState("");
   const rowRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
   const previousTopByAgentIdRef = useRef<Map<string, number>>(new Map());
@@ -181,7 +182,7 @@ export const FleetSidebar = ({
                         className={`ui-badge ${resolveAgentStatusBadgeClass(agent.status)}`}
                         data-status={agent.status}
                       >
-                        {resolveAgentStatusLabel(agent.status)}
+                        {ts(resolveAgentStatusLabel(agent.status))}
                       </span>
                       {agent.awaitingUserInput ? (
                         <span className={`ui-badge ${NEEDS_APPROVAL_BADGE_CLASS}`} data-status="approval">

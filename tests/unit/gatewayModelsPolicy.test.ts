@@ -51,7 +51,7 @@ describe("gateway model policy helpers", () => {
     ]);
   });
 
-  it("filters model catalog and appends configured extras", () => {
+  it("returns full catalog and appends configured extras not in catalog", () => {
     const snapshot: GatewayModelPolicySnapshot = {
       config: {
         agents: {
@@ -83,6 +83,11 @@ describe("gateway model policy helpers", () => {
         provider: "anthropic",
         id: "claude-sonnet-4-5",
         name: "Claude Sonnet 4.5",
+      },
+      {
+        provider: "openai",
+        id: "gpt-4o",
+        name: "GPT-4o",
       },
       {
         provider: "openai",

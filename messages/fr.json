@@ -241,6 +241,7 @@
   "chat": {
     "jumpToLatest": "Aller au dernier",
     "stop": "Arrêter",
+    "stopUnavailable": "Arrêt indisponible",
     "stopping": "Arrêt…",
     "send": "Envoyer",
     "typeMessage": "écrire un message",
@@ -536,7 +537,22 @@
     "agentIdMissing": "L'identifiant de l'agent est manquant.",
     "gatewayClientUnavailable": "Le client gateway n'est pas disponible.",
     "failedToLoadFiles": "Échec du chargement des fichiers de l'agent.",
-    "failedToSaveFiles": "Échec de l'enregistrement des fichiers de l'agent."
+    "failedToSaveFiles": "Échec de l'enregistrement des fichiers de l'agent.",
+    "close": "Fermer",
+    "agentIdentity": "Identité de l'agent",
+    "agentName": "Nom de l'agent",
+    "modelLabel": "Modèle",
+    "modelDefault": "Par défaut (paramètre gateway)",
+    "reasoning": "Raisonnement",
+    "thinkingLabel": "Niveau de réflexion",
+    "thinkingDefault": "Par défaut",
+    "thinkingOff": "Désactivé",
+    "thinkingMinimal": "Minimal",
+    "thinkingLow": "Faible",
+    "thinkingMedium": "Moyen",
+    "thinkingHigh": "Élevé",
+    "thinkingXHigh": "Très élevé",
+    "permissions": "Permissions"
   },
   "webhookEvents": {
     "agentStarted": "Agent démarré",
