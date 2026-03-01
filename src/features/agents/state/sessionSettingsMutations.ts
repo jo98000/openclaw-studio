@@ -91,7 +91,12 @@ export const applySessionSettingMutation = async ({
     } = { sessionSettingsSynced: true, sessionCreated: true };
     if (field === "model") {
       const resolvedModel = resolveModelFromPatchResult(result);
-      if (resolvedModel !== undefined) {
+      // Only override the optimistic update if the gateway returned explicit
+      // override fields.  The `resolved` block often returns the *default* model
+      // rather than the override the user just set, which would revert the
+      // dropdown.  When resolvedModel comes from the fallback path (no override
+      // fields in the response) we trust the optimistic value instead.
+      if (resolvedModel !== undefined && hasExplicitOverrideInResult(result)) {
         patch.model = resolvedModel;
       }
     } else {
@@ -145,6 +150,20 @@ export const applySessionSettingMutation = async ({
       line: `${buildErrorPrefix(field)}: ${msg}`,
     });
   }
+};
+
+const hasExplicitOverrideInResult = (
+  result: GatewaySessionsPatchResult,
+): boolean => {
+  const provider =
+    typeof result.entry?.providerOverride === "string"
+      ? result.entry.providerOverride.trim()
+      : "";
+  const model =
+    typeof result.entry?.modelOverride === "string"
+      ? result.entry.modelOverride.trim()
+      : "";
+  return provider.length > 0 && model.length > 0;
 };
 
 const resolveModelFromPatchResult = (
