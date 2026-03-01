@@ -20,6 +20,7 @@ type VoiceControlsProps = {
 
 export const VoiceControls = ({ agentId }: VoiceControlsProps) => {
   const t = useTranslations("voice");
+  const [, setRefreshKey] = useState(0);
   const [showSettings, setShowSettings] = useState(false);
 
   useEffect(() => {

@@ -3,7 +3,11 @@
 import { useState, useEffect, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { X, Plus, Trash2 } from "lucide-react";
-import type { CredentialEntry, CredentialField, CredentialServiceType } from "../types";
+import type {
+  CredentialEntry,
+  CredentialField,
+  CredentialServiceType,
+} from "../types";
 import { CREDENTIAL_TEMPLATES } from "../credentialTemplates";
 import { CredentialFieldInput } from "./CredentialFieldInput";
 import { randomUUID } from "@/lib/uuid";
@@ -16,8 +20,12 @@ type CredentialEditModalProps = {
 
 type Step = "template" | "form";
 
-const buildFieldsFromTemplate = (serviceType: CredentialServiceType): CredentialField[] => {
-  const template = CREDENTIAL_TEMPLATES.find((t) => t.serviceType === serviceType);
+const buildFieldsFromTemplate = (
+  serviceType: CredentialServiceType,
+): CredentialField[] => {
+  const template = CREDENTIAL_TEMPLATES.find(
+    (t) => t.serviceType === serviceType,
+  );
   if (!template) return [];
   return template.defaultFields.map((f) => ({ ...f, value: "" }));
 };
@@ -56,7 +64,9 @@ export const CredentialEditModal = ({
   }, []);
 
   const handleFieldChange = useCallback((index: number, value: string) => {
-    setFields((prev) => prev.map((f, i) => (i === index ? { ...f, value } : f)));
+    setFields((prev) =>
+      prev.map((f, i) => (i === index ? { ...f, value } : f)),
+    );
   }, []);
 
   const handleAddField = useCallback(() => {
@@ -92,7 +102,8 @@ export const CredentialEditModal = ({
   return (
     <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/50 p-4">
       <div
-        className="ui-card w-full max-w-lg rounded-2xl border bg-card p-0 shadow-xl"
+        className="ui-card flex w-full max-w-lg flex-col overflow-hidden rounded-2xl border bg-card p-0 shadow-xl"
+        style={{ maxHeight: "calc(100vh - 4rem)" }}
         role="dialog"
         aria-modal="true"
         aria-label={isEdit ? t("editCredential") : t("addCredential")}
@@ -113,7 +124,7 @@ export const CredentialEditModal = ({
           </button>
         </div>
 
-        <div className="px-5 py-4">
+        <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">
           {/* Template selection step */}
           {step === "template" ? (
             <div>
@@ -190,7 +201,9 @@ export const CredentialEditModal = ({
                           className="ui-input w-28 shrink-0 rounded-md border border-border bg-surface-2 px-2 py-2 text-xs"
                           placeholder={t("fieldKey")}
                           value={field.key}
-                          onChange={(e) => handleFieldKeyChange(i, e.target.value)}
+                          onChange={(e) =>
+                            handleFieldKeyChange(i, e.target.value)
+                          }
                           aria-label={t("fieldKey")}
                         />
                       ) : (
