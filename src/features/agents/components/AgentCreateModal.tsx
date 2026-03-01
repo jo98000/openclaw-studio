@@ -188,7 +188,7 @@ const AgentCreateModalContent = ({
     >
       <div className="flex h-full items-center justify-center p-4">
         <div
-          className="ui-panel flex w-full max-w-2xl flex-col shadow-xs"
+          className="ui-panel flex w-full max-w-2xl flex-col overflow-hidden shadow-xs"
           style={{ maxHeight: "calc(100vh - 2rem)" }}
           onClick={(event) => event.stopPropagation()}
           data-testid="agent-create-modal"
