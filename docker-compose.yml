@@ -12,8 +12,8 @@ services:
       - NEXT_PUBLIC_GATEWAY_URL=${NEXT_PUBLIC_GATEWAY_URL:-ws://host.docker.internal:18789}
     volumes:
       - studio-data:/home/studio/.openclaw
-    expose:
-      - "3000"
+    ports:
+      - "127.0.0.1:3500:3000"
     networks:
       - studio-net
     extra_hosts:
