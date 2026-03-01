@@ -180,13 +180,13 @@ const AgentCreateModalContent = ({
 
   return (
     <div
-      className="fixed inset-0 z-[120] overflow-y-auto bg-background/80"
+      className="fixed inset-0 z-[120] overflow-hidden bg-background/80"
       role="dialog"
       aria-modal="true"
       aria-label={t("headerTitle")}
       onClick={busy ? undefined : onClose}
     >
-      <div className="flex min-h-full items-center justify-center p-4">
+      <div className="flex h-full items-center justify-center p-4">
         <div
           className="ui-panel flex w-full max-w-2xl flex-col shadow-xs"
           style={{ maxHeight: "calc(100vh - 2rem)" }}
