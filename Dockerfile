@@ -1,5 +1,6 @@
 # Stage 1: Install dependencies
 FROM node:22-alpine AS deps
+RUN apk add --no-cache git
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
