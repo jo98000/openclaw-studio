@@ -30,10 +30,10 @@ type AgentSkillsSetupModalProps = {
 };
 
 const READINESS_LABELS = {
-  ready: "Ready",
-  "needs-setup": "Needs setup",
-  unavailable: "Unavailable",
-  "disabled-globally": "Disabled globally",
+  ready: "Prêt",
+  "needs-setup": "Configuration requise",
+  unavailable: "Indisponible",
+  "disabled-globally": "Désactivé globalement",
 } as const;
 
 const READINESS_CLASSES = {
@@ -93,7 +93,7 @@ export const AgentSkillsSetupModal = ({
       className="fixed inset-0 z-[100] flex items-center justify-center bg-background/80 p-4"
       role="dialog"
       aria-modal="true"
-      aria-label={`Setup ${skill.name}`}
+      aria-label={`Configuration de ${skill.name}`}
       onClick={onClose}
     >
       <div
@@ -103,7 +103,7 @@ export const AgentSkillsSetupModal = ({
         <div className="flex items-start justify-between gap-3 px-6 py-5">
           <div className="min-w-0">
             <div className="text-[11px] font-medium tracking-[0.01em] text-muted-foreground/80">
-              System setup
+              Configuration système
             </div>
             <div className="mt-1 flex flex-wrap items-center gap-2">
               <span className="text-base font-semibold text-foreground">{skill.name}</span>
@@ -114,7 +114,7 @@ export const AgentSkillsSetupModal = ({
               </span>
             </div>
             <div className="mt-2 text-[10px] text-muted-foreground/80">
-              Changes affect all agents on this gateway.
+              Les modifications affectent tous les agents sur ce gateway.
             </div>
           </div>
           <button
@@ -122,7 +122,7 @@ export const AgentSkillsSetupModal = ({
             className="sidebar-btn-ghost px-3 font-mono text-[10px] font-semibold tracking-[0.06em]"
             onClick={onClose}
           >
-            Close
+            Fermer
           </button>
         </div>
         <div className="space-y-3 px-6 pb-3 text-[11px] text-muted-foreground">
@@ -134,7 +134,7 @@ export const AgentSkillsSetupModal = ({
           <div>{skill.description}</div>
           {skill.blockedByAllowlist ? (
             <div className="text-[10px] text-muted-foreground/80">
-              Blocked by bundled skills policy (`skills.allowBundled`).
+              Bloqué par la politique des skills intégrés (`skills.allowBundled`).
             </div>
           ) : null}
           {missingDetails.map((line) => (
@@ -159,7 +159,7 @@ export const AgentSkillsSetupModal = ({
                   void onInstallSkill(skill.skillKey, skill.name, installOption.id);
                 }}
               >
-                {busyForSkill ? "Working..." : installOption.label}
+                {busyForSkill ? "En cours..." : installOption.label}
               </button>
             ) : null}
             <button
@@ -171,10 +171,10 @@ export const AgentSkillsSetupModal = ({
               }}
             >
               {busyForSkill
-                ? "Working..."
+                ? "En cours..."
                 : skill.disabled
-                  ? "Enable globally"
-                  : "Disable globally"}
+                  ? "Activer globalement"
+                  : "Désactiver globalement"}
             </button>
             {skill.primaryEnv ? (
               <>
@@ -186,8 +186,8 @@ export const AgentSkillsSetupModal = ({
                   }}
                   disabled={anySkillBusy}
                   className="w-full rounded-md border border-border/60 bg-surface-1 px-3 py-2 text-[10px] text-foreground outline-none transition focus:border-border"
-                  placeholder={`Set ${skill.primaryEnv}`}
-                  aria-label={`API key for ${skill.name}`}
+                  placeholder={`Définir ${skill.primaryEnv}`}
+                  aria-label={`Clé API pour ${skill.name}`}
                 />
                 <button
                   type="button"
@@ -200,7 +200,7 @@ export const AgentSkillsSetupModal = ({
                     void onSaveSkillApiKey(skill.skillKey);
                   }}
                 >
-                  {busyForSkill ? "Working..." : `Save ${skill.primaryEnv}`}
+                  {busyForSkill ? "En cours..." : `Enregistrer ${skill.primaryEnv}`}
                 </button>
               </>
             ) : null}
@@ -211,7 +211,7 @@ export const AgentSkillsSetupModal = ({
                 disabled={anySkillBusy}
                 onClick={() => {
                   const approved = window.confirm(
-                    `Remove ${skill.name} from the gateway? This affects all agents.`
+                    `Retirer ${skill.name} du gateway ? Cela affecte tous les agents.`
                   );
                   if (!approved) {
                     return;
@@ -224,7 +224,7 @@ export const AgentSkillsSetupModal = ({
                   onClose();
                 }}
               >
-                Remove skill from gateway
+                Retirer le skill du gateway
               </button>
             ) : null}
           </div>

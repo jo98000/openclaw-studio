@@ -29,6 +29,43 @@ const ProvidersPanel = dynamic(
   () => import("@/features/providers/components/ProvidersPanel").then((m) => m.ProvidersPanel),
   { ssr: false },
 );
+const ChannelsPanel = dynamic(
+  () => import("@/features/channels/components/ChannelsPanel").then((m) => m.ChannelsPanel),
+  { ssr: false },
+);
+const RoutingPanel = dynamic(
+  () => import("@/features/routing/components/RoutingPanel").then((m) => m.RoutingPanel),
+  { ssr: false },
+);
+const WebhooksPanel = dynamic(
+  () => import("@/features/webhooks/components/WebhooksPanel").then((m) => m.WebhooksPanel),
+  { ssr: false },
+);
+const SkillsBrowser = dynamic(
+  () => import("@/features/skills/components/SkillsBrowser").then((m) => m.SkillsBrowser),
+  { ssr: false },
+);
+const AnalyticsDashboard = dynamic(
+  () => import("@/features/analytics/components/AnalyticsDashboard").then((m) => m.AnalyticsDashboard),
+  { ssr: false },
+);
+const LogViewer = dynamic(
+  () => import("@/features/logs/components/LogViewer").then((m) => m.LogViewer),
+  { ssr: false },
+);
+const CanvasPreview = dynamic(
+  () => import("@/features/canvas/components/CanvasPreview").then((m) => m.CanvasPreview),
+  { ssr: false },
+);
+const InterAgentFeed = dynamic(
+  () => import("@/features/intercom/components/InterAgentFeed").then((m) => m.InterAgentFeed),
+  { ssr: false },
+);
+const VoiceControls = dynamic(
+  () => import("@/features/voice/components/VoiceControls").then((m) => m.VoiceControls),
+  { ssr: false },
+);
+import { useTranslations } from "next-intl";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import {
   isHeartbeatPrompt,
@@ -217,6 +254,7 @@ const resolveNextNewAgentName = (agents: AgentState[]) => {
 };
 
 const AgentStudioPage = () => {
+  const tp = useTranslations("page");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -246,6 +284,15 @@ const AgentStudioPage = () => {
   const { state, dispatch, hydrateAgents, setError, setLoading } = useAgentStore();
   const [showConnectionPanel, setShowConnectionPanel] = useState(false);
   const [showProvidersPanel, setShowProvidersPanel] = useState(false);
+  const [showChannelsPanel, setShowChannelsPanel] = useState(false);
+  const [showRoutingPanel, setShowRoutingPanel] = useState(false);
+  const [showWebhooksPanel, setShowWebhooksPanel] = useState(false);
+  const [showSkillsBrowser, setShowSkillsBrowser] = useState(false);
+  const [showAnalytics, setShowAnalytics] = useState(false);
+  const [showLogViewer, setShowLogViewer] = useState(false);
+  const [showCanvas, setShowCanvas] = useState(false);
+  const [showIntercom, setShowIntercom] = useState(false);
+  const [showVoice, setShowVoice] = useState(false);
   const [focusFilter, setFocusFilter] = useState<FocusFilter>("all");
   const [focusedPreferencesLoaded, setFocusedPreferencesLoaded] = useState(false);
   const [agentsLoadedOnce, setAgentsLoadedOnce] = useState(false);
@@ -1302,7 +1349,7 @@ const AgentStudioPage = () => {
               OpenClaw Studio
             </div>
             <div className="mt-3 text-sm text-muted-foreground">
-              {status === "connecting" ? "Connecting to gateway…" : "Booting Studio…"}
+              {status === "connecting" ? tp("connectingGateway") : tp("bootingStudio")}
             </div>
           </div>
         </div>
@@ -1318,6 +1365,15 @@ const AgentStudioPage = () => {
             status={status}
             onConnectionSettings={() => setShowConnectionPanel(true)}
             onProviders={() => setShowProvidersPanel(true)}
+            onChannels={() => setShowChannelsPanel(true)}
+            onRouting={() => setShowRoutingPanel(true)}
+            onWebhooks={() => setShowWebhooksPanel(true)}
+            onSkills={() => setShowSkillsBrowser(true)}
+            onAnalytics={() => setShowAnalytics(true)}
+            onLogs={() => setShowLogViewer(true)}
+            onCanvas={() => setShowCanvas(true)}
+            onIntercom={() => setShowIntercom(true)}
+            onVoice={() => setShowVoice(true)}
           />
           <div className="flex min-h-0 flex-1 flex-col gap-4 px-3 pb-3 pt-3 sm:px-4 sm:pb-4 sm:pt-4 md:px-6 md:pb-6 md:pt-4">
             {settingsRouteActive ? (
@@ -1327,7 +1383,7 @@ const AgentStudioPage = () => {
                   className="ui-btn-secondary px-3 py-1.5 font-mono text-[10px] font-semibold tracking-[0.06em]"
                   onClick={handleBackToChat}
                 >
-                  Back to chat
+                  {tp("backToChat")}
                 </button>
               </div>
             ) : null}
@@ -1377,12 +1433,21 @@ const AgentStudioPage = () => {
           status={status}
           onConnectionSettings={() => setShowConnectionPanel(true)}
           onProviders={() => setShowProvidersPanel((prev) => !prev)}
+          onChannels={() => setShowChannelsPanel((prev) => !prev)}
+          onRouting={() => setShowRoutingPanel((prev) => !prev)}
+          onWebhooks={() => setShowWebhooksPanel((prev) => !prev)}
+          onSkills={() => setShowSkillsBrowser((prev) => !prev)}
+          onAnalytics={() => setShowAnalytics((prev) => !prev)}
+          onLogs={() => setShowLogViewer((prev) => !prev)}
+          onCanvas={() => setShowCanvas((prev) => !prev)}
+          onIntercom={() => setShowIntercom((prev) => !prev)}
+          onVoice={() => setShowVoice((prev) => !prev)}
         />
         <div className="flex min-h-0 flex-1 flex-col gap-3 px-3 pb-3 pt-2 sm:px-4 sm:pb-4 sm:pt-3 md:px-5 md:pb-5 md:pt-3">
           {showProvidersPanel ? (
             <div className="pointer-events-none fixed inset-x-0 top-12 z-[140] flex justify-center px-3 sm:px-4 md:px-5">
               <div className="glass-panel pointer-events-auto w-full max-w-3xl !bg-card">
-                <ErrorBoundary fallbackLabel="Providers panel error">
+                <ErrorBoundary fallbackLabel={tp("providersError")}>
                   <ProvidersPanel />
                 </ErrorBoundary>
                 <div className="flex justify-end border-t border-border px-4 py-2">
@@ -1391,7 +1456,169 @@ const AgentStudioPage = () => {
                     className="ui-btn-ghost rounded-md px-3 py-1 text-xs font-medium"
                     onClick={() => setShowProvidersPanel(false)}
                   >
-                    Close
+                    {tp("close")}
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : null}
+          {showChannelsPanel ? (
+            <div className="pointer-events-none fixed inset-x-0 top-12 z-[140] flex justify-center px-3 sm:px-4 md:px-5">
+              <div className="glass-panel pointer-events-auto w-full max-w-3xl !bg-card">
+                <ErrorBoundary fallbackLabel={tp("channelsError")}>
+                  <ChannelsPanel />
+                </ErrorBoundary>
+                <div className="flex justify-end border-t border-border px-4 py-2">
+                  <button
+                    type="button"
+                    className="ui-btn-ghost rounded-md px-3 py-1 text-xs font-medium"
+                    onClick={() => setShowChannelsPanel(false)}
+                  >
+                    {tp("close")}
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : null}
+          {showRoutingPanel ? (
+            <div className="pointer-events-none fixed inset-x-0 top-12 z-[140] flex justify-center px-3 sm:px-4 md:px-5">
+              <div className="glass-panel pointer-events-auto w-full max-w-3xl !bg-card">
+                <ErrorBoundary fallbackLabel={tp("routingError")}>
+                  <RoutingPanel />
+                </ErrorBoundary>
+                <div className="flex justify-end border-t border-border px-4 py-2">
+                  <button
+                    type="button"
+                    className="ui-btn-ghost rounded-md px-3 py-1 text-xs font-medium"
+                    onClick={() => setShowRoutingPanel(false)}
+                  >
+                    {tp("close")}
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : null}
+          {showWebhooksPanel ? (
+            <div className="pointer-events-none fixed inset-x-0 top-12 z-[140] flex justify-center px-3 sm:px-4 md:px-5">
+              <div className="glass-panel pointer-events-auto w-full max-w-3xl !bg-card">
+                <ErrorBoundary fallbackLabel={tp("webhooksError")}>
+                  <WebhooksPanel />
+                </ErrorBoundary>
+                <div className="flex justify-end border-t border-border px-4 py-2">
+                  <button
+                    type="button"
+                    className="ui-btn-ghost rounded-md px-3 py-1 text-xs font-medium"
+                    onClick={() => setShowWebhooksPanel(false)}
+                  >
+                    {tp("close")}
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : null}
+          {showSkillsBrowser ? (
+            <div className="pointer-events-none fixed inset-x-0 top-12 z-[140] flex justify-center px-3 sm:px-4 md:px-5">
+              <div className="glass-panel pointer-events-auto w-full max-w-3xl !bg-card">
+                <ErrorBoundary fallbackLabel={tp("skillsError")}>
+                  <SkillsBrowser />
+                </ErrorBoundary>
+                <div className="flex justify-end border-t border-border px-4 py-2">
+                  <button
+                    type="button"
+                    className="ui-btn-ghost rounded-md px-3 py-1 text-xs font-medium"
+                    onClick={() => setShowSkillsBrowser(false)}
+                  >
+                    {tp("close")}
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : null}
+          {showAnalytics ? (
+            <div className="pointer-events-none fixed inset-x-0 top-12 z-[140] flex justify-center px-3 sm:px-4 md:px-5">
+              <div className="glass-panel pointer-events-auto w-full max-w-4xl !bg-card">
+                <ErrorBoundary fallbackLabel={tp("analyticsError")}>
+                  <AnalyticsDashboard />
+                </ErrorBoundary>
+                <div className="flex justify-end border-t border-border px-4 py-2">
+                  <button
+                    type="button"
+                    className="ui-btn-ghost rounded-md px-3 py-1 text-xs font-medium"
+                    onClick={() => setShowAnalytics(false)}
+                  >
+                    {tp("close")}
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : null}
+          {showLogViewer ? (
+            <div className="pointer-events-none fixed inset-x-0 top-12 z-[140] flex justify-center px-3 sm:px-4 md:px-5">
+              <div className="glass-panel pointer-events-auto w-full max-w-4xl !bg-card" style={{ maxHeight: "70vh" }}>
+                <ErrorBoundary fallbackLabel={tp("logViewerError")}>
+                  <LogViewer />
+                </ErrorBoundary>
+                <div className="flex justify-end border-t border-border px-4 py-2">
+                  <button
+                    type="button"
+                    className="ui-btn-ghost rounded-md px-3 py-1 text-xs font-medium"
+                    onClick={() => setShowLogViewer(false)}
+                  >
+                    {tp("close")}
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : null}
+          {showCanvas ? (
+            <div className="pointer-events-none fixed inset-x-0 top-12 z-[140] flex justify-center px-3 sm:px-4 md:px-5">
+              <div className="glass-panel pointer-events-auto w-full max-w-3xl !bg-card" style={{ maxHeight: "70vh" }}>
+                <ErrorBoundary fallbackLabel={tp("canvasPreviewError")}>
+                  <CanvasPreview />
+                </ErrorBoundary>
+                <div className="flex justify-end border-t border-border px-4 py-2">
+                  <button
+                    type="button"
+                    className="ui-btn-ghost rounded-md px-3 py-1 text-xs font-medium"
+                    onClick={() => setShowCanvas(false)}
+                  >
+                    {tp("close")}
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : null}
+          {showIntercom ? (
+            <div className="pointer-events-none fixed inset-x-0 top-12 z-[140] flex justify-center px-3 sm:px-4 md:px-5">
+              <div className="glass-panel pointer-events-auto w-full max-w-3xl !bg-card" style={{ maxHeight: "70vh" }}>
+                <ErrorBoundary fallbackLabel={tp("interAgentFeedError")}>
+                  <InterAgentFeed />
+                </ErrorBoundary>
+                <div className="flex justify-end border-t border-border px-4 py-2">
+                  <button
+                    type="button"
+                    className="ui-btn-ghost rounded-md px-3 py-1 text-xs font-medium"
+                    onClick={() => setShowIntercom(false)}
+                  >
+                    {tp("close")}
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : null}
+          {showVoice ? (
+            <div className="pointer-events-none fixed inset-x-0 top-12 z-[140] flex justify-center px-3 sm:px-4 md:px-5">
+              <div className="glass-panel pointer-events-auto w-full max-w-3xl !bg-card">
+                <ErrorBoundary fallbackLabel={tp("voiceControlsError")}>
+                  <VoiceControls />
+                </ErrorBoundary>
+                <div className="flex justify-end border-t border-border px-4 py-2">
+                  <button
+                    type="button"
+                    className="ui-btn-ghost rounded-md px-3 py-1 text-xs font-medium"
+                    onClick={() => setShowVoice(false)}
+                  >
+                    {tp("close")}
                   </button>
                 </div>
               </div>
@@ -1442,7 +1669,7 @@ const AgentStudioPage = () => {
                     className="ui-btn-secondary w-full px-3 py-1.5 font-mono text-[10px] font-semibold tracking-[0.06em]"
                     onClick={handleBackToChat}
                   >
-                    Back to chat
+                    {tp("backToChat")}
                   </button>
                 </div>
                 <nav className="py-3">
@@ -1620,8 +1847,8 @@ const AgentStudioPage = () => {
                     )
                   ) : (
                     <EmptyStatePanel
-                      title="Agent not found."
-                      description="Back to chat and select an available agent."
+                      title={tp("agentNotFound")}
+                      description={tp("agentNotFoundDescription")}
                       fillHeight
                       className="items-center p-6 text-center text-sm"
                     />
@@ -1639,7 +1866,7 @@ const AgentStudioPage = () => {
                     data-active={mobilePane === "fleet" ? "true" : "false"}
                     onClick={() => setMobilePane("fleet")}
                   >
-                    Fleet
+                    {tp("fleet")}
                   </button>
                   <button
                     type="button"
@@ -1647,14 +1874,14 @@ const AgentStudioPage = () => {
                     data-active={mobilePane === "chat" ? "true" : "false"}
                     onClick={() => setMobilePane("chat")}
                   >
-                    Chat
+                    {tp("chat")}
                   </button>
                 </div>
               </div>
               <div
                 className={`${mobilePane === "fleet" ? "block" : "hidden"} min-h-0 xl:block xl:min-h-0`}
               >
-                <ErrorBoundary fallbackLabel="Fleet sidebar error">
+                <ErrorBoundary fallbackLabel={tp("fleetSidebarError")}>
                   <FleetSidebar
                     agents={filteredAgents}
                     selectedAgentId={focusedAgent?.agentId ?? state.selectedAgentId}
@@ -1674,7 +1901,7 @@ const AgentStudioPage = () => {
                 data-testid="focused-agent-panel"
               >
                 {focusedAgent ? (
-                  <ErrorBoundary fallbackLabel="Chat panel error">
+                  <ErrorBoundary fallbackLabel={tp("chatPanelError")}>
                   <div className="flex min-h-0 flex-1 flex-col">
                     <div className="min-h-0 flex-1">
                       <AgentChatPanel
@@ -1721,13 +1948,13 @@ const AgentStudioPage = () => {
                   </ErrorBoundary>
                 ) : (
                   <EmptyStatePanel
-                    title={hasAnyAgents ? "No agents match this filter." : "No agents available."}
+                    title={hasAnyAgents ? tp("noAgentsMatch") : tp("noAgentsAvailable")}
                     description={
                       hasAnyAgents
                         ? undefined
                         : status === "connected"
-                          ? "Use New Agent in the sidebar to add your first agent."
-                          : "Connect to your gateway to load agents into the studio."
+                          ? tp("useNewAgent")
+                          : tp("connectToGateway")
                     }
                     fillHeight
                     className="items-center p-6 text-center text-sm"
@@ -1761,17 +1988,17 @@ const AgentStudioPage = () => {
           data-testid="agent-create-restart-modal"
           role="dialog"
           aria-modal="true"
-          aria-label="Creating agent"
+          aria-label={tp("creatingAgent")}
         >
           <div className="ui-panel w-full max-w-md p-6">
             <div className="font-mono text-[10px] font-semibold tracking-[0.06em] text-muted-foreground">
-              Agent create in progress
+              {tp("agentCreateInProgress")}
             </div>
             <div className="mt-2 text-base font-semibold text-foreground">
               {createAgentBlock.agentName}
             </div>
             <div className="mt-3 text-sm text-muted-foreground">
-              Studio is temporarily locked until creation finishes.
+              {tp("studioLockedCreation")}
             </div>
             {createBlockStatusLine ? (
               <div className="ui-card mt-4 px-3 py-2 font-mono text-[11px] tracking-[0.06em] text-foreground">
@@ -1797,7 +2024,7 @@ const AgentStudioPage = () => {
               {restartingMutationBlock.agentName}
             </div>
             <div className="mt-3 text-sm text-muted-foreground">
-              Studio is temporarily locked until the gateway restarts.
+              {tp("studioLockedRestart")}
             </div>
             {restartingMutationStatusLine ? (
               <div className="ui-card mt-4 px-3 py-2 font-mono text-[11px] tracking-[0.06em] text-foreground">

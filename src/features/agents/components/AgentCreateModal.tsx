@@ -28,7 +28,7 @@ type WizardStep = 0 | 1 | 2;
 
 const resolveInitialName = (suggestedName: string): string => {
   const trimmed = suggestedName.trim();
-  if (!trimmed) return "New Agent";
+  if (!trimmed) return "Nouvel Agent";
   return trimmed;
 };
 
@@ -56,9 +56,11 @@ const StepIndicator = ({ current, labels }: { current: WizardStep; labels: strin
 const TemplateSelector = ({
   selected,
   onSelect,
+  t,
 }: {
   selected: string | null;
   onSelect: (template: AgentTemplate) => void;
+  t: (key: string) => string;
 }) => (
   <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
     {AGENT_TEMPLATES.map((tmpl) => (
@@ -74,8 +76,8 @@ const TemplateSelector = ({
         data-testid={`template-${tmpl.id}`}
       >
         <span className="text-base">{tmpl.icon}</span>
-        <span className="text-[11px] font-semibold text-foreground">{tmpl.name}</span>
-        <span className="text-[10px] text-muted-foreground">{tmpl.description}</span>
+        <span className="text-[11px] font-semibold text-foreground">{t(`${tmpl.id}.name`)}</span>
+        <span className="text-[10px] text-muted-foreground">{t(`${tmpl.id}.description`)}</span>
       </button>
     ))}
   </div>
@@ -91,6 +93,7 @@ const AgentCreateModalContent = ({
 }: Omit<AgentCreateModalProps, "open">) => {
   const t = useTranslations("createAgent");
   const tc = useTranslations("common");
+  const tt = useTranslations("templates");
   const [step, setStep] = useState<WizardStep>(0);
   const [name, setName] = useState(() => resolveInitialName(suggestedName));
   const [avatarSeed, setAvatarSeed] = useState(() => randomUUID());
@@ -185,12 +188,12 @@ const AgentCreateModalContent = ({
               <label className={labelClassName}>
                 {t("templateLabel")}
               </label>
-              <TemplateSelector selected={templateId} onSelect={handleTemplateSelect} />
+              <TemplateSelector selected={templateId} onSelect={handleTemplateSelect} t={tt} />
 
               <label className={labelClassName}>
                 {t("nameLabel")}
                 <input
-                  aria-label="Agent name"
+                  aria-label={t("nameLabel")}
                   value={name}
                   onChange={(event) => setName(event.target.value)}
                   className={`mt-1 ${fieldClassName}`}
@@ -202,7 +205,7 @@ const AgentCreateModalContent = ({
               <label className={labelClassName}>
                 {t("descriptionLabel")}
                 <input
-                  aria-label="Agent description"
+                  aria-label={t("descriptionLabel")}
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   className={`mt-1 ${fieldClassName}`}
@@ -214,7 +217,7 @@ const AgentCreateModalContent = ({
                 <div className={labelClassName}>{t("avatarLabel")}</div>
                 <AgentAvatar
                   seed={avatarSeed}
-                  name={name.trim() || "New Agent"}
+                  name={name.trim() || "Nouvel Agent"}
                   size={52}
                   isSelected
                 />
@@ -249,7 +252,7 @@ const AgentCreateModalContent = ({
                       {providerModels.map((m) => (
                         <option key={`${m.provider}/${m.id}`} value={`${m.provider}/${m.id}`}>
                           {m.name}
-                          {m.reasoning ? " (Reasoning)" : ""}
+                          {m.reasoning ? " (Raisonnement)" : ""}
                         </option>
                       ))}
                     </optgroup>
@@ -267,7 +270,7 @@ const AgentCreateModalContent = ({
                 <p className="text-[11px] text-muted-foreground">
                   {t("modelHint", {
                     templateName: templateId
-                      ? ` ("${AGENT_TEMPLATES.find((tmpl) => tmpl.id === templateId)?.name ?? templateId}")`
+                      ? ` ("${tt(`${templateId}.name`)}")`
                       : "",
                   })}
                 </p>
@@ -281,17 +284,20 @@ const AgentCreateModalContent = ({
               <div>
                 <div className={labelClassName}>{t("capRunCommands")}</div>
                 <div className="mt-1.5 ui-segment grid-cols-3">
-                  {(["off", "ask", "auto"] as const).map((mode) => (
-                    <button
-                      key={mode}
-                      type="button"
-                      data-active={commandMode === mode ? "true" : "false"}
-                      className="ui-segment-item px-3 py-1.5 text-[11px] font-medium capitalize"
-                      onClick={() => setCommandMode(mode)}
-                    >
-                      {mode}
-                    </button>
-                  ))}
+                  {(["off", "ask", "auto"] as const).map((mode) => {
+                    const modeLabels: Record<string, string> = { off: "Désactivé", ask: "Demander", auto: "Auto" };
+                    return (
+                      <button
+                        key={mode}
+                        type="button"
+                        data-active={commandMode === mode ? "true" : "false"}
+                        className="ui-segment-item px-3 py-1.5 text-[11px] font-medium"
+                        onClick={() => setCommandMode(mode)}
+                      >
+                        {modeLabels[mode]}
+                      </button>
+                    );
+                  })}
                 </div>
                 <p className="mt-1 text-[10px] text-muted-foreground">
                   {commandMode === "off"

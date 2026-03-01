@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import { ChevronDown, Search, Zap, Globe, Brain, Code, Sparkles, Gauge } from "lucide-react";
 import type { GatewayModelChoice } from "@/lib/gateway/models";
+import { useTranslations } from "next-intl";
 
 type ModelSelectorProps = {
   models: GatewayModelChoice[];
@@ -29,6 +30,7 @@ const CATEGORY_COLORS: Record<string, string> = {
 };
 
 export const ModelSelector = ({ models, value, onChange }: ModelSelectorProps) => {
+  const t = useTranslations("modelSelector");
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);
@@ -87,7 +89,7 @@ export const ModelSelector = ({ models, value, onChange }: ModelSelectorProps) =
   }, [grouped, search]);
 
   const selectedModel = models.find((m) => `${m.provider}/${m.id}` === value);
-  const displayName = selectedModel?.name ?? (value || "Select model");
+  const displayName = selectedModel?.name ?? (value || t("selectModel"));
 
   const providerNames: Record<string, string> = {
     anthropic: "Anthropic",
@@ -106,7 +108,7 @@ export const ModelSelector = ({ models, value, onChange }: ModelSelectorProps) =
         onClick={() => setOpen(!open)}
         aria-haspopup="listbox"
         aria-expanded={open}
-        aria-label="Choose model"
+        aria-label={t("chooseModel")}
       >
         {selectedModel?.provider ? (
           <span className="h-2 w-2 rounded-full bg-primary" aria-hidden="true" />
@@ -119,7 +121,7 @@ export const ModelSelector = ({ models, value, onChange }: ModelSelectorProps) =
         <div
           className="absolute bottom-full left-0 z-[300] mb-1 w-64 rounded-xl border border-border bg-card shadow-xl"
           role="listbox"
-          aria-label="Model list"
+          aria-label={t("modelList")}
         >
           {models.length > 5 ? (
             <div className="border-b border-border px-3 py-2">
@@ -129,7 +131,7 @@ export const ModelSelector = ({ models, value, onChange }: ModelSelectorProps) =
                   ref={searchRef}
                   type="text"
                   className="w-full rounded-md bg-surface-2 py-1 pl-7 pr-2 text-[11px] text-foreground placeholder:text-muted-foreground focus:outline-none"
-                  placeholder="Search models..."
+                  placeholder={t("searchModels")}
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
@@ -173,13 +175,13 @@ export const ModelSelector = ({ models, value, onChange }: ModelSelectorProps) =
                             {model.contextWindow >= 1000000
                               ? `${(model.contextWindow / 1000000).toFixed(0)}M`
                               : `${(model.contextWindow / 1000).toFixed(0)}k`}{" "}
-                            context
+                            {t("context")}
                           </p>
                         ) : null}
                       </div>
                       {model.reasoning ? (
                         <span className="rounded bg-violet-500/10 px-1 text-[8px] font-bold text-violet-500">
-                          THINK
+                          {t("think")}
                         </span>
                       ) : null}
                       {isSelected ? (
@@ -192,7 +194,7 @@ export const ModelSelector = ({ models, value, onChange }: ModelSelectorProps) =
             ))}
             {Object.keys(filteredGrouped).length === 0 ? (
               <p className="px-3 py-4 text-center text-[11px] text-muted-foreground">
-                No models found
+                {t("noModels")}
               </p>
             ) : null}
           </div>

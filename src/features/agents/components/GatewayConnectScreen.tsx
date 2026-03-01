@@ -1,4 +1,7 @@
+"use client";
+
 import { useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Check, Copy, Eye, EyeOff, Loader2 } from "lucide-react";
 import type { GatewayStatus } from "@/lib/gateway/GatewayClient";
 import { isLocalGatewayUrl } from "@/lib/gateway/local-gateway";
@@ -36,6 +39,7 @@ export const GatewayConnectScreen = ({
   onUseLocalDefaults,
   onConnect,
 }: GatewayConnectScreenProps) => {
+  const t = useTranslations("gateway");
   const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "failed">("idle");
   const [showToken, setShowToken] = useState(false);
   const isLocal = useMemo(() => isLocalGatewayUrl(gatewayUrl), [gatewayUrl]);
@@ -50,18 +54,18 @@ export const GatewayConnectScreen = ({
   );
   const statusCopy = useMemo(() => {
     if (status === "connecting" && isLocal) {
-      return `Local gateway detected on port ${localPort}. Connecting…`;
+      return t("localDetected", { port: localPort });
     }
     if (status === "connecting") {
-      return "Connecting to remote gateway…";
+      return t("connectingRemote");
     }
     if (isLocal) {
-      return "No local gateway found.";
+      return t("noLocal");
     }
-    return "Not connected to a gateway.";
-  }, [isLocal, localPort, status]);
+    return t("notConnected");
+  }, [isLocal, localPort, status, t]);
   const connectDisabled = status === "connecting";
-  const connectLabel = connectDisabled ? "Connecting…" : "Connect";
+  const connectLabel = connectDisabled ? t("connecting") : t("connect");
   const statusDotClass =
     status === "connected"
       ? "ui-dot-status-connected"
@@ -90,19 +94,19 @@ export const GatewayConnectScreen = ({
           type="button"
           className="ui-btn-icon ui-command-copy h-7 w-7 shrink-0"
           onClick={copyLocalCommand}
-          aria-label="Copy local gateway command"
-          title="Copy command"
+          aria-label={t("copyCommandLabel")}
+          title={t("copyCommand")}
         >
           {copyStatus === "copied" ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
         </button>
       </div>
       {copyStatus === "copied" ? (
-        <p className="text-xs text-muted-foreground">Copied</p>
+        <p className="text-xs text-muted-foreground">{t("copied")}</p>
       ) : copyStatus === "failed" ? (
-        <p className="ui-text-danger text-xs">Could not copy command.</p>
+        <p className="ui-text-danger text-xs">{t("copyFailed")}</p>
       ) : (
         <p className="text-xs leading-snug text-muted-foreground">
-          In a source checkout, use <span className="font-mono">{localGatewayCommandPnpm}</span>.
+          {t("sourceCheckout")} <span className="font-mono">{localGatewayCommandPnpm}</span>.
         </p>
       )}
     </div>
@@ -111,39 +115,39 @@ export const GatewayConnectScreen = ({
   const remoteForm = (
     <div className="mt-2.5 flex flex-col gap-3">
       <label className="flex flex-col gap-1 text-[11px] font-medium text-foreground/80">
-        Upstream URL
+        {t("upstreamUrl")}
         <input
           className="ui-input h-10 rounded-md px-4 font-sans text-sm text-foreground outline-none"
           type="text"
           value={gatewayUrl}
           onChange={(event) => onGatewayUrlChange(event.target.value)}
-          placeholder="wss://your-gateway.example.com"
+          placeholder={t("upstreamUrlPlaceholder")}
           spellCheck={false}
         />
       </label>
 
       <div className="space-y-0.5 text-xs text-muted-foreground/90">
-        <p className="font-medium text-foreground/85">Using Tailscale?</p>
+        <p className="font-medium text-foreground/85">{t("usingTailscale")}</p>
         <p>
           URL: <span className="font-mono">wss://&lt;your-tailnet-host&gt;</span>
         </p>
       </div>
 
       <label className="flex flex-col gap-1 text-[11px] font-medium text-foreground/80">
-        Upstream token
+        {t("upstreamToken")}
         <div className="relative">
           <input
             className="ui-input h-10 w-full rounded-md px-4 pr-10 font-sans text-sm text-foreground outline-none"
             type={showToken ? "text" : "password"}
             value={token}
             onChange={(event) => onTokenChange(event.target.value)}
-            placeholder="gateway token"
+            placeholder={t("tokenPlaceholder")}
             spellCheck={false}
           />
           <button
             type="button"
             className="ui-btn-icon absolute inset-y-0 right-1 my-auto h-8 w-8 border-transparent bg-transparent text-muted-foreground hover:bg-transparent hover:text-foreground"
-            aria-label={showToken ? "Hide token" : "Show token"}
+            aria-label={showToken ? t("hideToken") : t("showToken")}
             onClick={() => setShowToken((prev) => !prev)}
           >
             {showToken ? (
@@ -167,7 +171,7 @@ export const GatewayConnectScreen = ({
       {status === "connecting" ? (
         <p className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
           <Loader2 className="h-3.5 w-3.5 animate-spin" />
-          Connecting…
+          {t("connecting")}
         </p>
       ) : null}
       {error ? <p className="ui-text-danger text-xs leading-snug">{error}</p> : null}
@@ -192,9 +196,9 @@ export const GatewayConnectScreen = ({
       <div className="ui-card px-4 py-5 sm:px-6">
         <div>
           <p className="font-mono text-[10px] font-medium tracking-[0.06em] text-muted-foreground">
-            Remote gateway (recommended)
+            {t("remoteRecommended")}
           </p>
-          <p className="mt-2 text-sm text-foreground/85">Default: enter your URL and token to connect.</p>
+          <p className="mt-2 text-sm text-foreground/85">{t("remoteDefault")}</p>
         </div>
         {remoteForm}
       </div>
@@ -202,10 +206,10 @@ export const GatewayConnectScreen = ({
       <div className="ui-card px-4 py-4 sm:px-6 sm:py-5">
         <div className="space-y-1.5">
           <p className="font-mono text-[10px] font-semibold tracking-[0.06em] text-muted-foreground">
-            Run locally (optional)
+            {t("runLocally")}
           </p>
           <p className="text-sm text-foreground/85">
-            Start a local gateway process on this machine, then connect.
+            {t("startLocal")}
           </p>
         </div>
         <div className="mt-3 space-y-3">
@@ -214,7 +218,7 @@ export const GatewayConnectScreen = ({
             <div className="ui-input rounded-md px-3 py-3">
               <div className="space-y-2">
                 <p className="text-xs text-muted-foreground">
-                  Use token from <span className="font-mono">~/.openclaw/openclaw.json</span>.
+                  {t("useTokenFrom")} <span className="font-mono">~/.openclaw/openclaw.json</span>.
                 </p>
                 <p className="font-mono text-[11px] text-foreground/85">
                   {localGatewayDefaults.url}
@@ -224,7 +228,7 @@ export const GatewayConnectScreen = ({
                   className="ui-btn-secondary h-9 w-full px-3 text-xs font-semibold tracking-[0.05em] text-foreground"
                   onClick={onUseLocalDefaults}
                 >
-                  Use local defaults
+                  {t("useLocalDefaults")}
                 </button>
               </div>
             </div>

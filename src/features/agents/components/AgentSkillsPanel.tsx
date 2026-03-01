@@ -26,16 +26,16 @@ type AgentSkillsPanelProps = {
 };
 
 const FILTERS: Array<{ id: SkillRowFilter; label: string }> = [
-  { id: "all", label: "All" },
-  { id: "ready", label: "Ready" },
-  { id: "setup-required", label: "Setup required" },
-  { id: "not-supported", label: "Not supported" },
+  { id: "all", label: "Tous" },
+  { id: "ready", label: "Prêt" },
+  { id: "setup-required", label: "Configuration requise" },
+  { id: "not-supported", label: "Non supporté" },
 ];
 
 const DISPLAY_LABELS: Record<AgentSkillDisplayState, string> = {
-  ready: "Ready",
-  "setup-required": "Setup required",
-  "not-supported": "Not supported",
+  ready: "Prêt",
+  "setup-required": "Configuration requise",
+  "not-supported": "Non supporté",
 };
 
 const DISPLAY_CLASSES: Record<AgentSkillDisplayState, string> = {
@@ -53,15 +53,15 @@ const resolveHint = (
   }
   if (displayState === "not-supported") {
     if (skill.blockedByAllowlist) {
-      return "Blocked by bundled skills policy.";
+      return "Bloqué par la politique des skills intégrés.";
     }
-    return buildSkillMissingDetails(skill).find((line) => line.startsWith("Requires OS:")) ?? "Not supported.";
+    return buildSkillMissingDetails(skill).find((line) => line.startsWith("Requires OS:")) ?? "Non supporté.";
   }
   const readiness = deriveSkillReadinessState(skill);
   if (readiness === "disabled-globally") {
-    return "Disabled globally. Enable it in System setup.";
+    return "Désactivé globalement. Activez-le dans la configuration système.";
   }
-  return buildSkillMissingDetails(skill)[0] ?? "Requires setup in System setup.";
+  return buildSkillMissingDetails(skill)[0] ?? "Configuration requise dans la configuration système.";
 };
 
 export const AgentSkillsPanel = ({
@@ -147,19 +147,19 @@ export const AgentSkillsPanel = ({
           {enabledCount}/{skillEntries.length}
         </div>
       </div>
-      <div className="mt-2 text-[11px] text-muted-foreground">Skill access controls apply to this agent.</div>
+      <div className="mt-2 text-[11px] text-muted-foreground">Les contrôles d'accès aux skills s'appliquent à cet agent.</div>
       {accessMode === "selected" ? (
         <div className="mt-2 text-[10px] text-muted-foreground/80">
-          This agent is using selected skills only.
+          Cet agent utilise uniquement les skills sélectionnés.
         </div>
       ) : null}
       <div className="mt-3">
         <input
           value={skillsFilter}
           onChange={(event) => setSkillsFilter(event.target.value)}
-          placeholder="Search skills"
+          placeholder="Rechercher des skills"
           className="w-full rounded-md border border-border/60 bg-surface-1 px-3 py-2 text-[11px] text-foreground outline-none transition focus:border-border"
-          aria-label="Search skills"
+          aria-label="Rechercher des skills"
         />
       </div>
       <div className="mt-2 flex flex-wrap gap-1">
@@ -181,12 +181,12 @@ export const AgentSkillsPanel = ({
           );
         })}
       </div>
-      {skillsLoading ? <div className="mt-3 text-[11px] text-muted-foreground">Loading skills...</div> : null}
+      {skillsLoading ? <div className="mt-3 text-[11px] text-muted-foreground">Chargement des skills...</div> : null}
       {!skillsLoading && skillsError ? (
         <div className="ui-alert-danger mt-3 rounded-md px-3 py-2 text-xs">{skillsError}</div>
       ) : null}
       {!skillsLoading && !skillsError && filteredRows.length === 0 ? (
-        <div className="mt-3 text-[11px] text-muted-foreground">No matching skills.</div>
+        <div className="mt-3 text-[11px] text-muted-foreground">Aucun skill correspondant.</div>
       ) : null}
       {!skillsLoading && !skillsError && filteredRows.length > 0 ? (
         <div className="mt-3 flex flex-col gap-2">
@@ -241,7 +241,7 @@ export const AgentSkillsPanel = ({
                         onOpenSystemSetup(entry.skill.skillKey);
                       }}
                     >
-                      Open System Setup
+                      Ouvrir la configuration système
                     </button>
                   ) : null}
                 </div>

@@ -35,7 +35,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
           <AlertTriangle className="h-6 w-6 text-destructive" aria-hidden="true" />
           <div>
             <p className="text-sm font-semibold text-foreground">
-              {this.props.fallbackLabel ?? "Something went wrong"}
+              {this.props.fallbackLabel ?? "Une erreur est survenue"}
             </p>
             {this.state.error ? (
               <p className="mt-1 max-w-md text-xs text-muted-foreground">
@@ -49,7 +49,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
             onClick={this.handleRetry}
           >
             <RotateCcw className="h-3 w-3" aria-hidden="true" />
-            {this.props.retryLabel ?? "Retry"}
+            {this.props.retryLabel ?? "Réessayer"}
           </button>
         </div>
       );

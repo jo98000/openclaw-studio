@@ -13,6 +13,7 @@ import {
 import type { AgentState as AgentRecord } from "@/features/agents/state/store";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { useTranslations } from "next-intl";
 import { Check, ChevronRight, Clock, Cog, Pencil, Shuffle, Trash2, X } from "lucide-react";
 import type { GatewayModelChoice } from "@/lib/gateway/models";
 import { rewriteMediaLinesToMarkdown } from "@/lib/text/media-markdown";
@@ -561,6 +562,7 @@ const AgentChatTranscript = memo(function AgentChatTranscript({
 }) {
   const chatRef = useRef<HTMLDivElement | null>(null);
   const chatBottomRef = useRef<HTMLDivElement | null>(null);
+  const tc = useTranslations("chat");
   const scrollFrameRef = useRef<number | null>(null);
   const pinnedRef = useRef(true);
   const [isPinned, setIsPinned] = useState(true);
@@ -751,9 +753,9 @@ const AgentChatTranscript = memo(function AgentChatTranscript({
             setPinned(true);
             scrollChatToBottom();
           }}
-          aria-label="Jump to latest"
+          aria-label={tc("jumpToLatest")}
         >
-          Jump to latest
+          {tc("jumpToLatest")}
         </button>
       ) : null}
     </div>
@@ -830,30 +832,31 @@ const AgentChatComposer = memo(function AgentChatComposer({
   onToolCallingToggle: (enabled: boolean) => void;
   onThinkingTracesToggle: (enabled: boolean) => void;
 }) {
+  const tc = useTranslations("chat");
   const stopReason = stopDisabledReason?.trim() ?? "";
   const stopDisabled = !canSend || stopBusy || Boolean(stopReason);
-  const stopAriaLabel = stopReason ? `Stop unavailable: ${stopReason}` : "Stop";
+  const stopAriaLabel = stopReason ? `${tc("stop")}: ${stopReason}` : tc("stop");
   const modelSelectedLabel = useMemo(() => {
-    if (modelOptions.length === 0) return "No models found";
+    if (modelOptions.length === 0) return tc("noModels");
     return modelOptions.find((option) => option.value === modelValue)?.label ?? modelValue;
   }, [modelOptions, modelValue]);
   const modelSelectWidthCh = Math.max(11, Math.min(44, modelSelectedLabel.length + 6));
   const thinkingSelectedLabel = useMemo(() => {
     switch (thinkingValue) {
       case "off":
-        return "Off";
+        return tc("thinkingOff");
       case "minimal":
-        return "Minimal";
+        return tc("thinkingMinimal");
       case "low":
-        return "Low";
+        return tc("thinkingLow");
       case "medium":
-        return "Medium";
+        return tc("thinkingMedium");
       case "high":
-        return "High";
+        return tc("thinkingHigh");
       case "xhigh":
-        return "XHigh";
+        return tc("thinkingXHigh");
       default:
-        return "Default";
+        return tc("thinkingDefault");
     }
   }, [thinkingValue]);
   const thinkingSelectWidthCh = Math.max(9, Math.min(22, thinkingSelectedLabel.length + 6));
@@ -904,7 +907,7 @@ const AgentChatComposer = memo(function AgentChatComposer({
               disabled
               className="invisible rounded-md border border-border/70 bg-surface-3 px-3 py-2 font-mono text-[12px] font-medium tracking-[0.02em] text-foreground"
             >
-              {stopBusy ? "Stopping" : "Stop"}
+              {stopBusy ? tc("stopping") : tc("stop")}
             </button>
           ) : null}
           <button
@@ -914,7 +917,7 @@ const AgentChatComposer = memo(function AgentChatComposer({
             disabled
             className="ui-btn-primary ui-btn-send invisible px-3 py-2 font-mono text-[12px] font-medium tracking-[0.02em]"
           >
-            Send
+            {tc("send")}
           </button>
         </div>
       ) : null}
@@ -926,7 +929,7 @@ const AgentChatComposer = memo(function AgentChatComposer({
           className="chat-composer-input min-h-[28px] flex-1 resize-none border-0 bg-transparent px-0 py-1 text-[15px] leading-6 text-foreground outline-none shadow-none transition placeholder:text-muted-foreground/65 focus:outline-none focus-visible:outline-none focus-visible:ring-0"
           onChange={onChange}
           onKeyDown={onKeyDown}
-          placeholder="type a message"
+          placeholder={tc("typeMessage")}
         />
         {running ? (
           <span className="inline-flex" title={stopReason || undefined}>
@@ -937,7 +940,7 @@ const AgentChatComposer = memo(function AgentChatComposer({
               disabled={stopDisabled}
               aria-label={stopAriaLabel}
             >
-              {stopBusy ? "Stopping" : "Stop"}
+              {stopBusy ? tc("stopping") : tc("stop")}
             </button>
           </span>
         ) : null}
@@ -952,10 +955,10 @@ const AgentChatComposer = memo(function AgentChatComposer({
       </div>
       <div className="mt-1 flex items-center justify-between gap-2">
         <div className="flex min-w-0 items-center gap-2">
-          <InlineHoverTooltip text="Choose model">
+          <InlineHoverTooltip text={tc("chooseModel")}>
             <select
               className="ui-input ui-control-important h-6 min-w-0 rounded-md px-1.5 text-[10px] font-semibold text-foreground"
-              aria-label="Model"
+              aria-label={tc("model")}
               value={modelValue}
               style={{ width: `${modelSelectWidthCh}ch` }}
               onChange={(event) => {
@@ -965,7 +968,7 @@ const AgentChatComposer = memo(function AgentChatComposer({
               }}
             >
               {modelOptions.length === 0 ? (
-                <option value="">No models found</option>
+                <option value="">{tc("noModels")}</option>
               ) : null}
               {modelOptions.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -975,10 +978,10 @@ const AgentChatComposer = memo(function AgentChatComposer({
             </select>
           </InlineHoverTooltip>
           {allowThinking ? (
-            <InlineHoverTooltip text="Select reasoning effort">
+            <InlineHoverTooltip text={tc("selectReasoning")}>
               <select
                 className="ui-input ui-control-important h-6 rounded-md px-1.5 text-[10px] font-semibold text-foreground"
-                aria-label="Thinking"
+                aria-label={tc("thinking")}
                 value={thinkingValue}
                 style={{ width: `${thinkingSelectWidthCh}ch` }}
                 onChange={(event) => {
@@ -986,23 +989,23 @@ const AgentChatComposer = memo(function AgentChatComposer({
                   onThinkingChange(nextValue ? nextValue : null);
                 }}
               >
-                <option value="">Default</option>
-                <option value="off">Off</option>
-                <option value="minimal">Minimal</option>
-                <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="high">High</option>
-                <option value="xhigh">XHigh</option>
+                <option value="">{tc("thinkingDefault")}</option>
+                <option value="off">{tc("thinkingOff")}</option>
+                <option value="minimal">{tc("thinkingMinimal")}</option>
+                <option value="low">{tc("thinkingLow")}</option>
+                <option value="medium">{tc("thinkingMedium")}</option>
+                <option value="high">{tc("thinkingHigh")}</option>
+                <option value="xhigh">{tc("thinkingXHigh")}</option>
               </select>
             </InlineHoverTooltip>
           ) : null}
         </div>
         <div className="ml-auto flex items-center gap-1.5 text-[10px] text-muted-foreground">
-          <span className="font-mono tracking-[0.02em]">Show</span>
+          <span className="font-mono tracking-[0.02em]">{tc("show")}</span>
           <button
             type="button"
             role="switch"
-            aria-label="Show tool calls"
+            aria-label={tc("showToolCalls")}
             aria-checked={toolCallingEnabled}
             className={`inline-flex h-5 items-center rounded-sm border px-1.5 font-mono text-[10px] tracking-[0.01em] transition ${
               toolCallingEnabled
@@ -1011,12 +1014,12 @@ const AgentChatComposer = memo(function AgentChatComposer({
             }`}
             onClick={() => onToolCallingToggle(!toolCallingEnabled)}
           >
-            Tools
+            {tc("tools")}
           </button>
           <button
             type="button"
             role="switch"
-            aria-label="Show thinking"
+            aria-label={tc("showThinking")}
             aria-checked={showThinkingTraces}
             className={`inline-flex h-5 items-center rounded-sm border px-1.5 font-mono text-[10px] tracking-[0.01em] transition ${
               showThinkingTraces
@@ -1025,7 +1028,7 @@ const AgentChatComposer = memo(function AgentChatComposer({
             }`}
             onClick={() => onThinkingTracesToggle(!showThinkingTraces)}
           >
-            Thinking
+            {tc("thinking")}
           </button>
         </div>
       </div>
@@ -1056,6 +1059,7 @@ export const AgentChatPanel = ({
   pendingExecApprovals = [],
   onResolveExecApproval,
 }: AgentChatPanelProps) => {
+  const tc = useTranslations("chat");
   const [draftValue, setDraftValue] = useState(agent.draft);
   const [newSessionBusy, setNewSessionBusy] = useState(false);
   const [renameEditing, setRenameEditing] = useState(false);
@@ -1330,7 +1334,7 @@ export const AgentChatPanel = ({
               <button
                 className="nodrag ui-btn-icon ui-btn-icon-xs agent-avatar-shuffle-btn absolute bottom-0.5 right-0.5"
                 type="button"
-                aria-label="Shuffle avatar"
+                aria-label={tc("shuffleAvatar")}
                 data-testid="agent-avatar-shuffle"
                 onClick={(event) => {
                   event.preventDefault();
@@ -1350,7 +1354,7 @@ export const AgentChatPanel = ({
                       <input
                         ref={renameInputRef}
                         className="ui-input agent-rename-input h-8 min-w-0 flex-1 rounded-md px-2 text-[12px] font-semibold text-foreground"
-                        aria-label="Edit agent name"
+                        aria-label={tc("editAgentName")}
                         data-testid="agent-rename-input"
                         value={renameDraft}
                         disabled={renameSaving}
@@ -1363,7 +1367,7 @@ export const AgentChatPanel = ({
                       <button
                         className="ui-btn-icon ui-btn-icon-sm agent-rename-control"
                         type="button"
-                        aria-label="Save agent name"
+                        aria-label={tc("saveAgentName")}
                         data-testid="agent-rename-save"
                         onClick={() => {
                           void submitRename();
@@ -1375,7 +1379,7 @@ export const AgentChatPanel = ({
                       <button
                         className="ui-btn-icon ui-btn-icon-sm agent-rename-control"
                         type="button"
-                        aria-label="Cancel agent rename"
+                        aria-label={tc("cancelRename")}
                         data-testid="agent-rename-cancel"
                         onClick={cancelRename}
                         disabled={renameSaving}
@@ -1392,7 +1396,7 @@ export const AgentChatPanel = ({
                         <button
                           className="ui-btn-icon ui-btn-icon-xs agent-rename-control shrink-0"
                           type="button"
-                          aria-label="Rename agent"
+                          aria-label={tc("renameAgent")}
                           data-testid="agent-rename-toggle"
                           onClick={beginRename}
                         >
@@ -1414,21 +1418,21 @@ export const AgentChatPanel = ({
               className="nodrag ui-btn-primary px-2.5 py-1.5 font-mono text-[11px] font-medium tracking-[0.02em] disabled:cursor-not-allowed disabled:border-border disabled:bg-muted disabled:text-muted-foreground"
               type="button"
               data-testid="agent-new-session-toggle"
-              aria-label="Start new session"
-              title="Start new session"
+              aria-label={tc("startNewSession")}
+              title={tc("startNewSession")}
               onClick={() => {
                 void handleNewSession();
               }}
               disabled={newSessionDisabled}
             >
-              {newSessionBusy ? "Starting..." : "New session"}
+              {newSessionBusy ? tc("starting") : tc("newSession")}
             </button>
             <button
               className="nodrag ui-btn-icon"
               type="button"
               data-testid="agent-settings-toggle"
-              aria-label="Open behavior"
-              title="Behavior"
+              aria-label={tc("openBehavior")}
+              title={tc("behavior")}
               onClick={onOpenSettings}
             >
               <Cog className="h-4 w-4" />

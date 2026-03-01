@@ -1338,3 +1338,81 @@ textarea:focus::-webkit-scrollbar {
     transform: translateY(-1px);
   }
 }
+
+/* ─── Mobile responsive enhancements ─── */
+
+/* Safe area insets for notched devices (iPhone X+, etc.) */
+html {
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+/* Disable iOS tap highlight, rubber-band overscroll */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Minimum touch targets (44px per WCAG 2.5.5) */
+@media (pointer: coarse) {
+  button,
+  a,
+  [role="button"],
+  input[type="checkbox"],
+  input[type="radio"],
+  select {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Exempt small icon buttons that use visual hit-area expansion */
+  .ui-btn-icon.xs,
+  .ui-btn-icon-xs {
+    min-height: 32px;
+    min-width: 32px;
+  }
+
+  /* Larger touch targets for filter pills */
+  .ui-segment-item {
+    min-height: 40px;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+}
+
+/* Prevent text zoom on iOS when focusing inputs */
+@media screen and (max-width: 640px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+
+/* Bottom safe-area padding for panels on mobile */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .ui-card,
+  .glass-panel {
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+  }
+}
+
+/* Improve scroll performance on mobile */
+.ui-chat-scroll,
+.ui-scroll {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+/* Full-width modals on narrow screens */
+@media screen and (max-width: 480px) {
+  [role="dialog"] .ui-card {
+    max-width: 100% !important;
+    margin: 0.5rem;
+    border-radius: var(--radius-card);
+  }
+}

@@ -3,13 +3,22 @@ import { useTranslations } from "next-intl";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LocaleSwitcher } from "@/components/LocaleSwitcher";
 import type { GatewayStatus } from "@/lib/gateway/GatewayClient";
-import { Plug, Layers } from "lucide-react";
+import { Plug, Layers, Radio, GitBranch, Webhook, Puzzle, BarChart3, ScrollText, MonitorPlay, MessageSquare, Mic } from "lucide-react";
 import { resolveGatewayStatusBadgeClass } from "./colorSemantics";
 
 type HeaderBarProps = {
   status: GatewayStatus;
   onConnectionSettings: () => void;
   onProviders?: () => void;
+  onChannels?: () => void;
+  onRouting?: () => void;
+  onWebhooks?: () => void;
+  onSkills?: () => void;
+  onAnalytics?: () => void;
+  onLogs?: () => void;
+  onCanvas?: () => void;
+  onIntercom?: () => void;
+  onVoice?: () => void;
   showConnectionSettings?: boolean;
 };
 
@@ -17,6 +26,15 @@ export const HeaderBar = ({
   status,
   onConnectionSettings,
   onProviders,
+  onChannels,
+  onRouting,
+  onWebhooks,
+  onSkills,
+  onAnalytics,
+  onLogs,
+  onCanvas,
+  onIntercom,
+  onVoice,
   showConnectionSettings = true,
 }: HeaderBarProps) => {
   const t = useTranslations("header");
@@ -89,6 +107,134 @@ export const HeaderBar = ({
                       {t("aiProviders")}
                     </button>
                   ) : null}
+                  {onChannels ? (
+                    <button
+                      className="ui-btn-ghost w-full justify-start border-transparent px-3 py-2 text-left text-xs font-medium tracking-normal text-foreground"
+                      type="button"
+                      onClick={() => {
+                        onChannels();
+                        setMenuOpen(false);
+                      }}
+                      data-testid="channels-toggle"
+                    >
+                      <Radio className="mr-2 inline h-3 w-3" aria-hidden="true" />
+                      {t("channels")}
+                    </button>
+                  ) : null}
+                  {onRouting ? (
+                    <button
+                      className="ui-btn-ghost w-full justify-start border-transparent px-3 py-2 text-left text-xs font-medium tracking-normal text-foreground"
+                      type="button"
+                      onClick={() => {
+                        onRouting();
+                        setMenuOpen(false);
+                      }}
+                      data-testid="routing-toggle"
+                    >
+                      <GitBranch className="mr-2 inline h-3 w-3" aria-hidden="true" />
+                      {t("routing")}
+                    </button>
+                  ) : null}
+                  {onWebhooks ? (
+                    <button
+                      className="ui-btn-ghost w-full justify-start border-transparent px-3 py-2 text-left text-xs font-medium tracking-normal text-foreground"
+                      type="button"
+                      onClick={() => {
+                        onWebhooks();
+                        setMenuOpen(false);
+                      }}
+                      data-testid="webhooks-toggle"
+                    >
+                      <Webhook className="mr-2 inline h-3 w-3" aria-hidden="true" />
+                      {t("webhooks")}
+                    </button>
+                  ) : null}
+                  {onSkills ? (
+                    <button
+                      className="ui-btn-ghost w-full justify-start border-transparent px-3 py-2 text-left text-xs font-medium tracking-normal text-foreground"
+                      type="button"
+                      onClick={() => {
+                        onSkills();
+                        setMenuOpen(false);
+                      }}
+                      data-testid="skills-toggle"
+                    >
+                      <Puzzle className="mr-2 inline h-3 w-3" aria-hidden="true" />
+                      {t("skillsBrowser")}
+                    </button>
+                  ) : null}
+                  {onCanvas ? (
+                    <button
+                      className="ui-btn-ghost w-full justify-start border-transparent px-3 py-2 text-left text-xs font-medium tracking-normal text-foreground"
+                      type="button"
+                      onClick={() => {
+                        onCanvas();
+                        setMenuOpen(false);
+                      }}
+                      data-testid="canvas-toggle"
+                    >
+                      <MonitorPlay className="mr-2 inline h-3 w-3" aria-hidden="true" />
+                      {t("canvas")}
+                    </button>
+                  ) : null}
+                  {onIntercom ? (
+                    <button
+                      className="ui-btn-ghost w-full justify-start border-transparent px-3 py-2 text-left text-xs font-medium tracking-normal text-foreground"
+                      type="button"
+                      onClick={() => {
+                        onIntercom();
+                        setMenuOpen(false);
+                      }}
+                      data-testid="intercom-toggle"
+                    >
+                      <MessageSquare className="mr-2 inline h-3 w-3" aria-hidden="true" />
+                      {t("intercom")}
+                    </button>
+                  ) : null}
+                  {onVoice ? (
+                    <button
+                      className="ui-btn-ghost w-full justify-start border-transparent px-3 py-2 text-left text-xs font-medium tracking-normal text-foreground"
+                      type="button"
+                      onClick={() => {
+                        onVoice();
+                        setMenuOpen(false);
+                      }}
+                      data-testid="voice-toggle"
+                    >
+                      <Mic className="mr-2 inline h-3 w-3" aria-hidden="true" />
+                      {t("voice")}
+                    </button>
+                  ) : null}
+                  <div className="my-1 border-t border-border" />
+                  {onAnalytics ? (
+                    <button
+                      className="ui-btn-ghost w-full justify-start border-transparent px-3 py-2 text-left text-xs font-medium tracking-normal text-foreground"
+                      type="button"
+                      onClick={() => {
+                        onAnalytics();
+                        setMenuOpen(false);
+                      }}
+                      data-testid="analytics-toggle"
+                    >
+                      <BarChart3 className="mr-2 inline h-3 w-3" aria-hidden="true" />
+                      {t("analytics")}
+                    </button>
+                  ) : null}
+                  {onLogs ? (
+                    <button
+                      className="ui-btn-ghost w-full justify-start border-transparent px-3 py-2 text-left text-xs font-medium tracking-normal text-foreground"
+                      type="button"
+                      onClick={() => {
+                        onLogs();
+                        setMenuOpen(false);
+                      }}
+                      data-testid="logs-toggle"
+                    >
+                      <ScrollText className="mr-2 inline h-3 w-3" aria-hidden="true" />
+                      {t("logs")}
+                    </button>
+                  ) : null}
+                  <div className="my-1 border-t border-border" />
                   <button
                     className="ui-btn-ghost w-full justify-start border-transparent px-3 py-2 text-left text-xs font-medium tracking-normal text-foreground"
                     type="button"

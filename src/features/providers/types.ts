@@ -4,6 +4,18 @@ export type ProviderId =
   | "perplexity"
   | "google"
   | "mistral"
+  | "groq"
+  | "openrouter"
+  | "ollama"
+  | "deepseek"
+  | "together"
+  | "fireworks"
+  | "cohere"
+  | "amazon-bedrock"
+  | "azure-openai"
+  | "cloudflare"
+  | "nvidia"
+  | "huggingface"
   | "custom";
 
 export type ProviderStatus = "configured" | "unconfigured" | "error";
