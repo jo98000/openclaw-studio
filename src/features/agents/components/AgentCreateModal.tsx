@@ -217,7 +217,15 @@ const AgentCreateModalContent = ({
             labels={[t("stepIdentity"), t("stepModel"), t("stepCapabilities")]}
           />
 
-          <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5">
+          <div
+            className="px-6 py-5"
+            style={{
+              flex: "1 1 0%",
+              minHeight: 0,
+              overflowY: "auto",
+              overscrollBehavior: "contain",
+            }}
+          >
             {/* Step 1: Identity */}
             {step === 0 ? (
               <div className="grid gap-4">
