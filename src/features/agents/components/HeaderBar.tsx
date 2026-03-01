@@ -1,20 +1,25 @@
 import { useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { LocaleSwitcher } from "@/components/LocaleSwitcher";
 import type { GatewayStatus } from "@/lib/gateway/GatewayClient";
-import { Plug } from "lucide-react";
+import { Plug, Layers } from "lucide-react";
 import { resolveGatewayStatusBadgeClass } from "./colorSemantics";
 
 type HeaderBarProps = {
   status: GatewayStatus;
   onConnectionSettings: () => void;
+  onProviders?: () => void;
   showConnectionSettings?: boolean;
 };
 
 export const HeaderBar = ({
   status,
   onConnectionSettings,
+  onProviders,
   showConnectionSettings = true,
 }: HeaderBarProps) => {
+  const t = useTranslations("header");
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
 
@@ -41,7 +46,7 @@ export const HeaderBar = ({
       <div className="grid h-10 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center px-3 sm:px-4 md:px-5">
         <div aria-hidden="true" />
         <p className="truncate text-sm font-semibold tracking-[0.01em] text-foreground">
-          OpenClaw Studio
+          {t("title")}
         </p>
         <div className="flex items-center justify-end gap-1">
           {status === "connecting" ? (
@@ -50,9 +55,10 @@ export const HeaderBar = ({
               data-testid="gateway-connecting-indicator"
               data-status="connecting"
             >
-              Connecting
+              {t("connecting")}
             </span>
           ) : null}
+          <LocaleSwitcher />
           <ThemeToggle />
           {showConnectionSettings ? (
             <div className="relative z-[210]" ref={menuRef}>
@@ -65,10 +71,24 @@ export const HeaderBar = ({
                 onClick={() => setMenuOpen((prev) => !prev)}
               >
                 <Plug className="h-3.5 w-3.5" />
-                <span className="sr-only">Open studio menu</span>
+                <span className="sr-only">{t("openMenu")}</span>
               </button>
               {menuOpen ? (
                 <div className="ui-card ui-menu-popover absolute right-0 top-9 z-[260] min-w-44 p-1">
+                  {onProviders ? (
+                    <button
+                      className="ui-btn-ghost w-full justify-start border-transparent px-3 py-2 text-left text-xs font-medium tracking-normal text-foreground"
+                      type="button"
+                      onClick={() => {
+                        onProviders();
+                        setMenuOpen(false);
+                      }}
+                      data-testid="providers-toggle"
+                    >
+                      <Layers className="mr-2 inline h-3 w-3" aria-hidden="true" />
+                      {t("aiProviders")}
+                    </button>
+                  ) : null}
                   <button
                     className="ui-btn-ghost w-full justify-start border-transparent px-3 py-2 text-left text-xs font-medium tracking-normal text-foreground"
                     type="button"
@@ -78,7 +98,7 @@ export const HeaderBar = ({
                     }}
                     data-testid="gateway-settings-toggle"
                   >
-                    Gateway connection
+                    {t("gatewayConnection")}
                   </button>
                 </div>
               ) : null}

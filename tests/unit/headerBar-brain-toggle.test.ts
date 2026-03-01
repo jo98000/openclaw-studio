@@ -2,6 +2,7 @@ import { createElement } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { HeaderBar } from "@/features/agents/components/HeaderBar";
+import { withIntl } from "./helpers/intlWrapper";
 
 describe("HeaderBar controls", () => {
   beforeEach(() => {
@@ -27,10 +28,10 @@ describe("HeaderBar controls", () => {
 
   it("does_not_render_brain_toggle_in_header", () => {
     render(
-      createElement(HeaderBar, {
+      withIntl(createElement(HeaderBar, {
         status: "disconnected",
         onConnectionSettings: vi.fn(),
-      })
+      }))
     );
 
     expect(screen.queryByTestId("brain-files-toggle")).not.toBeInTheDocument();
@@ -40,10 +41,10 @@ describe("HeaderBar controls", () => {
     const onConnectionSettings = vi.fn();
 
     render(
-      createElement(HeaderBar, {
+      withIntl(createElement(HeaderBar, {
         status: "disconnected",
         onConnectionSettings,
-      })
+      }))
     );
 
     fireEvent.click(screen.getByTestId("studio-menu-toggle"));

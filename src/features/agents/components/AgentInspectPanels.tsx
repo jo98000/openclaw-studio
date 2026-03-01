@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 
 import type { AgentState } from "@/features/agents/state/store";
+import { AgentCredentialsPanel } from "@/features/credentials/components/AgentCredentialsPanel";
 import type { CronCreateDraft, CronCreateTemplateId } from "@/lib/cron/createPayloadBuilder";
 import { formatCronPayload, formatCronSchedule, type CronJobSummary } from "@/lib/cron/types";
 import type { GatewayClient } from "@/lib/gateway/GatewayClient";
@@ -91,7 +92,7 @@ const AgentInspectHeader = ({
 
 type AgentSettingsPanelProps = {
   agent: AgentState;
-  mode?: "capabilities" | "skills" | "system" | "automations" | "advanced";
+  mode?: "capabilities" | "skills" | "system" | "automations" | "credentials" | "advanced";
   showHeader?: boolean;
   onClose: () => void;
   permissionsDraft?: AgentPermissionsDraft;
@@ -511,7 +512,9 @@ export const AgentSettingsPanel = ({
         ? "Skills"
         : mode === "system"
           ? "System setup"
-          : "";
+          : mode === "credentials"
+            ? "Credentials"
+            : "";
   const canOpenControlUi = typeof controlUiUrl === "string" && controlUiUrl.trim().length > 0;
   const timedAutomationStepMeta =
     TIMED_AUTOMATION_STEP_META[cronCreateStep] ??
@@ -862,6 +865,10 @@ export const AgentSettingsPanel = ({
             </div>
           </section>
           </section>
+        ) : null}
+
+        {mode === "credentials" ? (
+          <AgentCredentialsPanel agentId={agent.agentId} />
         ) : null}
 
         {mode === "advanced" ? (

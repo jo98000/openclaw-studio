@@ -2,17 +2,34 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import dynamic from "next/dynamic";
 import { AgentChatPanel } from "@/features/agents/components/AgentChatPanel";
-import { AgentCreateModal } from "@/features/agents/components/AgentCreateModal";
-import {
-  AgentBrainPanel,
-  AgentSettingsPanel,
-} from "@/features/agents/components/AgentInspectPanels";
 import { FleetSidebar } from "@/features/agents/components/FleetSidebar";
 import { HeaderBar } from "@/features/agents/components/HeaderBar";
-import { ConnectionPanel } from "@/features/agents/components/ConnectionPanel";
 import { GatewayConnectScreen } from "@/features/agents/components/GatewayConnectScreen";
 import { EmptyStatePanel } from "@/features/agents/components/EmptyStatePanel";
+
+const AgentCreateModal = dynamic(
+  () => import("@/features/agents/components/AgentCreateModal").then((m) => m.AgentCreateModal),
+  { ssr: false },
+);
+const AgentBrainPanel = dynamic(
+  () => import("@/features/agents/components/AgentInspectPanels").then((m) => m.AgentBrainPanel),
+  { ssr: false },
+);
+const AgentSettingsPanel = dynamic(
+  () => import("@/features/agents/components/AgentInspectPanels").then((m) => m.AgentSettingsPanel),
+  { ssr: false },
+);
+const ConnectionPanel = dynamic(
+  () => import("@/features/agents/components/ConnectionPanel").then((m) => m.ConnectionPanel),
+  { ssr: false },
+);
+const ProvidersPanel = dynamic(
+  () => import("@/features/providers/components/ProvidersPanel").then((m) => m.ProvidersPanel),
+  { ssr: false },
+);
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import {
   isHeartbeatPrompt,
 } from "@/lib/text/message-extract";
@@ -228,6 +245,7 @@ const AgentStudioPage = () => {
 
   const { state, dispatch, hydrateAgents, setError, setLoading } = useAgentStore();
   const [showConnectionPanel, setShowConnectionPanel] = useState(false);
+  const [showProvidersPanel, setShowProvidersPanel] = useState(false);
   const [focusFilter, setFocusFilter] = useState<FocusFilter>("all");
   const [focusedPreferencesLoaded, setFocusedPreferencesLoaded] = useState(false);
   const [agentsLoadedOnce, setAgentsLoadedOnce] = useState(false);
@@ -1299,6 +1317,7 @@ const AgentStudioPage = () => {
           <HeaderBar
             status={status}
             onConnectionSettings={() => setShowConnectionPanel(true)}
+            onProviders={() => setShowProvidersPanel(true)}
           />
           <div className="flex min-h-0 flex-1 flex-col gap-4 px-3 pb-3 pt-3 sm:px-4 sm:pb-4 sm:pt-4 md:px-6 md:pb-6 md:pt-4">
             {settingsRouteActive ? (
@@ -1357,8 +1376,27 @@ const AgentStudioPage = () => {
         <HeaderBar
           status={status}
           onConnectionSettings={() => setShowConnectionPanel(true)}
+          onProviders={() => setShowProvidersPanel((prev) => !prev)}
         />
         <div className="flex min-h-0 flex-1 flex-col gap-3 px-3 pb-3 pt-2 sm:px-4 sm:pb-4 sm:pt-3 md:px-5 md:pb-5 md:pt-3">
+          {showProvidersPanel ? (
+            <div className="pointer-events-none fixed inset-x-0 top-12 z-[140] flex justify-center px-3 sm:px-4 md:px-5">
+              <div className="glass-panel pointer-events-auto w-full max-w-3xl !bg-card">
+                <ErrorBoundary fallbackLabel="Providers panel error">
+                  <ProvidersPanel />
+                </ErrorBoundary>
+                <div className="flex justify-end border-t border-border px-4 py-2">
+                  <button
+                    type="button"
+                    className="ui-btn-ghost rounded-md px-3 py-1 text-xs font-medium"
+                    onClick={() => setShowProvidersPanel(false)}
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : null}
           {connectionPanelVisible ? (
             <div className="pointer-events-none fixed inset-x-0 top-12 z-[140] flex justify-center px-3 sm:px-4 md:px-5">
               <div className="glass-panel pointer-events-auto w-full max-w-4xl !bg-card px-4 py-4 sm:px-6 sm:py-6">
@@ -1415,6 +1453,7 @@ const AgentStudioPage = () => {
                       { id: "skills", label: "Skills" },
                       { id: "system", label: "System setup" },
                       { id: "automations", label: "Automations" },
+                      { id: "credentials", label: "Credentials" },
                       { id: "advanced", label: "Advanced" },
                     ] as const
                   ).map((entry) => {
@@ -1482,9 +1521,11 @@ const AgentStudioPage = () => {
                                   ? "skills"
                                   : effectiveSettingsTab === "system"
                                     ? "system"
-                                    : effectiveSettingsTab === "advanced"
-                                  ? "advanced"
-                                  : "capabilities"
+                                    : effectiveSettingsTab === "credentials"
+                                      ? "credentials"
+                                      : effectiveSettingsTab === "advanced"
+                                        ? "advanced"
+                                        : "capabilities"
                             }
                             showHeader={false}
                             agent={inspectSidebarAgent}
@@ -1613,24 +1654,27 @@ const AgentStudioPage = () => {
               <div
                 className={`${mobilePane === "fleet" ? "block" : "hidden"} min-h-0 xl:block xl:min-h-0`}
               >
-                <FleetSidebar
-                  agents={filteredAgents}
-                  selectedAgentId={focusedAgent?.agentId ?? state.selectedAgentId}
-                  filter={focusFilter}
-                  onFilterChange={handleFocusFilterChange}
-                  onCreateAgent={() => {
-                    handleOpenCreateAgentModal();
-                  }}
-                  createDisabled={status !== "connected" || createAgentBusy || state.loading}
-                  createBusy={createAgentBusy}
-                  onSelectAgent={handleFleetSelectAgent}
-                />
+                <ErrorBoundary fallbackLabel="Fleet sidebar error">
+                  <FleetSidebar
+                    agents={filteredAgents}
+                    selectedAgentId={focusedAgent?.agentId ?? state.selectedAgentId}
+                    filter={focusFilter}
+                    onFilterChange={handleFocusFilterChange}
+                    onCreateAgent={() => {
+                      handleOpenCreateAgentModal();
+                    }}
+                    createDisabled={status !== "connected" || createAgentBusy || state.loading}
+                    createBusy={createAgentBusy}
+                    onSelectAgent={handleFleetSelectAgent}
+                  />
+                </ErrorBoundary>
               </div>
               <div
                 className={`${mobilePane === "chat" ? "flex" : "hidden"} ui-panel ui-depth-workspace min-h-0 flex-1 overflow-hidden xl:flex`}
                 data-testid="focused-agent-panel"
               >
                 {focusedAgent ? (
+                  <ErrorBoundary fallbackLabel="Chat panel error">
                   <div className="flex min-h-0 flex-1 flex-col">
                     <div className="min-h-0 flex-1">
                       <AgentChatPanel
@@ -1674,6 +1718,7 @@ const AgentStudioPage = () => {
                       />
                     </div>
                   </div>
+                  </ErrorBoundary>
                 ) : (
                   <EmptyStatePanel
                     title={hasAnyAgents ? "No agents match this filter." : "No agents available."}
@@ -1699,6 +1744,7 @@ const AgentStudioPage = () => {
           suggestedName={suggestedCreateAgentName}
           busy={createAgentBusy}
           submitError={createAgentModalError}
+          models={gatewayModels}
           onClose={() => {
             if (createAgentBusy) return;
             setCreateAgentModalError(null);

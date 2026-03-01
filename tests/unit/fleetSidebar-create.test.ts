@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import type { AgentState } from "@/features/agents/state/store";
 import { FleetSidebar } from "@/features/agents/components/FleetSidebar";
+import { withIntl } from "./helpers/intlWrapper";
 
 const createAgent = (): AgentState => ({
   agentId: "agent-1",
@@ -46,14 +47,14 @@ describe("FleetSidebar new agent action", () => {
 
   it("renders New agent button", () => {
     render(
-      createElement(FleetSidebar, {
+      withIntl(createElement(FleetSidebar, {
         agents: [createAgent()],
         selectedAgentId: "agent-1",
         filter: "all",
         onFilterChange: vi.fn(),
         onSelectAgent: vi.fn(),
         onCreateAgent: vi.fn(),
-      })
+      }))
     );
 
     expect(screen.getByTestId("fleet-new-agent-button")).toBeInTheDocument();
@@ -63,14 +64,14 @@ describe("FleetSidebar new agent action", () => {
   it("calls onCreateAgent when clicked", () => {
     const onCreateAgent = vi.fn();
     render(
-      createElement(FleetSidebar, {
+      withIntl(createElement(FleetSidebar, {
         agents: [createAgent()],
         selectedAgentId: "agent-1",
         filter: "all",
         onFilterChange: vi.fn(),
         onSelectAgent: vi.fn(),
         onCreateAgent,
-      })
+      }))
     );
 
     fireEvent.click(screen.getByTestId("fleet-new-agent-button"));
@@ -79,7 +80,7 @@ describe("FleetSidebar new agent action", () => {
 
   it("disables create button when createDisabled=true", () => {
     render(
-      createElement(FleetSidebar, {
+      withIntl(createElement(FleetSidebar, {
         agents: [createAgent()],
         selectedAgentId: "agent-1",
         filter: "all",
@@ -87,7 +88,7 @@ describe("FleetSidebar new agent action", () => {
         onSelectAgent: vi.fn(),
         onCreateAgent: vi.fn(),
         createDisabled: true,
-      })
+      }))
     );
 
     expect(screen.getByTestId("fleet-new-agent-button")).toBeDisabled();
@@ -95,14 +96,14 @@ describe("FleetSidebar new agent action", () => {
 
   it("shows approvals tab instead of idle tab", () => {
     render(
-      createElement(FleetSidebar, {
+      withIntl(createElement(FleetSidebar, {
         agents: [createAgent()],
         selectedAgentId: "agent-1",
         filter: "all",
         onFilterChange: vi.fn(),
         onSelectAgent: vi.fn(),
         onCreateAgent: vi.fn(),
-      })
+      }))
     );
 
     expect(screen.getByTestId("fleet-filter-approvals")).toBeInTheDocument();
@@ -111,14 +112,14 @@ describe("FleetSidebar new agent action", () => {
 
   it("shows needs approval badge for awaiting agents", () => {
     render(
-      createElement(FleetSidebar, {
+      withIntl(createElement(FleetSidebar, {
         agents: [{ ...createAgent(), awaitingUserInput: true }],
         selectedAgentId: "agent-1",
         filter: "all",
         onFilterChange: vi.fn(),
         onSelectAgent: vi.fn(),
         onCreateAgent: vi.fn(),
-      })
+      }))
     );
 
     const approvalBadge = screen.getByText("Needs approval");
@@ -129,14 +130,14 @@ describe("FleetSidebar new agent action", () => {
 
   it("renders semantic class and status marker for agent status badge", () => {
     render(
-      createElement(FleetSidebar, {
+      withIntl(createElement(FleetSidebar, {
         agents: [{ ...createAgent(), status: "running" }],
         selectedAgentId: "agent-1",
         filter: "all",
         onFilterChange: vi.fn(),
         onSelectAgent: vi.fn(),
         onCreateAgent: vi.fn(),
-      })
+      }))
     );
 
     const row = screen.getByTestId("fleet-agent-row-agent-1");
