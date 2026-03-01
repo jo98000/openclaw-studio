@@ -2,7 +2,14 @@
 
 import { useState, useCallback, useMemo } from "react";
 import { useTranslations } from "next-intl";
-import { GitBranch, Plus, Pencil, Trash2, ToggleLeft, ToggleRight } from "lucide-react";
+import {
+  GitBranch,
+  Plus,
+  Pencil,
+  Trash2,
+  ToggleLeft,
+  ToggleRight,
+} from "lucide-react";
 import { toast } from "sonner";
 import type { RoutingRule } from "../types";
 import {
@@ -14,14 +21,23 @@ import {
 } from "../routingStore";
 import { RoutingRuleEditor } from "./RoutingRuleEditor";
 
-export const RoutingPanel = () => {
+type RoutingPanelProps = {
+  agents?: { agentId: string; name: string }[];
+};
+
+export const RoutingPanel = ({ agents = [] }: RoutingPanelProps) => {
   const t = useTranslations("routing");
   const [config, setConfig] = useState(loadRoutingConfig);
   const [editingRule, setEditingRule] = useState<RoutingRule | null>(null);
   const [showEditor, setShowEditor] = useState(false);
 
-  // TODO: wire real agent IDs from gateway once available
-  const agentIds = useMemo(() => ["main", "support", "sales", "dev"], []);
+  const agentIds = useMemo(
+    () =>
+      agents.length > 0
+        ? agents.map((a) => a.agentId)
+        : ["main", "support", "sales", "dev"],
+    [agents],
+  );
 
   const handleSave = useCallback(
     (rule: RoutingRule) => {
@@ -52,7 +68,9 @@ export const RoutingPanel = () => {
     (ruleId: string) => {
       const rule = config.rules.find((r) => r.id === ruleId);
       if (!rule) return;
-      const next = updateRoutingRule(config, ruleId, { enabled: !rule.enabled });
+      const next = updateRoutingRule(config, ruleId, {
+        enabled: !rule.enabled,
+      });
       setConfig(next);
       persistRoutingConfig(next);
     },
@@ -64,7 +82,9 @@ export const RoutingPanel = () => {
       <div className="flex items-center justify-between border-b border-border px-5 py-3">
         <div className="flex items-center gap-2">
           <GitBranch className="h-4 w-4 text-primary" aria-hidden="true" />
-          <h2 className="text-sm font-semibold text-foreground">{t("title")}</h2>
+          <h2 className="text-sm font-semibold text-foreground">
+            {t("title")}
+          </h2>
           <span className="rounded-full bg-surface-2 px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
             {config.rules.length}
           </span>
@@ -85,7 +105,9 @@ export const RoutingPanel = () => {
         <p className="mb-3 text-xs text-muted-foreground">{t("description")}</p>
 
         {config.rules.length === 0 ? (
-          <p className="py-8 text-center text-xs text-muted-foreground">{t("noRules")}</p>
+          <p className="py-8 text-center text-xs text-muted-foreground">
+            {t("noRules")}
+          </p>
         ) : (
           <div className="space-y-2">
             {config.rules.map((rule) => (
@@ -107,13 +129,16 @@ export const RoutingPanel = () => {
                 </button>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <span className="truncate text-sm font-medium text-foreground">{rule.name}</span>
+                    <span className="truncate text-sm font-medium text-foreground">
+                      {rule.name}
+                    </span>
                     <span className="rounded-full bg-surface-2 px-1.5 py-0.5 text-[10px] text-muted-foreground">
                       P{rule.priority}
                     </span>
                   </div>
                   <p className="truncate text-[11px] text-muted-foreground">
-                    {rule.conditions.length} {t("conditionsLabel")} → {rule.targetAgentId}
+                    {rule.conditions.length} {t("conditionsLabel")} →{" "}
+                    {rule.targetAgentId}
                   </p>
                 </div>
                 <div className="flex gap-1">
@@ -147,6 +172,11 @@ export const RoutingPanel = () => {
         <RoutingRuleEditor
           rule={editingRule ?? undefined}
           agentIds={agentIds}
+          agentNames={
+            agents.length > 0
+              ? Object.fromEntries(agents.map((a) => [a.agentId, a.name]))
+              : undefined
+          }
           onSave={handleSave}
           onClose={() => {
             setShowEditor(false);

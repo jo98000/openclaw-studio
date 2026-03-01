@@ -12,13 +12,15 @@ const openModal = (overrides?: {
   const onClose = overrides?.onClose ?? vi.fn();
   const onSubmit = overrides?.onSubmit ?? vi.fn();
   render(
-    withIntl(createElement(AgentCreateModal, {
-      open: true,
-      suggestedName: "New Agent",
-      busy: overrides?.busy,
-      onClose,
-      onSubmit,
-    }))
+    withIntl(
+      createElement(AgentCreateModal, {
+        open: true,
+        suggestedName: "New Agent",
+        busy: overrides?.busy,
+        onClose,
+        onSubmit,
+      }),
+    ),
   );
   return { onClose, onSubmit };
 };
@@ -48,26 +50,29 @@ describe("AgentCreateModal", () => {
       expect.objectContaining({
         name: "Execution Operator",
         avatarSeed: expect.any(String),
-      })
+      }),
     );
   });
 
-  it("submits when the form is submitted from keyboard flow", () => {
+  it("submits when navigated via keyboard Enter and button click", () => {
     const onSubmit = vi.fn();
     openModal({ onSubmit });
 
-    fireEvent.change(screen.getByLabelText("Name"), {
+    const nameInput = screen.getByLabelText("Name");
+    fireEvent.change(nameInput, {
       target: { value: "Keyboard Agent" },
     });
-    // Each form submit advances one step; third submit triggers launch
-    fireEvent.submit(screen.getByTestId("agent-create-modal"));
-    fireEvent.submit(screen.getByTestId("agent-create-modal"));
-    fireEvent.submit(screen.getByTestId("agent-create-modal"));
+    // Enter on name input advances to step 2 (Model)
+    fireEvent.keyDown(nameInput, { key: "Enter" });
+    // Click Next to advance to step 3 (Capabilities)
+    fireEvent.click(screen.getByRole("button", { name: /Next/i }));
+    // Click Launch to submit
+    fireEvent.click(screen.getByRole("button", { name: "Launch agent" }));
 
     expect(onSubmit).toHaveBeenCalledWith(
       expect.objectContaining({
         name: "Keyboard Agent",
-      })
+      }),
     );
   });
 
@@ -77,13 +82,17 @@ describe("AgentCreateModal", () => {
     // Step 0 has Next button, not Launch agent
     expect(screen.getByRole("button", { name: /Next/i })).toBeInTheDocument();
     expect(screen.getByLabelText("Name")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Shuffle avatar selection" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Shuffle avatar selection" }),
+    ).toBeInTheDocument();
     // Step indicator shows Identity, AI & Model, Capabilities
     expect(screen.getByText("Identity")).toBeInTheDocument();
     expect(screen.getByText("AI & Model")).toBeInTheDocument();
     expect(screen.getByText("Capabilities")).toBeInTheDocument();
     // Launch agent only appears on the last step
-    expect(screen.queryByRole("button", { name: "Launch agent" })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Launch agent" }),
+    ).not.toBeInTheDocument();
   });
 
   it("disables launch when the name is blank", () => {
@@ -120,12 +129,14 @@ describe("AgentCreateModal", () => {
     const onClose = vi.fn();
     const onSubmit = vi.fn();
     const view = render(
-      withIntl(createElement(AgentCreateModal, {
-        open: true,
-        suggestedName: "New Agent",
-        onClose,
-        onSubmit,
-      }))
+      withIntl(
+        createElement(AgentCreateModal, {
+          open: true,
+          suggestedName: "New Agent",
+          onClose,
+          onSubmit,
+        }),
+      ),
     );
 
     fireEvent.change(screen.getByLabelText("Name"), {
@@ -133,12 +144,14 @@ describe("AgentCreateModal", () => {
     });
 
     view.rerender(
-      withIntl(createElement(AgentCreateModal, {
-        open: true,
-        suggestedName: "New Agent 2",
-        onClose,
-        onSubmit,
-      }))
+      withIntl(
+        createElement(AgentCreateModal, {
+          open: true,
+          suggestedName: "New Agent 2",
+          onClose,
+          onSubmit,
+        }),
+      ),
     );
 
     expect(screen.getByLabelText("Name")).toHaveValue("My Draft Name");

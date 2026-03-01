@@ -484,6 +484,51 @@ export const PROVIDER_REGISTRY: ProviderDefinition[] = [
     ],
   },
   {
+    id: "xai",
+    name: "xAI",
+    description: "Grok models — conversational AI with real-time knowledge",
+    docsUrl: "https://docs.x.ai",
+    iconColor: "#000000",
+    supportsCustomEndpoint: false,
+    models: [
+      {
+        id: "grok-3",
+        name: "Grok 3",
+        category: "reasoning",
+        contextWindow: 131072,
+        costTier: "mid",
+        badges: ["Reasoning", "Latest"],
+      },
+      {
+        id: "grok-3-mini",
+        name: "Grok 3 Mini",
+        category: "fast",
+        contextWindow: 131072,
+        costTier: "low",
+        badges: ["Fast"],
+      },
+    ],
+  },
+  {
+    id: "litellm",
+    name: "LiteLLM",
+    description:
+      "Unified proxy for 100+ LLM providers with OpenAI-compatible API",
+    docsUrl: "https://docs.litellm.ai",
+    iconColor: "#1E40AF",
+    supportsCustomEndpoint: true,
+    models: [
+      {
+        id: "litellm/auto",
+        name: "Auto (best available)",
+        category: "general",
+        contextWindow: 128000,
+        costTier: "mid",
+        badges: ["Multi-Provider"],
+      },
+    ],
+  },
+  {
     id: "custom",
     name: "Custom / Self-hosted",
     description: "Connect to vLLM, LiteLLM, or any OpenAI-compatible endpoint",

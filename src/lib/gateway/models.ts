@@ -29,21 +29,24 @@ export type GatewayModelPolicySnapshot = {
 
 export const resolveConfiguredModelKey = (
   raw: string,
-  models?: Record<string, GatewayModelAliasEntry>
+  models?: Record<string, GatewayModelAliasEntry>,
 ) => {
   const trimmed = raw.trim();
   if (!trimmed) return null;
   if (trimmed.includes("/")) return trimmed;
   if (models) {
     const target = Object.entries(models).find(
-      ([, entry]) => entry?.alias?.trim().toLowerCase() === trimmed.toLowerCase()
+      ([, entry]) =>
+        entry?.alias?.trim().toLowerCase() === trimmed.toLowerCase(),
     );
     if (target?.[0]) return target[0];
   }
   return `anthropic/${trimmed}`;
 };
 
-export const buildAllowedModelKeys = (snapshot: GatewayModelPolicySnapshot | null) => {
+export const buildAllowedModelKeys = (
+  snapshot: GatewayModelPolicySnapshot | null,
+) => {
   const allowedList: string[] = [];
   const allowedSet = new Set<string>();
   const defaults = snapshot?.config?.agents?.defaults;
@@ -75,12 +78,14 @@ export const buildAllowedModelKeys = (snapshot: GatewayModelPolicySnapshot | nul
 
 export const buildGatewayModelChoices = (
   catalog: GatewayModelChoice[],
-  snapshot: GatewayModelPolicySnapshot | null
+  snapshot: GatewayModelPolicySnapshot | null,
 ) => {
   const allowedKeys = buildAllowedModelKeys(snapshot);
   if (allowedKeys.length === 0) return catalog;
   // Show ALL catalog models — config extras are appended but never filter out catalog entries
-  const catalogKeys = new Set(catalog.map((entry) => `${entry.provider}/${entry.id}`));
+  const catalogKeys = new Set(
+    catalog.map((entry) => `${entry.provider}/${entry.id}`),
+  );
   const extras: GatewayModelChoice[] = [];
   for (const key of allowedKeys) {
     if (catalogKeys.has(key)) continue;
@@ -89,4 +94,52 @@ export const buildGatewayModelChoices = (
     extras.push({ provider, id, name: key });
   }
   return [...catalog, ...extras];
+};
+
+/**
+ * Build a static model catalog from a provider registry.
+ * This ensures the model selector always shows all known models,
+ * even when the gateway returns a limited set.
+ */
+export const buildStaticModelCatalog = (
+  registry: Array<{
+    id: string;
+    name: string;
+    models: Array<{
+      id: string;
+      name: string;
+      category: string;
+      contextWindow: number;
+    }>;
+  }>,
+): GatewayModelChoice[] => {
+  const catalog: GatewayModelChoice[] = [];
+  for (const provider of registry) {
+    for (const model of provider.models) {
+      catalog.push({
+        provider: provider.id,
+        id: model.id,
+        name: model.name,
+        contextWindow: model.contextWindow,
+        reasoning: model.category === "reasoning",
+      });
+    }
+  }
+  return catalog;
+};
+
+/**
+ * Merge gateway models with the static catalog.
+ * Gateway models take priority (they may have runtime info),
+ * then static catalog fills in the rest.
+ */
+export const mergeModelCatalogs = (
+  gatewayModels: GatewayModelChoice[],
+  staticCatalog: GatewayModelChoice[],
+): GatewayModelChoice[] => {
+  const seen = new Set(gatewayModels.map((m) => `${m.provider}/${m.id}`));
+  const extras = staticCatalog.filter(
+    (m) => !seen.has(`${m.provider}/${m.id}`),
+  );
+  return [...gatewayModels, ...extras];
 };

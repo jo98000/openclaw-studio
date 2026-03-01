@@ -1,5 +1,6 @@
 import type { AgentState } from "@/features/agents/state/store";
 import { logTranscriptDebugMetric } from "@/features/agents/state/transcript";
+import { pushEvent } from "@/features/analytics/analyticsCollector";
 import {
   classifyGatewayEventKind,
   getChatSummaryPatch,
@@ -62,7 +63,11 @@ export type GatewayRuntimeEventHandlerDeps = {
     stopReason: string | null;
   }) => boolean;
 
-  updateSpecialLatestUpdate: (agentId: string, agent: AgentState, message: string) => void;
+  updateSpecialLatestUpdate: (
+    agentId: string,
+    agent: AgentState,
+    message: string,
+  ) => void;
 };
 
 export type GatewayRuntimeEventHandler = {
@@ -71,12 +76,20 @@ export type GatewayRuntimeEventHandler = {
   dispose: () => void;
 };
 
-const findAgentBySessionKey = (agents: AgentState[], sessionKey: string): string | null => {
-  const exact = agents.find((agent) => isSameSessionKey(agent.sessionKey, sessionKey));
+const findAgentBySessionKey = (
+  agents: AgentState[],
+  sessionKey: string,
+): string | null => {
+  const exact = agents.find((agent) =>
+    isSameSessionKey(agent.sessionKey, sessionKey),
+  );
   return exact ? exact.agentId : null;
 };
 
-const findAgentByRunId = (agents: AgentState[], runId: string): string | null => {
+const findAgentByRunId = (
+  agents: AgentState[],
+  runId: string,
+): string | null => {
   const match = agents.find((agent) => agent.runId === runId);
   return match ? match.agentId : null;
 };
@@ -87,7 +100,7 @@ const resolveRole = (message: unknown) =>
     : null;
 
 export function createGatewayRuntimeEventHandler(
-  deps: GatewayRuntimeEventHandlerDeps
+  deps: GatewayRuntimeEventHandlerDeps,
 ): GatewayRuntimeEventHandler {
   const now = deps.now ?? (() => Date.now());
   const CLOSED_RUN_TTL_MS = 30_000;
@@ -115,7 +128,9 @@ export function createGatewayRuntimeEventHandler(
     lifecycleFallbackTimerIdByRun.delete(key);
   };
 
-  const executeCoordinatorEffects = (effects: RuntimeCoordinatorEffectCommand[]) => {
+  const executeCoordinatorEffects = (
+    effects: RuntimeCoordinatorEffectCommand[],
+  ) => {
     for (const effect of effects) {
       if (effect.kind === "dispatch") {
         deps.dispatch(effect.action);
@@ -212,9 +227,15 @@ export function createGatewayRuntimeEventHandler(
         const agent =
           effect.agentSnapshot?.agentId === effect.agentId
             ? effect.agentSnapshot
-            : deps.getAgents().find((entry) => entry.agentId === effect.agentId);
+            : deps
+                .getAgents()
+                .find((entry) => entry.agentId === effect.agentId);
         if (agent) {
-          void deps.updateSpecialLatestUpdate(effect.agentId, agent, effect.message);
+          void deps.updateSpecialLatestUpdate(
+            effect.agentId,
+            agent,
+            effect.message,
+          );
         }
       }
     }
@@ -305,7 +326,14 @@ export function createGatewayRuntimeEventHandler(
     }
 
     if (role === "user" || role === "system") {
+      if (role === "user" && payload.state === "final") {
+        pushEvent({ type: "message.sent", agentId });
+      }
       return;
+    }
+
+    if (role === "assistant" && payload.state === "final") {
+      pushEvent({ type: "message.received", agentId });
     }
 
     const activityReduced = reduceMarkActivityThrottled({
@@ -358,9 +386,10 @@ export function createGatewayRuntimeEventHandler(
         ? coordinatorState.thinkingStartedAtByRun.has(payload.runId)
         : false,
       hasTraceInOutput:
-        agent?.outputLines.some((line) => isTraceMarkdown(line.trim())) ?? false,
+        agent?.outputLines.some((line) => isTraceMarkdown(line.trim())) ??
+        false,
       isThinkingDebugSessionSeen: coordinatorState.thinkingDebugBySession.has(
-        payload.sessionKey
+        payload.sessionKey,
       ),
       thinkingStartedAtMs: payload.runId
         ? (coordinatorState.thinkingStartedAtByRun.get(payload.runId) ?? null)
@@ -388,10 +417,19 @@ export function createGatewayRuntimeEventHandler(
     const directMatch = payload.sessionKey
       ? findAgentBySessionKey(agentsSnapshot, payload.sessionKey)
       : null;
-    const agentId = directMatch ?? findAgentByRunId(agentsSnapshot, payload.runId);
+    const agentId =
+      directMatch ?? findAgentByRunId(agentsSnapshot, payload.runId);
     if (!agentId) return;
     const agent = agentsSnapshot.find((entry) => entry.agentId === agentId);
     if (!agent) return;
+
+    if (payload.stream === "lifecycle") {
+      const phase =
+        typeof payload.data?.phase === "string" ? payload.data.phase : "";
+      if (phase === "start") pushEvent({ type: "agent.started", agentId });
+      else if (phase === "end") pushEvent({ type: "agent.stopped", agentId });
+      else if (phase === "error") pushEvent({ type: "agent.error", agentId });
+    }
 
     const nowMs = now();
     const agentWorkflow = planRuntimeAgentEvent({
@@ -402,9 +440,10 @@ export function createGatewayRuntimeEventHandler(
       runtimeTerminalState: coordinatorState.runtimeTerminalState,
       hasChatEvents: coordinatorState.chatRunSeen.has(payload.runId),
       hasPendingFallbackTimer: lifecycleFallbackTimerIdByRun.has(
-        toRunId(payload.runId)
+        toRunId(payload.runId),
       ),
-      previousThinkingRaw: coordinatorState.thinkingStreamByRun.get(payload.runId) ?? null,
+      previousThinkingRaw:
+        coordinatorState.thinkingStreamByRun.get(payload.runId) ?? null,
       previousAssistantRaw:
         coordinatorState.assistantStreamByRun.get(payload.runId) ?? null,
       thinkingStartedAtMs:

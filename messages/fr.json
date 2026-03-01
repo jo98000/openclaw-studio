@@ -291,6 +291,7 @@
     "studioLockedRestart": "Le studio est temporairement verrouillé jusqu'au redémarrage du gateway.",
     "fleet": "Agents",
     "chat": "Chat",
+    "settings": "Réglages",
     "canvasPreviewError": "Erreur du canvas",
     "interAgentFeedError": "Erreur du flux inter-agents",
     "voiceControlsError": "Erreur des contrôles vocaux",
@@ -552,7 +553,9 @@
     "thinkingMedium": "Moyen",
     "thinkingHigh": "Élevé",
     "thinkingXHigh": "Très élevé",
-    "permissions": "Permissions"
+    "permissions": "Permissions",
+    "performanceTitle": "Performance",
+    "performanceDescription": "Métriques d'exécution pour cet agent."
   },
   "webhookEvents": {
     "agentStarted": "Agent démarré",

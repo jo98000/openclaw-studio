@@ -36,16 +36,48 @@
   --sidebar-foreground: var(--foreground);
   --sidebar-primary: oklch(0.56 0.1 214);
   --sidebar-primary-foreground: oklch(0.98 0.004 230);
-  --sidebar-accent: color-mix(in srgb, var(--neutral-tint-rgb) 14%, transparent);
+  --sidebar-accent: color-mix(
+    in srgb,
+    var(--neutral-tint-rgb) 14%,
+    transparent
+  );
   --sidebar-accent-foreground: var(--accent-foreground);
-  --sidebar-border: color-mix(in srgb, var(--neutral-tint-rgb) 16%, transparent);
+  --sidebar-border: color-mix(
+    in srgb,
+    var(--neutral-tint-rgb) 16%,
+    transparent
+  );
   --sidebar-ring: oklch(0.56 0.1 214);
-  --sidebar-card-bg: color-mix(in srgb, var(--neutral-tint-rgb) 6%, transparent);
-  --sidebar-card-border: color-mix(in srgb, var(--neutral-tint-rgb) 20%, transparent);
-  --sidebar-input-bg: color-mix(in srgb, var(--neutral-tint-rgb) 9%, transparent);
-  --sidebar-input-border: color-mix(in srgb, var(--neutral-tint-rgb) 26%, transparent);
-  --sidebar-control-off: color-mix(in srgb, var(--neutral-tint-rgb) 12%, transparent);
-  --sidebar-control-on: color-mix(in oklch, var(--primary) 74%, var(--surface-2));
+  --sidebar-card-bg: color-mix(
+    in srgb,
+    var(--neutral-tint-rgb) 6%,
+    transparent
+  );
+  --sidebar-card-border: color-mix(
+    in srgb,
+    var(--neutral-tint-rgb) 20%,
+    transparent
+  );
+  --sidebar-input-bg: color-mix(
+    in srgb,
+    var(--neutral-tint-rgb) 9%,
+    transparent
+  );
+  --sidebar-input-border: color-mix(
+    in srgb,
+    var(--neutral-tint-rgb) 26%,
+    transparent
+  );
+  --sidebar-control-off: color-mix(
+    in srgb,
+    var(--neutral-tint-rgb) 12%,
+    transparent
+  );
+  --sidebar-control-on: color-mix(
+    in oklch,
+    var(--primary) 74%,
+    var(--surface-2)
+  );
   --radius: 1rem;
   --radius-small: 6px;
   --radius-card: 14px;
@@ -75,35 +107,83 @@
   --surface-1: var(--card);
   --surface-2: color-mix(in srgb, var(--neutral-tint-rgb) 8%, transparent);
   --surface-3: color-mix(in srgb, var(--neutral-tint-rgb) 14%, transparent);
-  --surface-selected: color-mix(in srgb, var(--neutral-tint-rgb) 20%, transparent);
-  --surface-selected-border: color-mix(in srgb, var(--neutral-tint-rgb) 34%, transparent);
+  --surface-selected: color-mix(
+    in srgb,
+    var(--neutral-tint-rgb) 20%,
+    transparent
+  );
+  --surface-selected-border: color-mix(
+    in srgb,
+    var(--neutral-tint-rgb) 34%,
+    transparent
+  );
   --elev-overlay-1: rgb(255 255 255 / 0.05);
   --elev-overlay-2: rgb(255 255 255 / 0.08);
   --elev-overlay-3: rgb(255 255 255 / 0.12);
   --elev-edge-1: color-mix(in oklch, var(--border) 70%, transparent);
   --elev-edge-2: color-mix(in oklch, var(--border) 84%, transparent);
-  --plane-workspace-bg: color-mix(in oklch, var(--surface-1) 92%, var(--surface-0) 8%);
-  --plane-workspace-border: color-mix(in oklch, var(--panel-border) 88%, var(--surface-0));
-  --plane-sidepanel-bg: color-mix(in oklch, var(--surface-2) 12%, var(--surface-1));
-  --plane-sidepanel-border: color-mix(in oklch, var(--panel-border) 94%, var(--surface-2));
-  --plane-card-bg: color-mix(in oklch, var(--sidebar-card-bg) 92%, var(--surface-1));
-  --plane-card-border: color-mix(in oklch, var(--sidebar-card-border) 92%, var(--surface-2));
+  --plane-workspace-bg: color-mix(
+    in oklch,
+    var(--surface-1) 92%,
+    var(--surface-0) 8%
+  );
+  --plane-workspace-border: color-mix(
+    in oklch,
+    var(--panel-border) 88%,
+    var(--surface-0)
+  );
+  --plane-sidepanel-bg: color-mix(
+    in oklch,
+    var(--surface-2) 12%,
+    var(--surface-1)
+  );
+  --plane-sidepanel-border: color-mix(
+    in oklch,
+    var(--panel-border) 94%,
+    var(--surface-2)
+  );
+  --plane-card-bg: color-mix(
+    in oklch,
+    var(--sidebar-card-bg) 92%,
+    var(--surface-1)
+  );
+  --plane-card-border: color-mix(
+    in oklch,
+    var(--sidebar-card-border) 92%,
+    var(--surface-2)
+  );
   --chat-surface-bg: color-mix(in oklch, var(--surface-1) 92%, white 8%);
-  --chat-assistant-bg: color-mix(in oklch, var(--surface-2) 92%, var(--surface-1));
+  --chat-assistant-bg: color-mix(
+    in oklch,
+    var(--surface-2) 92%,
+    var(--surface-1)
+  );
   --chat-assistant-border: color-mix(in oklch, var(--border) 70%, transparent);
   --chat-user-bg: color-mix(in srgb, var(--neutral-tint-rgb) 8%, transparent);
   --chat-user-border: color-mix(in oklch, var(--border) 74%, transparent);
-  --chat-user-header-bg: color-mix(in srgb, var(--neutral-tint-rgb) 12%, transparent);
+  --chat-user-header-bg: color-mix(
+    in srgb,
+    var(--neutral-tint-rgb) 12%,
+    transparent
+  );
   --action-bg: color-mix(in oklch, var(--primary) 92%, white 8%);
   --action-bg-hover: color-mix(in oklch, var(--primary) 88%, white 12%);
   --action-border: color-mix(in oklch, var(--primary) 52%, var(--border));
   --action-fg: var(--primary-foreground);
   --danger-soft-bg: color-mix(in oklch, var(--destructive) 13%, transparent);
-  --danger-soft-border: color-mix(in oklch, var(--destructive) 34%, transparent);
+  --danger-soft-border: color-mix(
+    in oklch,
+    var(--destructive) 34%,
+    transparent
+  );
   --danger-soft-fg: color-mix(in oklch, var(--destructive) 78%, black 22%);
   --status-idle-bg: color-mix(in oklch, var(--surface-3) 86%, transparent);
   --status-idle-border: color-mix(in oklch, var(--border) 74%, transparent);
-  --status-idle-fg: color-mix(in oklch, var(--foreground) 72%, var(--muted-foreground) 28%);
+  --status-idle-fg: color-mix(
+    in oklch,
+    var(--foreground) 72%,
+    var(--muted-foreground) 28%
+  );
   --status-running-bg: color-mix(in oklch, #1ea465 16%, transparent);
   --status-running-border: color-mix(in oklch, #1b8f59 38%, transparent);
   --status-running-fg: color-mix(in oklch, #0e6a40 72%, black 28%);
@@ -128,7 +208,11 @@
   --command-copy-bg: color-mix(in oklch, #182838 82%, var(--surface-1));
   --command-copy-hover-bg: color-mix(in oklch, #243c52 78%, var(--surface-1));
   --command-copy-border: color-mix(in oklch, #3d6178 62%, transparent);
-  --model-control-border: color-mix(in oklch, var(--action-bg) 34%, var(--sidebar-input-border));
+  --model-control-border: color-mix(
+    in oklch,
+    var(--action-bg) 34%,
+    var(--sidebar-input-border)
+  );
 }
 
 .dark {
@@ -163,16 +247,48 @@
   --sidebar-foreground: rgb(246 250 255 / 0.94);
   --sidebar-primary: #22a8cc;
   --sidebar-primary-foreground: rgb(247 252 255 / 0.98);
-  --sidebar-accent: color-mix(in srgb, var(--neutral-tint-rgb) 20%, transparent);
+  --sidebar-accent: color-mix(
+    in srgb,
+    var(--neutral-tint-rgb) 20%,
+    transparent
+  );
   --sidebar-accent-foreground: rgb(246 250 255 / 0.94);
-  --sidebar-border: color-mix(in srgb, var(--neutral-tint-rgb) 24%, transparent);
+  --sidebar-border: color-mix(
+    in srgb,
+    var(--neutral-tint-rgb) 24%,
+    transparent
+  );
   --sidebar-ring: #30bce2;
-  --sidebar-card-bg: color-mix(in oklch, var(--surface-2) 88%, var(--surface-1));
-  --sidebar-card-border: color-mix(in srgb, var(--neutral-tint-rgb) 36%, transparent);
-  --sidebar-input-bg: color-mix(in oklch, var(--surface-2) 84%, var(--surface-1));
-  --sidebar-input-border: color-mix(in srgb, var(--neutral-tint-rgb) 40%, transparent);
-  --sidebar-control-off: color-mix(in oklch, var(--surface-2) 88%, var(--surface-1));
-  --sidebar-control-on: color-mix(in oklch, var(--primary) 82%, var(--surface-2));
+  --sidebar-card-bg: color-mix(
+    in oklch,
+    var(--surface-2) 88%,
+    var(--surface-1)
+  );
+  --sidebar-card-border: color-mix(
+    in srgb,
+    var(--neutral-tint-rgb) 36%,
+    transparent
+  );
+  --sidebar-input-bg: color-mix(
+    in oklch,
+    var(--surface-2) 84%,
+    var(--surface-1)
+  );
+  --sidebar-input-border: color-mix(
+    in srgb,
+    var(--neutral-tint-rgb) 40%,
+    transparent
+  );
+  --sidebar-control-off: color-mix(
+    in oklch,
+    var(--surface-2) 88%,
+    var(--surface-1)
+  );
+  --sidebar-control-on: color-mix(
+    in oklch,
+    var(--primary) 82%,
+    var(--surface-2)
+  );
   --panel: color-mix(in oklch, var(--surface-1) 96%, black 4%);
   --panel-border: color-mix(in srgb, var(--neutral-tint-rgb) 36%, transparent);
   --shadow-color: oklch(0.08 0.012 250);
@@ -186,30 +302,82 @@
   --elev-overlay-1: rgb(255 255 255 / 0.03);
   --elev-overlay-2: rgb(255 255 255 / 0.06);
   --elev-overlay-3: rgb(255 255 255 / 0.09);
-  --elev-edge-1: color-mix(in oklch, var(--surface-selected-border) 42%, var(--border));
-  --elev-edge-2: color-mix(in oklch, var(--surface-selected-border) 64%, var(--border));
-  --plane-workspace-bg: color-mix(in oklch, var(--surface-1) 94%, var(--surface-0) 6%);
-  --plane-workspace-border: color-mix(in oklch, var(--panel-border) 88%, var(--surface-0));
-  --plane-sidepanel-bg: color-mix(in oklch, var(--surface-2) 20%, var(--surface-1));
-  --plane-sidepanel-border: color-mix(in oklch, var(--panel-border) 96%, var(--surface-2));
+  --elev-edge-1: color-mix(
+    in oklch,
+    var(--surface-selected-border) 42%,
+    var(--border)
+  );
+  --elev-edge-2: color-mix(
+    in oklch,
+    var(--surface-selected-border) 64%,
+    var(--border)
+  );
+  --plane-workspace-bg: color-mix(
+    in oklch,
+    var(--surface-1) 94%,
+    var(--surface-0) 6%
+  );
+  --plane-workspace-border: color-mix(
+    in oklch,
+    var(--panel-border) 88%,
+    var(--surface-0)
+  );
+  --plane-sidepanel-bg: color-mix(
+    in oklch,
+    var(--surface-2) 20%,
+    var(--surface-1)
+  );
+  --plane-sidepanel-border: color-mix(
+    in oklch,
+    var(--panel-border) 96%,
+    var(--surface-2)
+  );
   --plane-card-bg: color-mix(in oklch, var(--surface-2) 76%, var(--surface-1));
-  --plane-card-border: color-mix(in oklch, var(--surface-selected-border) 44%, var(--border));
+  --plane-card-border: color-mix(
+    in oklch,
+    var(--surface-selected-border) 44%,
+    var(--border)
+  );
   --chat-surface-bg: color-mix(in oklch, var(--surface-1) 88%, black 12%);
-  --chat-assistant-bg: color-mix(in oklch, var(--surface-2) 90%, var(--surface-1));
-  --chat-assistant-border: color-mix(in oklch, var(--border) 74%, var(--surface-selected-border) 26%);
+  --chat-assistant-bg: color-mix(
+    in oklch,
+    var(--surface-2) 90%,
+    var(--surface-1)
+  );
+  --chat-assistant-border: color-mix(
+    in oklch,
+    var(--border) 74%,
+    var(--surface-selected-border) 26%
+  );
   --chat-user-bg: color-mix(in oklch, var(--surface-1) 86%, var(--surface-0));
   --chat-user-border: color-mix(in oklch, var(--border) 82%, transparent);
-  --chat-user-header-bg: color-mix(in oklch, var(--surface-2) 72%, var(--surface-1));
+  --chat-user-header-bg: color-mix(
+    in oklch,
+    var(--surface-2) 72%,
+    var(--surface-1)
+  );
   --action-bg: color-mix(in oklch, var(--primary) 88%, white 12%);
   --action-bg-hover: color-mix(in oklch, var(--primary) 84%, white 16%);
   --action-border: color-mix(in oklch, var(--primary) 68%, var(--border));
   --action-fg: var(--primary-foreground);
   --danger-soft-bg: color-mix(in oklch, var(--destructive) 18%, transparent);
-  --danger-soft-border: color-mix(in oklch, var(--destructive) 42%, transparent);
+  --danger-soft-border: color-mix(
+    in oklch,
+    var(--destructive) 42%,
+    transparent
+  );
   --danger-soft-fg: color-mix(in oklch, var(--destructive) 82%, white 18%);
   --status-idle-bg: color-mix(in oklch, var(--surface-3) 66%, var(--surface-2));
-  --status-idle-border: color-mix(in oklch, var(--surface-selected-border) 78%, var(--border));
-  --status-idle-fg: color-mix(in oklch, var(--foreground) 92%, var(--muted-foreground) 8%);
+  --status-idle-border: color-mix(
+    in oklch,
+    var(--surface-selected-border) 78%,
+    var(--border)
+  );
+  --status-idle-fg: color-mix(
+    in oklch,
+    var(--foreground) 92%,
+    var(--muted-foreground) 8%
+  );
   --status-running-bg: color-mix(in oklch, #20aa68 22%, transparent);
   --status-running-border: color-mix(in oklch, #2ec57a 46%, transparent);
   --status-running-fg: color-mix(in oklch, #7be3ad 68%, white 32%);
@@ -234,7 +402,11 @@
   --command-copy-bg: color-mix(in oklch, #1b2d3f 86%, var(--surface-1));
   --command-copy-hover-bg: color-mix(in oklch, #254056 82%, var(--surface-1));
   --command-copy-border: color-mix(in oklch, #406882 66%, transparent);
-  --model-control-border: color-mix(in oklch, var(--action-bg) 48%, var(--sidebar-input-border));
+  --model-control-border: color-mix(
+    in oklch,
+    var(--action-bg) 48%,
+    var(--sidebar-input-border)
+  );
 }
 
 @theme inline {
@@ -291,14 +463,22 @@
   --tracking-wider: calc(var(--tracking-normal) + 0.05em);
   --tracking-widest: calc(var(--tracking-normal) + 0.1em);
   --tracking-normal: var(--tracking-normal);
-  --shadow-2xs: 0 1px 1px color-mix(in oklch, var(--shadow-color) 10%, transparent);
-  --shadow-xs: 0 2px 6px color-mix(in oklch, var(--shadow-color) 16%, transparent);
-  --shadow-sm: 0 7px 18px -9px color-mix(in oklch, var(--shadow-color) 35%, transparent);
-  --shadow: 0 10px 24px -14px color-mix(in oklch, var(--shadow-color) 42%, transparent);
-  --shadow-md: 0 14px 36px -17px color-mix(in oklch, var(--shadow-color) 48%, transparent);
-  --shadow-lg: 0 24px 60px -26px color-mix(in oklch, var(--shadow-color) 58%, transparent);
-  --shadow-xl: 0 36px 90px -38px color-mix(in oklch, var(--shadow-color) 66%, transparent);
-  --shadow-2xl: 0 44px 120px -45px color-mix(in oklch, var(--shadow-color) 78%, transparent);
+  --shadow-2xs: 0 1px 1px
+    color-mix(in oklch, var(--shadow-color) 10%, transparent);
+  --shadow-xs: 0 2px 6px
+    color-mix(in oklch, var(--shadow-color) 16%, transparent);
+  --shadow-sm: 0 7px 18px -9px
+    color-mix(in oklch, var(--shadow-color) 35%, transparent);
+  --shadow: 0 10px 24px -14px
+    color-mix(in oklch, var(--shadow-color) 42%, transparent);
+  --shadow-md: 0 14px 36px -17px
+    color-mix(in oklch, var(--shadow-color) 48%, transparent);
+  --shadow-lg: 0 24px 60px -26px
+    color-mix(in oklch, var(--shadow-color) 58%, transparent);
+  --shadow-xl: 0 36px 90px -38px
+    color-mix(in oklch, var(--shadow-color) 66%, transparent);
+  --shadow-2xl: 0 44px 120px -45px
+    color-mix(in oklch, var(--shadow-color) 78%, transparent);
 }
 
 @layer base {
@@ -327,9 +507,22 @@
     inset: -30%;
     z-index: -2;
     background:
-      radial-gradient(circle at 16% 18%, color-mix(in oklch, var(--border) 24%, transparent), transparent 42%),
-      radial-gradient(circle at 84% 8%, color-mix(in oklch, var(--muted) 58%, transparent), transparent 34%),
-      linear-gradient(148deg, color-mix(in oklch, var(--background) 94%, white) 0%, var(--background) 62%, color-mix(in oklch, var(--background) 90%, black) 100%);
+      radial-gradient(
+        circle at 16% 18%,
+        color-mix(in oklch, var(--border) 24%, transparent),
+        transparent 42%
+      ),
+      radial-gradient(
+        circle at 84% 8%,
+        color-mix(in oklch, var(--muted) 58%, transparent),
+        transparent 34%
+      ),
+      linear-gradient(
+        148deg,
+        color-mix(in oklch, var(--background) 94%, white) 0%,
+        var(--background) 62%,
+        color-mix(in oklch, var(--background) 90%, black) 100%
+      );
     transform: rotate(-2deg) scale(1.04);
   }
 
@@ -339,8 +532,15 @@
     inset: 0;
     z-index: -1;
     background-image:
-      linear-gradient(transparent 95%, color-mix(in oklch, var(--border) 58%, transparent) 96%),
-      linear-gradient(90deg, transparent 95%, color-mix(in oklch, var(--border) 52%, transparent) 96%);
+      linear-gradient(
+        transparent 95%,
+        color-mix(in oklch, var(--border) 58%, transparent) 96%
+      ),
+      linear-gradient(
+        90deg,
+        transparent 95%,
+        color-mix(in oklch, var(--border) 52%, transparent) 96%
+      );
     background-size: 30px 30px;
     opacity: 0.14;
     pointer-events: none;
@@ -369,11 +569,13 @@ summary,
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: color-mix(in oklch, var(--foreground) 11%, var(--border)) transparent;
+  scrollbar-color: color-mix(in oklch, var(--foreground) 11%, var(--border))
+    transparent;
 }
 
 .dark * {
-  scrollbar-color: color-mix(in oklch, var(--foreground) 34%, var(--border)) transparent;
+  scrollbar-color: color-mix(in oklch, var(--foreground) 34%, var(--border))
+    transparent;
 }
 
 *::-webkit-scrollbar {
@@ -441,7 +643,8 @@ textarea:focus::-webkit-scrollbar {
 
 .agent-name-selected {
   border-color: color-mix(in oklch, var(--primary) 40%, var(--border));
-  box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--primary) 16%, transparent);
+  box-shadow: inset 0 0 0 1px
+    color-mix(in oklch, var(--primary) 16%, transparent);
 }
 
 .agent-inspect-panel {
@@ -455,7 +658,8 @@ textarea:focus::-webkit-scrollbar {
   box-shadow: none;
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: color-mix(in oklch, var(--border) 60%, transparent) transparent;
+  scrollbar-color: color-mix(in oklch, var(--border) 60%, transparent)
+    transparent;
 }
 
 .sidebar-shell {
@@ -510,7 +714,11 @@ textarea:focus::-webkit-scrollbar {
 
 .sidebar-input:focus,
 .sidebar-input:focus-visible {
-  border-color: color-mix(in oklch, var(--ring) 72%, var(--sidebar-input-border));
+  border-color: color-mix(
+    in oklch,
+    var(--ring) 72%,
+    var(--sidebar-input-border)
+  );
   box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring) 22%, transparent) !important;
 }
 
@@ -523,7 +731,8 @@ textarea:focus::-webkit-scrollbar {
   border-radius: var(--radius-small);
   border: 0;
   background: var(--sidebar-control-off);
-  box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--foreground) 8%, transparent);
+  box-shadow: inset 0 0 0 1px
+    color-mix(in oklch, var(--foreground) 8%, transparent);
   transition:
     background-color 180ms ease,
     box-shadow 180ms ease;
@@ -531,7 +740,8 @@ textarea:focus::-webkit-scrollbar {
 
 .ui-switch--on {
   background: var(--sidebar-control-on);
-  box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--sidebar-control-on) 56%, transparent);
+  box-shadow: inset 0 0 0 1px
+    color-mix(in oklch, var(--sidebar-control-on) 56%, transparent);
 }
 
 .ui-switch-thumb {
@@ -572,7 +782,11 @@ textarea:focus::-webkit-scrollbar {
   border-radius: calc(var(--radius) + 0.08rem);
   border: 1px solid color-mix(in oklch, var(--border) 92%, transparent);
   background: color-mix(in oklch, var(--surface-1) 82%, transparent);
-  color: color-mix(in oklch, var(--foreground) 76%, var(--muted-foreground) 24%);
+  color: color-mix(
+    in oklch,
+    var(--foreground) 76%,
+    var(--muted-foreground) 24%
+  );
   transition:
     border-color 180ms ease,
     background-color 180ms ease;
@@ -590,12 +804,20 @@ textarea:focus::-webkit-scrollbar {
   justify-content: center;
   border: 0;
   background: transparent;
-  color: color-mix(in oklch, var(--muted-foreground) 78%, var(--foreground) 22%);
+  color: color-mix(
+    in oklch,
+    var(--muted-foreground) 78%,
+    var(--foreground) 22%
+  );
   transition: color 180ms ease;
 }
 
 .sidebar-btn-utility:hover {
-  color: color-mix(in oklch, var(--foreground) 72%, var(--muted-foreground) 28%);
+  color: color-mix(
+    in oklch,
+    var(--foreground) 72%,
+    var(--muted-foreground) 28%
+  );
   text-decoration: underline;
   text-underline-offset: 2px;
 }
@@ -707,8 +929,16 @@ textarea:focus::-webkit-scrollbar {
 }
 
 .dark .ui-card-selected {
-  border-color: color-mix(in oklch, var(--primary) 32%, var(--plane-card-border));
-  background: color-mix(in oklch, var(--surface-selected) 78%, var(--plane-card-bg));
+  border-color: color-mix(
+    in oklch,
+    var(--primary) 32%,
+    var(--plane-card-border)
+  );
+  background: color-mix(
+    in oklch,
+    var(--surface-selected) 78%,
+    var(--plane-card-bg)
+  );
   box-shadow:
     inset 0 0 0 1px color-mix(in oklch, var(--primary) 48%, transparent),
     inset 0 1px 0 var(--elev-overlay-2),
@@ -746,7 +976,11 @@ textarea:focus::-webkit-scrollbar {
 .ui-input:focus-visible,
 .sidebar-input:focus,
 .sidebar-input:focus-visible {
-  border-color: color-mix(in oklch, var(--ring) 72%, var(--sidebar-input-border));
+  border-color: color-mix(
+    in oklch,
+    var(--ring) 72%,
+    var(--sidebar-input-border)
+  );
   box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring) 22%, transparent) !important;
 }
 
@@ -786,7 +1020,11 @@ textarea:focus::-webkit-scrollbar {
   border-radius: var(--radius-small);
   border: 1px solid color-mix(in oklch, var(--border) 82%, transparent);
   background: color-mix(in oklch, var(--surface-1) 92%, transparent);
-  color: color-mix(in oklch, var(--foreground) 74%, var(--muted-foreground) 26%);
+  color: color-mix(
+    in oklch,
+    var(--foreground) 74%,
+    var(--muted-foreground) 26%
+  );
   transition:
     border-color 180ms ease,
     background-color 180ms ease;
@@ -806,7 +1044,11 @@ textarea:focus::-webkit-scrollbar {
   border-radius: var(--radius-small);
   border: 0;
   background: color-mix(in oklch, var(--surface-1) 82%, transparent);
-  color: color-mix(in oklch, var(--foreground) 76%, var(--muted-foreground) 24%);
+  color: color-mix(
+    in oklch,
+    var(--foreground) 76%,
+    var(--muted-foreground) 24%
+  );
   transition:
     border-color 180ms ease,
     background-color 180ms ease;
@@ -828,7 +1070,11 @@ textarea:focus::-webkit-scrollbar {
   border-radius: var(--radius-small);
   border: 0;
   background: color-mix(in oklch, var(--surface-3) 92%, transparent);
-  color: color-mix(in oklch, var(--foreground) 72%, var(--muted-foreground) 28%);
+  color: color-mix(
+    in oklch,
+    var(--foreground) 72%,
+    var(--muted-foreground) 28%
+  );
   transition:
     border-color 180ms ease,
     background-color 180ms ease,
@@ -846,7 +1092,11 @@ textarea:focus::-webkit-scrollbar {
 .agent-avatar-shuffle-btn {
   border: 1px solid color-mix(in oklch, var(--border) 74%, transparent);
   background: color-mix(in oklch, var(--surface-1) 92%, var(--surface-2));
-  color: color-mix(in oklch, var(--foreground) 80%, var(--muted-foreground) 20%);
+  color: color-mix(
+    in oklch,
+    var(--foreground) 80%,
+    var(--muted-foreground) 20%
+  );
   box-shadow: 0 1px 2px color-mix(in oklch, var(--foreground) 14%, transparent);
   opacity: 0.92;
 }
@@ -867,7 +1117,11 @@ textarea:focus::-webkit-scrollbar {
 }
 
 .dark .ui-topbar {
-  border-bottom-color: color-mix(in oklch, var(--border) 88%, var(--surface-selected-border));
+  border-bottom-color: color-mix(
+    in oklch,
+    var(--border) 88%,
+    var(--surface-selected-border)
+  );
   background: color-mix(in oklch, var(--surface-1) 94%, var(--surface-0));
 }
 
@@ -885,7 +1139,11 @@ textarea:focus::-webkit-scrollbar {
 .ui-btn-icon:hover {
   background: color-mix(in oklch, var(--surface-2) 98%, transparent);
   box-shadow: var(--shadow-2xs);
-  color: color-mix(in oklch, var(--foreground) 88%, var(--muted-foreground) 12%);
+  color: color-mix(
+    in oklch,
+    var(--foreground) 88%,
+    var(--muted-foreground) 12%
+  );
 }
 
 .ui-segment {
@@ -913,7 +1171,11 @@ textarea:focus::-webkit-scrollbar {
   border: 1px solid transparent;
   border-radius: calc(var(--radius-small) - 2px);
   background: color-mix(in oklch, var(--surface-1) 88%, var(--surface-2));
-  color: color-mix(in oklch, var(--foreground) 64%, var(--muted-foreground) 36%);
+  color: color-mix(
+    in oklch,
+    var(--foreground) 64%,
+    var(--muted-foreground) 36%
+  );
   font-size: 12px;
   font-weight: 500;
   letter-spacing: 0.02em;
@@ -926,10 +1188,19 @@ textarea:focus::-webkit-scrollbar {
 
 .ui-segment-item[data-active="true"],
 .ui-segment-item[aria-pressed="true"] {
-  background: color-mix(in oklch, var(--surface-selected) 88%, var(--surface-1));
+  background: color-mix(
+    in oklch,
+    var(--surface-selected) 88%,
+    var(--surface-1)
+  );
   border: 1px solid var(--surface-selected-border);
-  color: color-mix(in oklch, var(--foreground) 90%, var(--muted-foreground) 10%);
-  box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--primary) 24%, transparent);
+  color: color-mix(
+    in oklch,
+    var(--foreground) 90%,
+    var(--muted-foreground) 10%
+  );
+  box-shadow: inset 0 0 0 1px
+    color-mix(in oklch, var(--primary) 24%, transparent);
 }
 
 .ui-segment-fleet-filter {
@@ -955,19 +1226,31 @@ textarea:focus::-webkit-scrollbar {
   min-height: 2.125rem;
   border-color: color-mix(in oklch, var(--border) 68%, transparent);
   background: color-mix(in oklch, var(--surface-1) 86%, var(--surface-2));
-  color: color-mix(in oklch, var(--foreground) 74%, var(--muted-foreground) 26%);
+  color: color-mix(
+    in oklch,
+    var(--foreground) 74%,
+    var(--muted-foreground) 26%
+  );
 }
 
 .dark .ui-segment-command-mode .ui-segment-item {
   border-color: color-mix(in oklch, var(--border) 78%, transparent);
   background: color-mix(in oklch, var(--surface-1) 90%, var(--surface-2));
-  color: color-mix(in oklch, var(--foreground) 80%, var(--muted-foreground) 20%);
+  color: color-mix(
+    in oklch,
+    var(--foreground) 80%,
+    var(--muted-foreground) 20%
+  );
 }
 
 .ui-segment-command-mode .ui-segment-item[data-active="true"],
 .ui-segment-command-mode .ui-segment-item[aria-pressed="true"] {
   color: color-mix(in oklch, var(--foreground) 96%, var(--muted-foreground) 4%);
-  border-color: color-mix(in oklch, var(--primary) 64%, var(--surface-selected-border));
+  border-color: color-mix(
+    in oklch,
+    var(--primary) 64%,
+    var(--surface-selected-border)
+  );
   background: color-mix(in oklch, var(--primary) 24%, var(--surface-selected));
   box-shadow:
     inset 0 1px 0 var(--elev-overlay-2),
@@ -977,7 +1260,8 @@ textarea:focus::-webkit-scrollbar {
 .ui-selected {
   background: var(--surface-selected);
   border: 1px solid var(--surface-selected-border);
-  box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--primary) 24%, transparent);
+  box-shadow: inset 0 0 0 1px
+    color-mix(in oklch, var(--primary) 24%, transparent);
 }
 
 .ui-chat-scroll {
@@ -987,7 +1271,11 @@ textarea:focus::-webkit-scrollbar {
 }
 
 .dark .ui-chat-scroll {
-  border-color: color-mix(in oklch, var(--plane-workspace-border) 90%, var(--border));
+  border-color: color-mix(
+    in oklch,
+    var(--plane-workspace-border) 90%,
+    var(--border)
+  );
   background: color-mix(in oklch, var(--surface-1) 95%, var(--surface-0));
 }
 
@@ -1026,7 +1314,11 @@ textarea:focus::-webkit-scrollbar {
 .ui-chat-thinking {
   border: 1px solid color-mix(in oklch, var(--border) 48%, transparent);
   background: color-mix(in oklch, var(--surface-1) 92%, transparent);
-  color: color-mix(in oklch, var(--muted-foreground) 86%, var(--foreground) 14%);
+  color: color-mix(
+    in oklch,
+    var(--muted-foreground) 86%,
+    var(--foreground) 14%
+  );
 }
 
 .ui-settings-row {
@@ -1047,11 +1339,13 @@ textarea:focus::-webkit-scrollbar {
 
 .ui-scroll {
   scrollbar-width: thin;
-  scrollbar-color: color-mix(in oklch, var(--border) 60%, transparent) transparent;
+  scrollbar-color: color-mix(in oklch, var(--border) 60%, transparent)
+    transparent;
 }
 
 .dark .ui-scroll {
-  scrollbar-color: color-mix(in oklch, var(--foreground) 36%, var(--border)) transparent;
+  scrollbar-color: color-mix(in oklch, var(--foreground) 36%, var(--border))
+    transparent;
 }
 
 .ui-scroll::-webkit-scrollbar {
@@ -1288,7 +1582,14 @@ textarea:focus::-webkit-scrollbar {
   animation-delay: 320ms;
 }
 
-:where(button, input, textarea, select, [role="button"], summary):focus-visible {
+:where(
+  button,
+  input,
+  textarea,
+  select,
+  [role="button"],
+  summary
+):focus-visible {
   outline: 2px solid var(--ring);
   outline-offset: 2px;
   box-shadow: none !important;
@@ -1298,7 +1599,11 @@ textarea:focus::-webkit-scrollbar {
 .agent-rename-input:focus-visible {
   outline: none !important;
   outline-offset: 0;
-  border-color: color-mix(in oklch, var(--ring) 62%, var(--sidebar-input-border));
+  border-color: color-mix(
+    in oklch,
+    var(--ring) 62%,
+    var(--sidebar-input-border)
+  );
   box-shadow: 0 0 0 2px color-mix(in oklch, var(--ring) 20%, transparent) !important;
 }
 
@@ -1343,7 +1648,8 @@ textarea:focus::-webkit-scrollbar {
 
 /* Safe area insets for notched devices (iPhone X+, etc.) */
 html {
-  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  padding: env(safe-area-inset-top) env(safe-area-inset-right)
+    env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
 /* Disable iOS tap highlight, rubber-band overscroll */
@@ -1414,5 +1720,118 @@ body {
     max-width: 100% !important;
     margin: 0.5rem;
     border-radius: var(--radius-card);
+  }
+}
+
+/* ─── Bottom navigation bar for mobile ─── */
+.mobile-bottom-nav {
+  display: none;
+}
+
+@media screen and (max-width: 1280px) {
+  .mobile-bottom-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 200;
+    background: var(--sidebar);
+    border-top: 1px solid var(--sidebar-border);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    justify-content: space-around;
+    align-items: center;
+    height: calc(56px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .mobile-bottom-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 6px 12px;
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--muted-foreground);
+    transition: color 0.15s;
+    cursor: pointer;
+    background: none;
+    border: none;
+  }
+
+  .mobile-bottom-nav-item[data-active="true"] {
+    color: var(--primary);
+  }
+
+  .mobile-bottom-nav-item svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* Add bottom padding for fixed nav */
+  .mobile-content-with-nav {
+    padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* ─── Sheet-style panels on mobile (slide up from bottom) ─── */
+@media screen and (max-width: 640px) {
+  .mobile-sheet {
+    position: fixed !important;
+    inset: auto 0 0 0 !important;
+    max-height: 85vh;
+    border-radius: 1rem 1rem 0 0 !important;
+    animation: sheet-up 0.25s ease-out;
+  }
+
+  @keyframes sheet-up {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+
+  /* Drawer handle indicator */
+  .mobile-sheet::before {
+    content: "";
+    display: block;
+    width: 36px;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--muted-foreground);
+    opacity: 0.3;
+    margin: 8px auto 4px;
+  }
+}
+
+/* ─── Drawer sidebar on mobile ─── */
+@media screen and (max-width: 1280px) {
+  .mobile-drawer-sidebar {
+    position: fixed;
+    inset: 0;
+    z-index: 180;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease-out;
+  }
+
+  .mobile-drawer-sidebar[data-open="true"] {
+    transform: translateX(0);
+  }
+
+  .mobile-drawer-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 170;
+    background: rgba(0, 0, 0, 0.4);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s;
+  }
+
+  .mobile-drawer-backdrop[data-open="true"] {
+    opacity: 1;
+    pointer-events: auto;
   }
 }

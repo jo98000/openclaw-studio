@@ -1,13 +1,16 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Shuffle, ChevronRight, ChevronLeft } from "lucide-react";
 import type { AgentCreateModalSubmitPayload } from "@/features/agents/creation/types";
 import type { GatewayModelChoice } from "@/lib/gateway/models";
 import { AgentAvatar } from "@/features/agents/components/AgentAvatar";
 import { randomUUID } from "@/lib/uuid";
-import { AGENT_TEMPLATES, type AgentTemplate } from "@/features/agents/templates/agentTemplates";
+import {
+  AGENT_TEMPLATES,
+  type AgentTemplate,
+} from "@/features/agents/templates/agentTemplates";
 
 type AgentCreateModalProps = {
   open: boolean;
@@ -32,11 +35,22 @@ const resolveInitialName = (suggestedName: string): string => {
   return trimmed;
 };
 
-const StepIndicator = ({ current, labels }: { current: WizardStep; labels: string[] }) => (
+const StepIndicator = ({
+  current,
+  labels,
+}: {
+  current: WizardStep;
+  labels: string[];
+}) => (
   <div className="flex items-center gap-2 px-6 py-3 border-b border-border/30">
     {labels.map((label, i) => (
       <div key={label} className="flex items-center gap-2">
-        {i > 0 ? <ChevronRight className="h-3 w-3 text-muted-foreground/40" aria-hidden="true" /> : null}
+        {i > 0 ? (
+          <ChevronRight
+            className="h-3 w-3 text-muted-foreground/40"
+            aria-hidden="true"
+          />
+        ) : null}
         <span
           className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold transition-colors ${
             i === current
@@ -76,8 +90,12 @@ const TemplateSelector = ({
         data-testid={`template-${tmpl.id}`}
       >
         <span className="text-base">{tmpl.icon}</span>
-        <span className="text-[11px] font-semibold text-foreground">{t(`${tmpl.id}.name`)}</span>
-        <span className="text-[10px] text-muted-foreground">{t(`${tmpl.id}.description`)}</span>
+        <span className="text-[11px] font-semibold text-foreground">
+          {t(`${tmpl.id}.name`)}
+        </span>
+        <span className="text-[10px] text-muted-foreground">
+          {t(`${tmpl.id}.description`)}
+        </span>
       </button>
     ))}
   </div>
@@ -106,13 +124,13 @@ const AgentCreateModalContent = ({
 
   const canSubmit = name.trim().length > 0;
 
-  const handleTemplateSelect = useCallback((template: AgentTemplate) => {
+  const handleTemplateSelect = (template: AgentTemplate) => {
     setTemplateId(template.id);
     if (template.defaultModel) setModelKey(template.defaultModel);
     setCommandMode(template.capabilities.commandMode);
     setWebAccess(template.capabilities.webAccess);
     setFileTools(template.capabilities.fileTools);
-  }, []);
+  };
 
   const handleSubmit = () => {
     if (!canSubmit || busy) return;
@@ -129,12 +147,15 @@ const AgentCreateModalContent = ({
   const goNext = () => setStep((s) => Math.min(s + 1, 2) as WizardStep);
   const goPrev = () => setStep((s) => Math.max(s - 1, 0) as WizardStep);
 
-  const groupedModels = models.reduce<Record<string, GatewayModelChoice[]>>((acc, m) => {
-    const p = m.provider || "other";
-    if (!acc[p]) acc[p] = [];
-    acc[p].push(m);
-    return acc;
-  }, {});
+  const groupedModels = models.reduce<Record<string, GatewayModelChoice[]>>(
+    (acc, m) => {
+      const p = m.provider || "other";
+      if (!acc[p]) acc[p] = [];
+      acc[p].push(m);
+      return acc;
+    },
+    {},
+  );
 
   const providerLabels: Record<string, string> = {
     anthropic: "Anthropic",
@@ -142,6 +163,19 @@ const AgentCreateModalContent = ({
     perplexity: "Perplexity",
     google: "Google",
     mistral: "Mistral",
+    groq: "Groq",
+    openrouter: "OpenRouter",
+    ollama: "Ollama",
+    deepseek: "DeepSeek",
+    together: "Together AI",
+    fireworks: "Fireworks AI",
+    cohere: "Cohere",
+    "amazon-bedrock": "Amazon Bedrock",
+    "azure-openai": "Azure OpenAI",
+    cloudflare: "Cloudflare Workers AI",
+    nvidia: "NVIDIA NIM",
+    huggingface: "Hugging Face",
+    custom: "Custom",
   };
 
   return (
@@ -152,13 +186,8 @@ const AgentCreateModalContent = ({
       aria-label={t("headerTitle")}
       onClick={busy ? undefined : onClose}
     >
-      <form
+      <div
         className="ui-panel w-full max-w-2xl shadow-xs"
-        onSubmit={(event) => {
-          event.preventDefault();
-          if (step < 2) goNext();
-          else handleSubmit();
-        }}
         onClick={(event) => event.stopPropagation()}
         data-testid="agent-create-modal"
       >
@@ -167,7 +196,9 @@ const AgentCreateModalContent = ({
             <div className="font-mono text-[11px] font-semibold tracking-[0.06em] text-muted-foreground">
               {t("headerLabel")}
             </div>
-            <div className="mt-1 text-base font-semibold text-foreground">{t("headerTitle")}</div>
+            <div className="mt-1 text-base font-semibold text-foreground">
+              {t("headerTitle")}
+            </div>
           </div>
           <button
             type="button"
@@ -179,16 +210,21 @@ const AgentCreateModalContent = ({
           </button>
         </div>
 
-        <StepIndicator current={step} labels={[t("stepIdentity"), t("stepModel"), t("stepCapabilities")]} />
+        <StepIndicator
+          current={step}
+          labels={[t("stepIdentity"), t("stepModel"), t("stepCapabilities")]}
+        />
 
         <div className="px-6 py-5">
           {/* Step 1: Identity */}
           {step === 0 ? (
             <div className="grid gap-4">
-              <label className={labelClassName}>
-                {t("templateLabel")}
-              </label>
-              <TemplateSelector selected={templateId} onSelect={handleTemplateSelect} t={tt} />
+              <label className={labelClassName}>{t("templateLabel")}</label>
+              <TemplateSelector
+                selected={templateId}
+                onSelect={handleTemplateSelect}
+                t={tt}
+              />
 
               <label className={labelClassName}>
                 {t("nameLabel")}
@@ -196,6 +232,12 @@ const AgentCreateModalContent = ({
                   aria-label={t("nameLabel")}
                   value={name}
                   onChange={(event) => setName(event.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && canSubmit) {
+                      e.preventDefault();
+                      goNext();
+                    }
+                  }}
                   className={`mt-1 ${fieldClassName}`}
                   placeholder={t("namePlaceholder")}
                   autoFocus
@@ -208,6 +250,12 @@ const AgentCreateModalContent = ({
                   aria-label={t("descriptionLabel")}
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      goNext();
+                    }
+                  }}
                   className={`mt-1 ${fieldClassName}`}
                   placeholder={t("descriptionPlaceholder")}
                 />
@@ -247,16 +295,24 @@ const AgentCreateModalContent = ({
                   onChange={(e) => setModelKey(e.target.value)}
                 >
                   <option value="">{t("modelDefault")}</option>
-                  {Object.entries(groupedModels).map(([provider, providerModels]) => (
-                    <optgroup key={provider} label={providerLabels[provider] ?? provider}>
-                      {providerModels.map((m) => (
-                        <option key={`${m.provider}/${m.id}`} value={`${m.provider}/${m.id}`}>
-                          {m.name}
-                          {m.reasoning ? " (Raisonnement)" : ""}
-                        </option>
-                      ))}
-                    </optgroup>
-                  ))}
+                  {Object.entries(groupedModels).map(
+                    ([provider, providerModels]) => (
+                      <optgroup
+                        key={provider}
+                        label={providerLabels[provider] ?? provider}
+                      >
+                        {providerModels.map((m) => (
+                          <option
+                            key={`${m.provider}/${m.id}`}
+                            value={`${m.provider}/${m.id}`}
+                          >
+                            {m.name}
+                            {m.reasoning ? " (Raisonnement)" : ""}
+                          </option>
+                        ))}
+                      </optgroup>
+                    ),
+                  )}
                 </select>
               </label>
 
@@ -285,7 +341,11 @@ const AgentCreateModalContent = ({
                 <div className={labelClassName}>{t("capRunCommands")}</div>
                 <div className="mt-1.5 ui-segment grid-cols-3">
                   {(["off", "ask", "auto"] as const).map((mode) => {
-                    const modeLabels: Record<string, string> = { off: "Désactivé", ask: "Demander", auto: "Auto" };
+                    const modeLabels: Record<string, string> = {
+                      off: "Désactivé",
+                      ask: "Demander",
+                      auto: "Auto",
+                    };
                     return (
                       <button
                         key={mode}
@@ -310,8 +370,12 @@ const AgentCreateModalContent = ({
 
               <div className="flex items-center justify-between rounded-lg border border-border/40 px-4 py-3">
                 <div>
-                  <p className="text-xs font-medium text-foreground">{t("capWebAccess")}</p>
-                  <p className="text-[10px] text-muted-foreground">{t("capWebAccessDesc")}</p>
+                  <p className="text-xs font-medium text-foreground">
+                    {t("capWebAccess")}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">
+                    {t("capWebAccessDesc")}
+                  </p>
                 </div>
                 <button
                   type="button"
@@ -328,8 +392,12 @@ const AgentCreateModalContent = ({
 
               <div className="flex items-center justify-between rounded-lg border border-border/40 px-4 py-3">
                 <div>
-                  <p className="text-xs font-medium text-foreground">{t("capFileTools")}</p>
-                  <p className="text-[10px] text-muted-foreground">{t("capFileToolsDesc")}</p>
+                  <p className="text-xs font-medium text-foreground">
+                    {t("capFileTools")}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">
+                    {t("capFileToolsDesc")}
+                  </p>
                 </div>
                 <button
                   type="button"
@@ -345,7 +413,9 @@ const AgentCreateModalContent = ({
               </div>
 
               {submitError ? (
-                <div className="ui-alert-danger rounded-md px-3 py-2 text-xs">{submitError}</div>
+                <div className="ui-alert-danger rounded-md px-3 py-2 text-xs">
+                  {submitError}
+                </div>
               ) : null}
             </div>
           ) : null}
@@ -364,7 +434,9 @@ const AgentCreateModalContent = ({
                 {tc("back")}
               </button>
             ) : (
-              <span className="text-[10px] text-muted-foreground">{t("stepOf", { current: step + 1, total: 3 })}</span>
+              <span className="text-[10px] text-muted-foreground">
+                {t("stepOf", { current: step + 1, total: 3 })}
+              </span>
             )}
           </div>
           <div className="flex items-center gap-2">
@@ -380,16 +452,17 @@ const AgentCreateModalContent = ({
               </button>
             ) : (
               <button
-                type="submit"
+                type="button"
                 className="ui-btn-primary px-4 py-1.5 font-mono text-[11px] font-semibold tracking-[0.06em] disabled:cursor-not-allowed disabled:border-border disabled:bg-muted disabled:text-muted-foreground"
                 disabled={!canSubmit || busy}
+                onClick={handleSubmit}
               >
                 {busy ? t("launching") : t("launchAgent")}
               </button>
             )}
           </div>
         </div>
-      </form>
+      </div>
     </div>
   );
 };

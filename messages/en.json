@@ -291,6 +291,7 @@
     "studioLockedRestart": "Studio is temporarily locked until the gateway restarts.",
     "fleet": "Fleet",
     "chat": "Chat",
+    "settings": "Settings",
     "canvasPreviewError": "Canvas preview error",
     "interAgentFeedError": "Inter-agent feed error",
     "voiceControlsError": "Voice controls error",
@@ -552,7 +553,9 @@
     "thinkingMedium": "Medium",
     "thinkingHigh": "High",
     "thinkingXHigh": "XHigh",
-    "permissions": "Permissions"
+    "permissions": "Permissions",
+    "performanceTitle": "Performance",
+    "performanceDescription": "Runtime metrics for this agent."
   },
   "webhookEvents": {
     "agentStarted": "Agent started",

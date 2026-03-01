@@ -1,7 +1,7 @@
 import type { AgentState, FocusFilter } from "@/features/agents/state/store";
 import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Search } from "lucide-react";
+import { Search, MessageSquare, Clock } from "lucide-react";
 import { AgentAvatar } from "./AgentAvatar";
 import {
   NEEDS_APPROVAL_BADGE_CLASS,
@@ -22,6 +22,15 @@ type FleetSidebarProps = {
 };
 
 const FILTER_KEYS = ["all", "running", "approvals"] as const;
+
+const formatRelativeTime = (timestampMs: number | null): string | null => {
+  if (!timestampMs) return null;
+  const delta = Date.now() - timestampMs;
+  if (delta < 60_000) return "<1m";
+  if (delta < 3_600_000) return `${Math.floor(delta / 60_000)}m`;
+  if (delta < 86_400_000) return `${Math.floor(delta / 3_600_000)}h`;
+  return `${Math.floor(delta / 86_400_000)}d`;
+};
 
 export const FleetSidebar = ({
   agents,
@@ -46,7 +55,10 @@ export const FleetSidebar = ({
     return agents.filter((a) => a.name.toLowerCase().includes(q));
   }, [agents, searchQuery]);
 
-  const agentOrderKey = useMemo(() => filteredBySearch.map((agent) => agent.agentId).join("|"), [filteredBySearch]);
+  const agentOrderKey = useMemo(
+    () => filteredBySearch.map((agent) => agent.agentId).join("|"),
+    [filteredBySearch],
+  );
 
   useLayoutEffect(() => {
     const scroller = scrollContainerRef.current;
@@ -69,8 +81,11 @@ export const FleetSidebar = ({
       if (Math.abs(deltaY) < 0.5) continue;
       if (typeof node.animate !== "function") continue;
       node.animate(
-        [{ transform: `translateY(${deltaY}px)` }, { transform: "translateY(0px)" }],
-        { duration: 300, easing: "cubic-bezier(0.22, 1, 0.36, 1)" }
+        [
+          { transform: `translateY(${deltaY}px)` },
+          { transform: "translateY(0px)" },
+        ],
+        { duration: 300, easing: "cubic-bezier(0.22, 1, 0.36, 1)" },
       );
     }
     previousTopByAgentIdRef.current = nextTopByAgentId;
@@ -82,7 +97,9 @@ export const FleetSidebar = ({
       data-testid="fleet-sidebar"
     >
       <div className="flex items-center justify-between gap-2 px-1">
-        <p className="console-title type-page-title text-foreground">{t("title", { count: agents.length })}</p>
+        <p className="console-title type-page-title text-foreground">
+          {t("title", { count: agents.length })}
+        </p>
         <button
           type="button"
           data-testid="fleet-new-agent-button"
@@ -95,7 +112,10 @@ export const FleetSidebar = ({
       </div>
 
       <div className="relative">
-        <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
+        <Search
+          className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground"
+          aria-hidden="true"
+        />
         <input
           type="text"
           className="ui-input w-full rounded-md py-1.5 pl-8 pr-3 text-xs text-foreground placeholder:text-muted-foreground"
@@ -131,7 +151,10 @@ export const FleetSidebar = ({
         })}
       </div>
 
-      <div ref={scrollContainerRef} className="ui-scroll min-h-0 flex-1 overflow-auto">
+      <div
+        ref={scrollContainerRef}
+        className="ui-scroll min-h-0 flex-1 overflow-auto"
+      >
         {filteredBySearch.length === 0 ? (
           <EmptyStatePanel
             title={searchQuery ? t("noSearchResults") : t("noAgents")}
@@ -156,9 +179,7 @@ export const FleetSidebar = ({
                   type="button"
                   data-testid={`fleet-agent-row-${agent.agentId}`}
                   className={`group relative ui-card flex w-full items-center gap-3 overflow-hidden border px-3 py-3 text-left transition-colors ${
-                    selected
-                      ? "ui-card-selected"
-                      : "hover:bg-surface-2/45"
+                    selected ? "ui-card-selected" : "hover:bg-surface-2/45"
                   }`}
                   onClick={() => onSelectAgent(agent.agentId)}
                 >
@@ -185,8 +206,26 @@ export const FleetSidebar = ({
                         {ts(resolveAgentStatusLabel(agent.status))}
                       </span>
                       {agent.awaitingUserInput ? (
-                        <span className={`ui-badge ${NEEDS_APPROVAL_BADGE_CLASS}`} data-status="approval">
+                        <span
+                          className={`ui-badge ${NEEDS_APPROVAL_BADGE_CLASS}`}
+                          data-status="approval"
+                        >
                           {t("needsApproval")}
+                        </span>
+                      ) : null}
+                    </div>
+                    <div className="mt-1 flex items-center gap-3 text-[10px] text-muted-foreground">
+                      <span className="flex items-center gap-0.5">
+                        <MessageSquare
+                          className="h-2.5 w-2.5"
+                          aria-hidden="true"
+                        />
+                        {agent.outputLines.length}
+                      </span>
+                      {formatRelativeTime(agent.lastActivityAt) ? (
+                        <span className="flex items-center gap-0.5">
+                          <Clock className="h-2.5 w-2.5" aria-hidden="true" />
+                          {formatRelativeTime(agent.lastActivityAt)}
                         </span>
                       ) : null}
                     </div>

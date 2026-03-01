@@ -16,6 +16,8 @@ export type ProviderId =
   | "cloudflare"
   | "nvidia"
   | "huggingface"
+  | "xai"
+  | "litellm"
   | "custom";
 
 export type ProviderStatus = "configured" | "unconfigured" | "error";

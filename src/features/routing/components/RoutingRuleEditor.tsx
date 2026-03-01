@@ -3,11 +3,16 @@
 import { useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { X, Plus, Trash2 } from "lucide-react";
-import type { RoutingRule, RoutingCondition, RoutingConditionType } from "../types";
+import type {
+  RoutingRule,
+  RoutingCondition,
+  RoutingConditionType,
+} from "../types";
 
 type RoutingRuleEditorProps = {
   rule?: RoutingRule;
   agentIds: string[];
+  agentNames?: Record<string, string>;
   onSave: (rule: RoutingRule) => void;
   onClose: () => void;
 };
@@ -35,17 +40,26 @@ const emptyCondition = (): RoutingCondition => ({
   value: "",
 });
 
-export const RoutingRuleEditor = ({ rule, agentIds, onSave, onClose }: RoutingRuleEditorProps) => {
+export const RoutingRuleEditor = ({
+  rule,
+  agentIds,
+  agentNames,
+  onSave,
+  onClose,
+}: RoutingRuleEditorProps) => {
   const t = useTranslations("routing");
   const [name, setName] = useState(rule?.name ?? "");
   const [priority, setPriority] = useState(rule?.priority ?? 0);
   const [targetAgentId, setTargetAgentId] = useState(rule?.targetAgentId ?? "");
-  const [fallbackAgentId, setFallbackAgentId] = useState(rule?.fallbackAgentId ?? "");
+  const [fallbackAgentId, setFallbackAgentId] = useState(
+    rule?.fallbackAgentId ?? "",
+  );
   const [conditions, setConditions] = useState<RoutingCondition[]>(
     rule?.conditions ?? [emptyCondition()],
   );
 
-  const addCondition = () => setConditions((prev) => [...prev, emptyCondition()]);
+  const addCondition = () =>
+    setConditions((prev) => [...prev, emptyCondition()]);
 
   const removeCondition = (index: number) =>
     setConditions((prev) => prev.filter((_, i) => i !== index));
@@ -65,12 +79,24 @@ export const RoutingRuleEditor = ({ rule, agentIds, onSave, onClose }: RoutingRu
       targetAgentId,
       fallbackAgentId: fallbackAgentId || undefined,
     });
-  }, [rule, name, priority, conditions, targetAgentId, fallbackAgentId, onSave]);
+  }, [
+    rule,
+    name,
+    priority,
+    conditions,
+    targetAgentId,
+    fallbackAgentId,
+    onSave,
+  ]);
 
-  const canSave = name.trim() && targetAgentId && conditions.some((c) => c.value.trim());
+  const canSave =
+    name.trim() && targetAgentId && conditions.some((c) => c.value.trim());
 
   return (
-    <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/50" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-[300] flex items-center justify-center bg-black/50"
+      onClick={onClose}
+    >
       <div
         className="ui-card w-full max-w-lg p-0"
         onClick={(e) => e.stopPropagation()}
@@ -81,14 +107,21 @@ export const RoutingRuleEditor = ({ rule, agentIds, onSave, onClose }: RoutingRu
           <h3 className="text-sm font-semibold text-foreground">
             {rule ? t("editRule") : t("addRule")}
           </h3>
-          <button type="button" onClick={onClose} className="ui-btn-icon xs" aria-label={t("close")}>
+          <button
+            type="button"
+            onClick={onClose}
+            className="ui-btn-icon xs"
+            aria-label={t("close")}
+          >
             <X className="h-3.5 w-3.5" />
           </button>
         </div>
 
         <div className="space-y-3 px-5 py-4">
           <div>
-            <label className="mb-1 block text-xs font-medium text-foreground">{t("ruleName")}</label>
+            <label className="mb-1 block text-xs font-medium text-foreground">
+              {t("ruleName")}
+            </label>
             <input
               type="text"
               value={name}
@@ -99,7 +132,9 @@ export const RoutingRuleEditor = ({ rule, agentIds, onSave, onClose }: RoutingRu
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-medium text-foreground">{t("priority")}</label>
+            <label className="mb-1 block text-xs font-medium text-foreground">
+              {t("priority")}
+            </label>
             <input
               type="number"
               value={priority}
@@ -111,37 +146,58 @@ export const RoutingRuleEditor = ({ rule, agentIds, onSave, onClose }: RoutingRu
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-medium text-foreground">{t("conditions")}</label>
+            <label className="mb-1 block text-xs font-medium text-foreground">
+              {t("conditions")}
+            </label>
             <div className="space-y-2">
               {conditions.map((cond, i) => (
                 <div key={i} className="flex items-center gap-2">
                   <select
                     value={cond.type}
-                    onChange={(e) => updateCondition(i, { type: e.target.value as RoutingConditionType })}
+                    onChange={(e) =>
+                      updateCondition(i, {
+                        type: e.target.value as RoutingConditionType,
+                      })
+                    }
                     className="ui-input text-xs"
                   >
                     {CONDITION_TYPES.map((ct) => (
-                      <option key={ct.value} value={ct.value}>{ct.label}</option>
+                      <option key={ct.value} value={ct.value}>
+                        {ct.label}
+                      </option>
                     ))}
                   </select>
                   <select
                     value={cond.operator}
-                    onChange={(e) => updateCondition(i, { operator: e.target.value as RoutingCondition["operator"] })}
+                    onChange={(e) =>
+                      updateCondition(i, {
+                        operator: e.target
+                          .value as RoutingCondition["operator"],
+                      })
+                    }
                     className="ui-input text-xs"
                   >
                     {OPERATORS.map((op) => (
-                      <option key={op.value} value={op.value}>{op.label}</option>
+                      <option key={op.value} value={op.value}>
+                        {op.label}
+                      </option>
                     ))}
                   </select>
                   <input
                     type="text"
                     value={cond.value}
-                    onChange={(e) => updateCondition(i, { value: e.target.value })}
+                    onChange={(e) =>
+                      updateCondition(i, { value: e.target.value })
+                    }
                     placeholder={t("conditionValue")}
                     className="ui-input flex-1 text-xs"
                   />
                   {conditions.length > 1 && (
-                    <button type="button" onClick={() => removeCondition(i)} className="ui-btn-icon xs text-destructive">
+                    <button
+                      type="button"
+                      onClick={() => removeCondition(i)}
+                      className="ui-btn-icon xs text-destructive"
+                    >
                       <Trash2 className="h-3 w-3" />
                     </button>
                   )}
@@ -158,7 +214,9 @@ export const RoutingRuleEditor = ({ rule, agentIds, onSave, onClose }: RoutingRu
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-medium text-foreground">{t("targetAgent")}</label>
+            <label className="mb-1 block text-xs font-medium text-foreground">
+              {t("targetAgent")}
+            </label>
             <select
               value={targetAgentId}
               onChange={(e) => setTargetAgentId(e.target.value)}
@@ -166,13 +224,17 @@ export const RoutingRuleEditor = ({ rule, agentIds, onSave, onClose }: RoutingRu
             >
               <option value="">{t("selectAgent")}</option>
               {agentIds.map((id) => (
-                <option key={id} value={id}>{id}</option>
+                <option key={id} value={id}>
+                  {agentNames?.[id] ?? id}
+                </option>
               ))}
             </select>
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-medium text-foreground">{t("fallbackAgent")}</label>
+            <label className="mb-1 block text-xs font-medium text-foreground">
+              {t("fallbackAgent")}
+            </label>
             <select
               value={fallbackAgentId}
               onChange={(e) => setFallbackAgentId(e.target.value)}
@@ -180,14 +242,20 @@ export const RoutingRuleEditor = ({ rule, agentIds, onSave, onClose }: RoutingRu
             >
               <option value="">{t("none")}</option>
               {agentIds.map((id) => (
-                <option key={id} value={id}>{id}</option>
+                <option key={id} value={id}>
+                  {agentNames?.[id] ?? id}
+                </option>
               ))}
             </select>
           </div>
         </div>
 
         <div className="flex items-center justify-end gap-2 border-t border-border px-5 py-3">
-          <button type="button" onClick={onClose} className="ui-btn-secondary text-xs">
+          <button
+            type="button"
+            onClick={onClose}
+            className="ui-btn-secondary text-xs"
+          >
             {t("cancel")}
           </button>
           <button

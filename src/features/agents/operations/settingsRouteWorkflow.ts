@@ -5,11 +5,13 @@ export type SettingsRouteTab =
   | "system"
   | "automations"
   | "credentials"
+  | "performance"
   | "advanced";
 
-export type InspectSidebarState =
-  | { agentId: string; tab: SettingsRouteTab }
-  | null;
+export type InspectSidebarState = {
+  agentId: string;
+  tab: SettingsRouteTab;
+} | null;
 
 export type SettingsRouteNavCommand =
   | { kind: "select-agent"; agentId: string | null }
@@ -22,7 +24,9 @@ export type SettingsRouteNavCommand =
 
 export const SETTINGS_ROUTE_AGENT_ID_QUERY_PARAM = "settingsAgentId";
 
-export const parseSettingsRouteAgentIdFromPathname = (pathname: string): string | null => {
+export const parseSettingsRouteAgentIdFromPathname = (
+  pathname: string,
+): string | null => {
   const match = pathname.match(/^\/agents\/([^/]+)\/settings\/?$/);
   if (!match) return null;
   try {
@@ -35,7 +39,9 @@ export const parseSettingsRouteAgentIdFromPathname = (pathname: string): string 
   }
 };
 
-export const parseSettingsRouteAgentIdFromQueryParam = (value: string | null | undefined): string | null => {
+export const parseSettingsRouteAgentIdFromQueryParam = (
+  value: string | null | undefined,
+): string | null => {
   const trimmed = (value ?? "").trim();
   if (!trimmed) return null;
   try {
@@ -95,8 +101,11 @@ export const planSettingsTabChangeCommands = (input: {
   personalityHasUnsavedChanges: boolean;
   discardConfirmed: boolean;
 }): SettingsRouteNavCommand[] => {
-  const resolvedAgentId =
-    (input.currentInspectSidebar?.agentId ?? input.settingsRouteAgentId ?? "").trim();
+  const resolvedAgentId = (
+    input.currentInspectSidebar?.agentId ??
+    input.settingsRouteAgentId ??
+    ""
+  ).trim();
   if (!resolvedAgentId) return [];
 
   const currentTab = input.currentInspectSidebar?.tab ?? "personality";
@@ -157,7 +166,7 @@ export const planOpenSettingsRouteCommands = (input: {
 
   commands.push(
     { kind: "set-mobile-pane-chat" },
-    { kind: "push", href: buildSettingsRouteHref(resolvedAgentId) }
+    { kind: "push", href: buildSettingsRouteHref(resolvedAgentId) },
   );
 
   return commands;
