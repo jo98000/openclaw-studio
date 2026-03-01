@@ -220,10 +220,9 @@ const AgentCreateModalContent = ({
           <div
             className="px-6 py-5"
             style={{
-              flex: "1 1 0%",
-              minHeight: 0,
               overflowY: "auto",
-              overscrollBehavior: "contain",
+              maxHeight: "calc(100vh - 14rem)",
+              WebkitOverflowScrolling: "touch",
             }}
           >
             {/* Step 1: Identity */}
