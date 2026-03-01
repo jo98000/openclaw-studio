@@ -7,6 +7,7 @@ const GATEWAY_CLIENT_NAMES = {
 
 const GATEWAY_CLIENT_MODES = {
   WEBCHAT: "webchat",
+  BACKEND: "backend",
 } as const;
 
 type CryptoLike = {
@@ -27,14 +28,15 @@ function uuidFromBytes(bytes: Uint8Array): string {
 
   return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(
     16,
-    20
+    20,
   )}-${hex.slice(20)}`;
 }
 
 function weakRandomBytes(): Uint8Array {
   const bytes = new Uint8Array(16);
   const now = Date.now();
-  for (let i = 0; i < bytes.length; i++) bytes[i] = Math.floor(Math.random() * 256);
+  for (let i = 0; i < bytes.length; i++)
+    bytes[i] = Math.floor(Math.random() * 256);
   bytes[0] ^= now & 0xff;
   bytes[1] ^= (now >>> 8) & 0xff;
   bytes[2] ^= (now >>> 16) & 0xff;
@@ -48,8 +50,11 @@ function warnWeakCryptoOnce() {
   console.warn("[uuid] crypto API missing; falling back to weak randomness");
 }
 
-function generateUUID(cryptoLike: CryptoLike | null = globalThis.crypto): string {
-  if (cryptoLike && typeof cryptoLike.randomUUID === "function") return cryptoLike.randomUUID();
+function generateUUID(
+  cryptoLike: CryptoLike | null = globalThis.crypto,
+): string {
+  if (cryptoLike && typeof cryptoLike.randomUUID === "function")
+    return cryptoLike.randomUUID();
 
   if (cryptoLike && typeof cryptoLike.getRandomValues === "function") {
     const bytes = new Uint8Array(16);
@@ -154,7 +159,11 @@ function writeDeviceAuthStore(store: DeviceAuthStore) {
   }
 }
 
-function loadDeviceAuthToken(params: { deviceId: string; role: string; scope: string }): DeviceAuthEntry | null {
+function loadDeviceAuthToken(params: {
+  deviceId: string;
+  role: string;
+  scope: string;
+}): DeviceAuthEntry | null {
   const store = readDeviceAuthStore();
   if (!store || store.deviceId !== params.deviceId) return null;
   const role = normalizeRole(params.role);
@@ -195,7 +204,11 @@ function storeDeviceAuthToken(params: {
   return entry;
 }
 
-function clearDeviceAuthToken(params: { deviceId: string; role: string; scope: string }) {
+function clearDeviceAuthToken(params: {
+  deviceId: string;
+  role: string;
+  scope: string;
+}) {
   const store = readDeviceAuthStore();
   if (!store || store.deviceId !== params.deviceId) return;
   const role = normalizeRole(params.role);
@@ -229,7 +242,10 @@ const DEVICE_IDENTITY_STORAGE_KEY = "openclaw-device-identity-v1";
 function base64UrlEncode(bytes: Uint8Array): string {
   let binary = "";
   for (const byte of bytes) binary += String.fromCharCode(byte);
-  return btoa(binary).replaceAll("+", "-").replaceAll("/", "_").replace(/=+$/g, "");
+  return btoa(binary)
+    .replaceAll("+", "-")
+    .replaceAll("/", "_")
+    .replace(/=+$/g, "");
 }
 
 function base64UrlDecode(input: string): Uint8Array {
@@ -274,13 +290,18 @@ async function loadOrCreateDeviceIdentity(): Promise<DeviceIdentity> {
         typeof parsed.publicKey === "string" &&
         typeof parsed.privateKey === "string"
       ) {
-        const derivedId = await fingerprintPublicKey(base64UrlDecode(parsed.publicKey));
+        const derivedId = await fingerprintPublicKey(
+          base64UrlDecode(parsed.publicKey),
+        );
         if (derivedId !== parsed.deviceId) {
           const updated: StoredIdentity = {
             ...parsed,
             deviceId: derivedId,
           };
-          localStorage.setItem(DEVICE_IDENTITY_STORAGE_KEY, JSON.stringify(updated));
+          localStorage.setItem(
+            DEVICE_IDENTITY_STORAGE_KEY,
+            JSON.stringify(updated),
+          );
           return {
             deviceId: derivedId,
             publicKey: parsed.publicKey,
@@ -372,7 +393,10 @@ export type GatewayBrowserClientOptions = {
 const CONNECT_FAILED_CLOSE_CODE = 4008;
 const WS_CLOSE_REASON_MAX_BYTES = 123;
 
-function truncateWsCloseReason(reason: string, maxBytes = WS_CLOSE_REASON_MAX_BYTES): string {
+function truncateWsCloseReason(
+  reason: string,
+  maxBytes = WS_CLOSE_REASON_MAX_BYTES,
+): string {
   const trimmed = reason.trim();
   if (!trimmed) return "connect failed";
   const encoder = new TextEncoder();
@@ -453,12 +477,24 @@ export class GatewayBrowserClient {
     }
 
     const isSecureContext =
-      !this.opts.disableDeviceAuth && typeof crypto !== "undefined" && !!crypto.subtle;
+      !this.opts.disableDeviceAuth &&
+      typeof crypto !== "undefined" &&
+      !!crypto.subtle;
 
-    const scopes = ["operator.admin", "operator.approvals", "operator.pairing"];
+    const scopes = [
+      "operator.admin",
+      "operator.approvals",
+      "operator.pairing",
+      "operator.read",
+      "operator.write",
+    ];
     const role = "operator";
-    const authScopeKey = normalizeAuthScope(this.opts.authScopeKey ?? this.opts.url);
-    let deviceIdentity: Awaited<ReturnType<typeof loadOrCreateDeviceIdentity>> | null = null;
+    const authScopeKey = normalizeAuthScope(
+      this.opts.authScopeKey ?? this.opts.url,
+    );
+    let deviceIdentity: Awaited<
+      ReturnType<typeof loadOrCreateDeviceIdentity>
+    > | null = null;
     let canFallbackToShared = false;
     let authToken = this.opts.token;
 
@@ -503,7 +539,10 @@ export class GatewayBrowserClient {
         token: authToken ?? null,
         nonce,
       });
-      const signature = await signDevicePayload(deviceIdentity.privateKey, payload);
+      const signature = await signDevicePayload(
+        deviceIdentity.privateKey,
+        payload,
+      );
       device = {
         id: deviceIdentity.deviceId,
         publicKey: deviceIdentity.publicKey,
@@ -547,7 +586,11 @@ export class GatewayBrowserClient {
       })
       .catch((err) => {
         if (canFallbackToShared && deviceIdentity) {
-          clearDeviceAuthToken({ deviceId: deviceIdentity.deviceId, role, scope: authScopeKey });
+          clearDeviceAuthToken({
+            deviceId: deviceIdentity.deviceId,
+            role,
+            scope: authScopeKey,
+          });
         }
         const rawReason =
           err instanceof GatewayResponseError
@@ -555,7 +598,9 @@ export class GatewayBrowserClient {
             : "connect failed";
         const reason = truncateWsCloseReason(rawReason);
         if (reason !== rawReason) {
-          console.warn("[gateway] connect close reason truncated to 123 UTF-8 bytes");
+          console.warn(
+            "[gateway] connect close reason truncated to 123 UTF-8 bytes",
+          );
         }
         this.ws?.close(CONNECT_FAILED_CLOSE_CODE, reason);
       });
@@ -574,7 +619,8 @@ export class GatewayBrowserClient {
       const evt = parsed as GatewayEventFrame;
       if (evt.event === "connect.challenge") {
         const payload = evt.payload as { nonce?: unknown } | undefined;
-        const nonce = payload && typeof payload.nonce === "string" ? payload.nonce : null;
+        const nonce =
+          payload && typeof payload.nonce === "string" ? payload.nonce : null;
         if (nonce) {
           this.connectNonce = nonce;
           void this.sendConnect();
@@ -609,7 +655,7 @@ export class GatewayBrowserClient {
               code: res.error.code,
               message: res.error.message ?? "request failed",
               details: res.error.details,
-            })
+            }),
           );
           return;
         }

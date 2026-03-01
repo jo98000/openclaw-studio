@@ -291,6 +291,7 @@
     "studioLockedRestart": "Studio is temporarily locked until the gateway restarts.",
     "fleet": "Fleet",
     "chat": "Chat",
+    "analytics": "Analytics",
     "settings": "Settings",
     "canvasPreviewError": "Canvas preview error",
     "interAgentFeedError": "Inter-agent feed error",

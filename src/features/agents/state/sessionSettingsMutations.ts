@@ -63,7 +63,8 @@ export const applySessionSettingMutation = async ({
   field,
   value,
 }: ApplySessionSettingMutationParams) => {
-  const targetAgent = agents.find((candidate) => candidate.agentId === agentId) ?? null;
+  const targetAgent =
+    agents.find((candidate) => candidate.agentId === agentId) ?? null;
   const previousModel = targetAgent?.model ?? null;
   const previousThinkingLevel = targetAgent?.thinkingLevel ?? null;
   dispatch({
@@ -78,7 +79,9 @@ export const applySessionSettingMutation = async ({
     const result = await syncGatewaySessionSettings({
       client,
       sessionKey,
-      ...(field === "model" ? { model: value ?? null } : { thinkingLevel: value ?? null }),
+      ...(field === "model"
+        ? { model: value ?? null }
+        : { thinkingLevel: value ?? null }),
     });
     const patch: {
       model?: string | null;
@@ -93,7 +96,9 @@ export const applySessionSettingMutation = async ({
       }
     } else {
       const nextThinkingLevel =
-        typeof result.entry?.thinkingLevel === "string" ? result.entry.thinkingLevel : undefined;
+        typeof result.entry?.thinkingLevel === "string"
+          ? result.entry.thinkingLevel
+          : undefined;
       if (nextThinkingLevel !== undefined) {
         patch.thinkingLevel = nextThinkingLevel;
       }
@@ -123,6 +128,16 @@ export const applySessionSettingMutation = async ({
       });
       return;
     }
+    dispatch({
+      type: "updateAgent",
+      agentId,
+      patch: {
+        ...(field === "model"
+          ? { model: previousModel }
+          : { thinkingLevel: previousThinkingLevel }),
+        sessionSettingsSynced: true,
+      },
+    });
     const msg = err instanceof Error ? err.message : buildFallbackError(field);
     dispatch({
       type: "appendOutput",
@@ -132,10 +147,31 @@ export const applySessionSettingMutation = async ({
   }
 };
 
-const resolveModelFromPatchResult = (result: GatewaySessionsPatchResult): string | null | undefined => {
+const resolveModelFromPatchResult = (
+  result: GatewaySessionsPatchResult,
+): string | null | undefined => {
+  // Prefer entry.modelOverride/providerOverride (the actual active override) over resolved
+  // because the gateway's resolved field may return the base model, not the override.
+  const overrideProvider =
+    typeof result.entry?.providerOverride === "string"
+      ? result.entry.providerOverride.trim()
+      : "";
+  const overrideModel =
+    typeof result.entry?.modelOverride === "string"
+      ? result.entry.modelOverride.trim()
+      : "";
+  if (overrideProvider && overrideModel) {
+    return `${overrideProvider}/${overrideModel}`;
+  }
+
   const provider =
-    typeof result.resolved?.modelProvider === "string" ? result.resolved.modelProvider.trim() : "";
-  const model = typeof result.resolved?.model === "string" ? result.resolved.model.trim() : "";
+    typeof result.resolved?.modelProvider === "string"
+      ? result.resolved.modelProvider.trim()
+      : "";
+  const model =
+    typeof result.resolved?.model === "string"
+      ? result.resolved.model.trim()
+      : "";
   if (!provider || !model) return undefined;
   return `${provider}/${model}`;
 };

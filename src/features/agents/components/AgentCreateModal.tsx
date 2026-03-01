@@ -180,286 +180,289 @@ const AgentCreateModalContent = ({
 
   return (
     <div
-      className="fixed inset-0 z-[120] flex items-center justify-center bg-background/80 p-4"
+      className="fixed inset-0 z-[120] overflow-y-auto bg-background/80"
       role="dialog"
       aria-modal="true"
       aria-label={t("headerTitle")}
       onClick={busy ? undefined : onClose}
     >
-      <div
-        className="ui-panel w-full max-w-2xl shadow-xs"
-        onClick={(event) => event.stopPropagation()}
-        data-testid="agent-create-modal"
-      >
-        <div className="flex items-center justify-between border-b border-border/35 px-6 py-4">
-          <div>
-            <div className="font-mono text-[11px] font-semibold tracking-[0.06em] text-muted-foreground">
-              {t("headerLabel")}
+      <div className="flex min-h-full items-center justify-center p-4">
+        <div
+          className="ui-panel flex w-full max-w-2xl flex-col shadow-xs"
+          style={{ maxHeight: "calc(100vh - 2rem)" }}
+          onClick={(event) => event.stopPropagation()}
+          data-testid="agent-create-modal"
+        >
+          <div className="flex items-center justify-between border-b border-border/35 px-6 py-4">
+            <div>
+              <div className="font-mono text-[11px] font-semibold tracking-[0.06em] text-muted-foreground">
+                {t("headerLabel")}
+              </div>
+              <div className="mt-1 text-base font-semibold text-foreground">
+                {t("headerTitle")}
+              </div>
             </div>
-            <div className="mt-1 text-base font-semibold text-foreground">
-              {t("headerTitle")}
-            </div>
+            <button
+              type="button"
+              className="ui-btn-ghost px-3 py-1.5 font-mono text-[11px] font-semibold tracking-[0.06em] disabled:cursor-not-allowed disabled:opacity-60"
+              onClick={onClose}
+              disabled={busy}
+            >
+              {tc("close")}
+            </button>
           </div>
-          <button
-            type="button"
-            className="ui-btn-ghost px-3 py-1.5 font-mono text-[11px] font-semibold tracking-[0.06em] disabled:cursor-not-allowed disabled:opacity-60"
-            onClick={onClose}
-            disabled={busy}
-          >
-            {tc("close")}
-          </button>
-        </div>
 
-        <StepIndicator
-          current={step}
-          labels={[t("stepIdentity"), t("stepModel"), t("stepCapabilities")]}
-        />
+          <StepIndicator
+            current={step}
+            labels={[t("stepIdentity"), t("stepModel"), t("stepCapabilities")]}
+          />
 
-        <div className="px-6 py-5">
-          {/* Step 1: Identity */}
-          {step === 0 ? (
-            <div className="grid gap-4">
-              <label className={labelClassName}>{t("templateLabel")}</label>
-              <TemplateSelector
-                selected={templateId}
-                onSelect={handleTemplateSelect}
-                t={tt}
-              />
-
-              <label className={labelClassName}>
-                {t("nameLabel")}
-                <input
-                  aria-label={t("nameLabel")}
-                  value={name}
-                  onChange={(event) => setName(event.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && canSubmit) {
-                      e.preventDefault();
-                      goNext();
-                    }
-                  }}
-                  className={`mt-1 ${fieldClassName}`}
-                  placeholder={t("namePlaceholder")}
-                  autoFocus
+          <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5">
+            {/* Step 1: Identity */}
+            {step === 0 ? (
+              <div className="grid gap-4">
+                <label className={labelClassName}>{t("templateLabel")}</label>
+                <TemplateSelector
+                  selected={templateId}
+                  onSelect={handleTemplateSelect}
+                  t={tt}
                 />
-              </label>
 
-              <label className={labelClassName}>
-                {t("descriptionLabel")}
-                <input
-                  aria-label={t("descriptionLabel")}
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      goNext();
-                    }
-                  }}
-                  className={`mt-1 ${fieldClassName}`}
-                  placeholder={t("descriptionPlaceholder")}
-                />
-              </label>
+                <label className={labelClassName}>
+                  {t("nameLabel")}
+                  <input
+                    aria-label={t("nameLabel")}
+                    value={name}
+                    onChange={(event) => setName(event.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && canSubmit) {
+                        e.preventDefault();
+                        goNext();
+                      }
+                    }}
+                    className={`mt-1 ${fieldClassName}`}
+                    placeholder={t("namePlaceholder")}
+                    autoFocus
+                  />
+                </label>
 
-              <div className="grid justify-items-center gap-2 border-t border-border/40 pt-3">
-                <div className={labelClassName}>{t("avatarLabel")}</div>
-                <AgentAvatar
-                  seed={avatarSeed}
-                  name={name.trim() || "Nouvel Agent"}
-                  size={52}
-                  isSelected
-                />
+                <label className={labelClassName}>
+                  {t("descriptionLabel")}
+                  <input
+                    aria-label={t("descriptionLabel")}
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        goNext();
+                      }
+                    }}
+                    className={`mt-1 ${fieldClassName}`}
+                    placeholder={t("descriptionPlaceholder")}
+                  />
+                </label>
+
+                <div className="grid justify-items-center gap-2 border-t border-border/40 pt-3">
+                  <div className={labelClassName}>{t("avatarLabel")}</div>
+                  <AgentAvatar
+                    seed={avatarSeed}
+                    name={name.trim() || "Nouvel Agent"}
+                    size={52}
+                    isSelected
+                  />
+                  <button
+                    type="button"
+                    aria-label={t("shuffleAvatarLabel")}
+                    className="ui-btn-secondary inline-flex items-center gap-2 px-3 py-1.5 text-[11px] text-muted-foreground"
+                    onClick={() => setAvatarSeed(randomUUID())}
+                    disabled={busy}
+                  >
+                    <Shuffle className="h-3 w-3" />
+                    {t("shuffleAvatar")}
+                  </button>
+                </div>
+              </div>
+            ) : null}
+
+            {/* Step 2: AI & Model */}
+            {step === 1 ? (
+              <div className="grid gap-4">
+                <label className={labelClassName}>
+                  {t("modelLabel")}
+                  <select
+                    className={`mt-1 ${fieldClassName}`}
+                    aria-label={t("modelLabel")}
+                    value={modelKey}
+                    onChange={(e) => setModelKey(e.target.value)}
+                  >
+                    <option value="">{t("modelDefault")}</option>
+                    {Object.entries(groupedModels).map(
+                      ([provider, providerModels]) => (
+                        <optgroup
+                          key={provider}
+                          label={providerLabels[provider] ?? provider}
+                        >
+                          {providerModels.map((m) => (
+                            <option
+                              key={`${m.provider}/${m.id}`}
+                              value={`${m.provider}/${m.id}`}
+                            >
+                              {m.name}
+                              {m.reasoning ? " (Raisonnement)" : ""}
+                            </option>
+                          ))}
+                        </optgroup>
+                      ),
+                    )}
+                  </select>
+                </label>
+
+                {models.length === 0 ? (
+                  <p className="rounded-md bg-surface-2 px-3 py-2 text-[11px] text-muted-foreground">
+                    {t("modelConnectHint")}
+                  </p>
+                ) : null}
+
+                <div className="rounded-lg border border-border/40 bg-surface-2/30 px-4 py-3">
+                  <p className="text-[11px] text-muted-foreground">
+                    {t("modelHint", {
+                      templateName: templateId
+                        ? ` ("${tt(`${templateId}.name`)}")`
+                        : "",
+                    })}
+                  </p>
+                </div>
+              </div>
+            ) : null}
+
+            {/* Step 3: Capabilities */}
+            {step === 2 ? (
+              <div className="grid gap-4">
+                <div>
+                  <div className={labelClassName}>{t("capRunCommands")}</div>
+                  <div className="mt-1.5 ui-segment grid-cols-3">
+                    {(["off", "ask", "auto"] as const).map((mode) => {
+                      const modeLabels: Record<string, string> = {
+                        off: "Désactivé",
+                        ask: "Demander",
+                        auto: "Auto",
+                      };
+                      return (
+                        <button
+                          key={mode}
+                          type="button"
+                          data-active={commandMode === mode ? "true" : "false"}
+                          className="ui-segment-item px-3 py-1.5 text-[11px] font-medium"
+                          onClick={() => setCommandMode(mode)}
+                        >
+                          {modeLabels[mode]}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <p className="mt-1 text-[10px] text-muted-foreground">
+                    {commandMode === "off"
+                      ? t("capCommandOff")
+                      : commandMode === "ask"
+                        ? t("capCommandAsk")
+                        : t("capCommandAuto")}
+                  </p>
+                </div>
+
+                <div className="flex items-center justify-between rounded-lg border border-border/40 px-4 py-3">
+                  <div>
+                    <p className="text-xs font-medium text-foreground">
+                      {t("capWebAccess")}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground">
+                      {t("capWebAccessDesc")}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={webAccess}
+                    className={`h-5 w-9 rounded-full transition-colors ${webAccess ? "bg-primary" : "bg-surface-3"}`}
+                    onClick={() => setWebAccess(!webAccess)}
+                  >
+                    <span
+                      className={`block h-4 w-4 rounded-full bg-white shadow transition-transform ${webAccess ? "translate-x-4" : "translate-x-0.5"}`}
+                    />
+                  </button>
+                </div>
+
+                <div className="flex items-center justify-between rounded-lg border border-border/40 px-4 py-3">
+                  <div>
+                    <p className="text-xs font-medium text-foreground">
+                      {t("capFileTools")}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground">
+                      {t("capFileToolsDesc")}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={fileTools}
+                    className={`h-5 w-9 rounded-full transition-colors ${fileTools ? "bg-primary" : "bg-surface-3"}`}
+                    onClick={() => setFileTools(!fileTools)}
+                  >
+                    <span
+                      className={`block h-4 w-4 rounded-full bg-white shadow transition-transform ${fileTools ? "translate-x-4" : "translate-x-0.5"}`}
+                    />
+                  </button>
+                </div>
+
+                {submitError ? (
+                  <div className="ui-alert-danger rounded-md px-3 py-2 text-xs">
+                    {submitError}
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
+          </div>
+
+          <div className="flex items-center justify-between border-t border-border/45 px-6 pb-4 pt-4">
+            <div>
+              {step > 0 ? (
                 <button
                   type="button"
-                  aria-label={t("shuffleAvatarLabel")}
-                  className="ui-btn-secondary inline-flex items-center gap-2 px-3 py-1.5 text-[11px] text-muted-foreground"
-                  onClick={() => setAvatarSeed(randomUUID())}
+                  className="ui-btn-ghost inline-flex items-center gap-1 px-3 py-1.5 text-[11px] font-medium"
+                  onClick={goPrev}
                   disabled={busy}
                 >
-                  <Shuffle className="h-3 w-3" />
-                  {t("shuffleAvatar")}
+                  <ChevronLeft className="h-3 w-3" aria-hidden="true" />
+                  {tc("back")}
                 </button>
-              </div>
+              ) : (
+                <span className="text-[10px] text-muted-foreground">
+                  {t("stepOf", { current: step + 1, total: 3 })}
+                </span>
+              )}
             </div>
-          ) : null}
-
-          {/* Step 2: AI & Model */}
-          {step === 1 ? (
-            <div className="grid gap-4">
-              <label className={labelClassName}>
-                {t("modelLabel")}
-                <select
-                  className={`mt-1 ${fieldClassName}`}
-                  aria-label={t("modelLabel")}
-                  value={modelKey}
-                  onChange={(e) => setModelKey(e.target.value)}
-                >
-                  <option value="">{t("modelDefault")}</option>
-                  {Object.entries(groupedModels).map(
-                    ([provider, providerModels]) => (
-                      <optgroup
-                        key={provider}
-                        label={providerLabels[provider] ?? provider}
-                      >
-                        {providerModels.map((m) => (
-                          <option
-                            key={`${m.provider}/${m.id}`}
-                            value={`${m.provider}/${m.id}`}
-                          >
-                            {m.name}
-                            {m.reasoning ? " (Raisonnement)" : ""}
-                          </option>
-                        ))}
-                      </optgroup>
-                    ),
-                  )}
-                </select>
-              </label>
-
-              {models.length === 0 ? (
-                <p className="rounded-md bg-surface-2 px-3 py-2 text-[11px] text-muted-foreground">
-                  {t("modelConnectHint")}
-                </p>
-              ) : null}
-
-              <div className="rounded-lg border border-border/40 bg-surface-2/30 px-4 py-3">
-                <p className="text-[11px] text-muted-foreground">
-                  {t("modelHint", {
-                    templateName: templateId
-                      ? ` ("${tt(`${templateId}.name`)}")`
-                      : "",
-                  })}
-                </p>
-              </div>
-            </div>
-          ) : null}
-
-          {/* Step 3: Capabilities */}
-          {step === 2 ? (
-            <div className="grid gap-4">
-              <div>
-                <div className={labelClassName}>{t("capRunCommands")}</div>
-                <div className="mt-1.5 ui-segment grid-cols-3">
-                  {(["off", "ask", "auto"] as const).map((mode) => {
-                    const modeLabels: Record<string, string> = {
-                      off: "Désactivé",
-                      ask: "Demander",
-                      auto: "Auto",
-                    };
-                    return (
-                      <button
-                        key={mode}
-                        type="button"
-                        data-active={commandMode === mode ? "true" : "false"}
-                        className="ui-segment-item px-3 py-1.5 text-[11px] font-medium"
-                        onClick={() => setCommandMode(mode)}
-                      >
-                        {modeLabels[mode]}
-                      </button>
-                    );
-                  })}
-                </div>
-                <p className="mt-1 text-[10px] text-muted-foreground">
-                  {commandMode === "off"
-                    ? t("capCommandOff")
-                    : commandMode === "ask"
-                      ? t("capCommandAsk")
-                      : t("capCommandAuto")}
-                </p>
-              </div>
-
-              <div className="flex items-center justify-between rounded-lg border border-border/40 px-4 py-3">
-                <div>
-                  <p className="text-xs font-medium text-foreground">
-                    {t("capWebAccess")}
-                  </p>
-                  <p className="text-[10px] text-muted-foreground">
-                    {t("capWebAccessDesc")}
-                  </p>
-                </div>
+            <div className="flex items-center gap-2">
+              {step < 2 ? (
                 <button
                   type="button"
-                  role="switch"
-                  aria-checked={webAccess}
-                  className={`h-5 w-9 rounded-full transition-colors ${webAccess ? "bg-primary" : "bg-surface-3"}`}
-                  onClick={() => setWebAccess(!webAccess)}
+                  className="ui-btn-primary inline-flex items-center gap-1 px-4 py-1.5 font-mono text-[11px] font-semibold tracking-[0.06em]"
+                  onClick={goNext}
+                  disabled={step === 0 && !canSubmit}
                 >
-                  <span
-                    className={`block h-4 w-4 rounded-full bg-white shadow transition-transform ${webAccess ? "translate-x-4" : "translate-x-0.5"}`}
-                  />
+                  {tc("next")}
+                  <ChevronRight className="h-3 w-3" aria-hidden="true" />
                 </button>
-              </div>
-
-              <div className="flex items-center justify-between rounded-lg border border-border/40 px-4 py-3">
-                <div>
-                  <p className="text-xs font-medium text-foreground">
-                    {t("capFileTools")}
-                  </p>
-                  <p className="text-[10px] text-muted-foreground">
-                    {t("capFileToolsDesc")}
-                  </p>
-                </div>
+              ) : (
                 <button
                   type="button"
-                  role="switch"
-                  aria-checked={fileTools}
-                  className={`h-5 w-9 rounded-full transition-colors ${fileTools ? "bg-primary" : "bg-surface-3"}`}
-                  onClick={() => setFileTools(!fileTools)}
+                  className="ui-btn-primary px-4 py-1.5 font-mono text-[11px] font-semibold tracking-[0.06em] disabled:cursor-not-allowed disabled:border-border disabled:bg-muted disabled:text-muted-foreground"
+                  disabled={!canSubmit || busy}
+                  onClick={handleSubmit}
                 >
-                  <span
-                    className={`block h-4 w-4 rounded-full bg-white shadow transition-transform ${fileTools ? "translate-x-4" : "translate-x-0.5"}`}
-                  />
+                  {busy ? t("launching") : t("launchAgent")}
                 </button>
-              </div>
-
-              {submitError ? (
-                <div className="ui-alert-danger rounded-md px-3 py-2 text-xs">
-                  {submitError}
-                </div>
-              ) : null}
+              )}
             </div>
-          ) : null}
-        </div>
-
-        <div className="flex items-center justify-between border-t border-border/45 px-6 pb-4 pt-4">
-          <div>
-            {step > 0 ? (
-              <button
-                type="button"
-                className="ui-btn-ghost inline-flex items-center gap-1 px-3 py-1.5 text-[11px] font-medium"
-                onClick={goPrev}
-                disabled={busy}
-              >
-                <ChevronLeft className="h-3 w-3" aria-hidden="true" />
-                {tc("back")}
-              </button>
-            ) : (
-              <span className="text-[10px] text-muted-foreground">
-                {t("stepOf", { current: step + 1, total: 3 })}
-              </span>
-            )}
-          </div>
-          <div className="flex items-center gap-2">
-            {step < 2 ? (
-              <button
-                type="button"
-                className="ui-btn-primary inline-flex items-center gap-1 px-4 py-1.5 font-mono text-[11px] font-semibold tracking-[0.06em]"
-                onClick={goNext}
-                disabled={step === 0 && !canSubmit}
-              >
-                {tc("next")}
-                <ChevronRight className="h-3 w-3" aria-hidden="true" />
-              </button>
-            ) : (
-              <button
-                type="button"
-                className="ui-btn-primary px-4 py-1.5 font-mono text-[11px] font-semibold tracking-[0.06em] disabled:cursor-not-allowed disabled:border-border disabled:bg-muted disabled:text-muted-foreground"
-                disabled={!canSubmit || busy}
-                onClick={handleSubmit}
-              >
-                {busy ? t("launching") : t("launchAgent")}
-              </button>
-            )}
           </div>
         </div>
       </div>

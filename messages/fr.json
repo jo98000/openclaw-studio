@@ -291,6 +291,7 @@
     "studioLockedRestart": "Le studio est temporairement verrouillé jusqu'au redémarrage du gateway.",
     "fleet": "Agents",
     "chat": "Chat",
+    "analytics": "Analytique",
     "settings": "Réglages",
     "canvasPreviewError": "Erreur du canvas",
     "interAgentFeedError": "Erreur du flux inter-agents",

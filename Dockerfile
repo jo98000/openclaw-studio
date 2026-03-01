@@ -3,7 +3,7 @@ FROM node:22-alpine AS deps
 RUN apk add --no-cache git
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN npm install --prefer-offline
 
 # Stage 2: Build Next.js
 FROM node:22-alpine AS builder

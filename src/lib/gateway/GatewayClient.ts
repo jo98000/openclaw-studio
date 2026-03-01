@@ -65,7 +65,9 @@ export const buildAgentMainSessionKey = (agentId: string, mainKey: string) => {
   return `agent:${trimmedAgent}:${trimmedKey}`;
 };
 
-export const parseAgentIdFromSessionKey = (sessionKey: string): string | null => {
+export const parseAgentIdFromSessionKey = (
+  sessionKey: string,
+): string | null => {
   const match = sessionKey.match(/^agent:([^:]+):/);
   return match ? match[1] : null;
 };
@@ -79,7 +81,7 @@ export const isSameSessionKey = (a: string, b: string) => {
 const CONNECT_FAILED_CLOSE_CODE = 4008;
 
 const parseConnectFailedCloseReason = (
-  reason: string
+  reason: string,
 ): { code: string; message: string } | null => {
   const trimmed = reason.trim();
   if (!trimmed.toLowerCase().startsWith("connect failed:")) return null;
@@ -95,7 +97,9 @@ const parseConnectFailedCloseReason = (
 const DEFAULT_UPSTREAM_GATEWAY_URL =
   process.env.NEXT_PUBLIC_GATEWAY_URL || "ws://localhost:18789";
 
-const normalizeLocalGatewayDefaults = (value: unknown): StudioGatewaySettings | null => {
+const normalizeLocalGatewayDefaults = (
+  value: unknown,
+): StudioGatewaySettings | null => {
   if (!value || typeof value !== "object") return null;
   const raw = value as { url?: unknown; token?: unknown };
   const url = typeof raw.url === "string" ? raw.url.trim() : "";
@@ -120,6 +124,7 @@ export type GatewayConnectOptions = {
   authScopeKey?: string;
   clientName?: string;
   disableDeviceAuth?: boolean;
+  mode?: string;
 };
 
 export { GatewayResponseError } from "@/lib/gateway/errors";
@@ -180,6 +185,7 @@ export class GatewayClient {
       token: options.token,
       authScopeKey: options.authScopeKey,
       clientName: options.clientName,
+      mode: options.mode,
       disableDeviceAuth: options.disableDeviceAuth,
       onHello: (hello) => {
         if (this.client !== nextClient) return;
@@ -195,7 +201,9 @@ export class GatewayClient {
       onClose: ({ code, reason }) => {
         if (this.client !== nextClient) return;
         const connectFailed =
-          code === CONNECT_FAILED_CLOSE_CODE ? parseConnectFailedCloseReason(reason) : null;
+          code === CONNECT_FAILED_CLOSE_CODE
+            ? parseConnectFailedCloseReason(reason)
+            : null;
         const err = connectFailed
           ? new GatewayResponseError({
               code: connectFailed.code,
@@ -298,10 +306,14 @@ export const isGatewayDisconnectLikeError = (err: unknown): boolean => {
   return Number.isFinite(code) && code === 1012;
 };
 
-const WEBCHAT_SESSION_MUTATION_BLOCKED_RE = /webchat clients cannot (patch|delete) sessions/i;
-const WEBCHAT_SESSION_MUTATION_HINT_RE = /use chat\.send for session-scoped updates/i;
+const WEBCHAT_SESSION_MUTATION_BLOCKED_RE =
+  /webchat clients cannot (patch|delete) sessions/i;
+const WEBCHAT_SESSION_MUTATION_HINT_RE =
+  /use chat\.send for session-scoped updates/i;
 
-export const isWebchatSessionMutationBlockedError = (error: unknown): boolean => {
+export const isWebchatSessionMutationBlockedError = (
+  error: unknown,
+): boolean => {
   if (!(error instanceof GatewayResponseError)) return false;
   if (error.code.trim().toUpperCase() !== "INVALID_REQUEST") return false;
   const message = error.message.trim();
@@ -315,6 +327,7 @@ export const isWebchatSessionMutationBlockedError = (error: unknown): boolean =>
 type SessionSettingsPatchPayload = {
   key: string;
   model?: string | null;
+  modelProvider?: string | null;
   thinkingLevel?: string | null;
   execHost?: "sandbox" | "gateway" | "node" | null;
   execSecurity?: "deny" | "allowlist" | "full" | null;
@@ -326,6 +339,10 @@ export type GatewaySessionsPatchResult = {
   key: string;
   entry?: {
     thinkingLevel?: string;
+    modelOverride?: string;
+    providerOverride?: string;
+    model?: string;
+    modelProvider?: string;
   };
   resolved?: {
     modelProvider?: string;
@@ -372,7 +389,14 @@ export const syncGatewaySessionSettings = async ({
   }
   const payload: SessionSettingsPatchPayload = { key };
   if (includeModel) {
-    payload.model = model ?? null;
+    if (model && model.includes("/")) {
+      const slashIndex = model.indexOf("/");
+      payload.modelProvider = model.slice(0, slashIndex);
+      payload.model = model.slice(slashIndex + 1);
+    } else {
+      payload.model = model ?? null;
+      payload.modelProvider = null;
+    }
   }
   if (includeThinkingLevel) {
     payload.thinkingLevel = thinkingLevel ?? null;
@@ -386,7 +410,10 @@ export const syncGatewaySessionSettings = async ({
   if (includeExecAsk) {
     payload.execAsk = execAsk ?? null;
   }
-  return await client.call<GatewaySessionsPatchResult>("sessions.patch", payload);
+  return await client.call<GatewaySessionsPatchResult>(
+    "sessions.patch",
+    payload,
+  );
 };
 
 const doctorFixHint =
@@ -394,7 +421,10 @@ const doctorFixHint =
 
 const formatGatewayError = (error: unknown) => {
   if (error instanceof GatewayResponseError) {
-    if (error.code === "INVALID_REQUEST" && /invalid config/i.test(error.message)) {
+    if (
+      error.code === "INVALID_REQUEST" &&
+      /invalid config/i.test(error.message)
+    ) {
       return `Gateway error (${error.code}): ${error.message}. ${doctorFixHint}`;
     }
     return `Gateway error (${error.code}): ${error.message}`;
@@ -473,29 +503,32 @@ export const resolveGatewayAutoRetryDelayMs = (params: {
   if (!params.gatewayUrl.trim()) return null;
   if (params.attempt >= MAX_AUTO_RETRY_ATTEMPTS) return null;
   if (isNonRetryableConnectErrorCode(params.connectErrorCode)) return null;
-  if (params.connectErrorCode === null && isAuthError(params.errorMessage)) return null;
+  if (params.connectErrorCode === null && isAuthError(params.errorMessage))
+    return null;
 
   return Math.min(
     INITIAL_RETRY_DELAY_MS * Math.pow(1.5, params.attempt),
-    MAX_RETRY_DELAY_MS
+    MAX_RETRY_DELAY_MS,
   );
 };
 
 export const useGatewayConnection = (
-  settingsCoordinator: StudioSettingsCoordinatorLike
+  settingsCoordinator: StudioSettingsCoordinatorLike,
 ): GatewayConnectionState => {
   const [client] = useState(() => new GatewayClient());
   const didAutoConnect = useRef(false);
-  const loadedGatewaySettings = useRef<{ gatewayUrl: string; token: string } | null>(null);
+  const loadedGatewaySettings = useRef<{
+    gatewayUrl: string;
+    token: string;
+  } | null>(null);
   const retryAttemptRef = useRef(0);
   const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const wasManualDisconnectRef = useRef(false);
 
   const [gatewayUrl, setGatewayUrl] = useState(DEFAULT_UPSTREAM_GATEWAY_URL);
   const [token, setToken] = useState("");
-  const [localGatewayDefaults, setLocalGatewayDefaults] = useState<StudioGatewaySettings | null>(
-    null
-  );
+  const [localGatewayDefaults, setLocalGatewayDefaults] =
+    useState<StudioGatewaySettings | null>(null);
   const [status, setStatus] = useState<GatewayStatus>("disconnected");
   const [error, setError] = useState<string | null>(null);
   const [connectErrorCode, setConnectErrorCode] = useState<string | null>(null);
@@ -508,13 +541,21 @@ export const useGatewayConnection = (
         const envelope =
           typeof settingsCoordinator.loadSettingsEnvelope === "function"
             ? await settingsCoordinator.loadSettingsEnvelope()
-            : { settings: await settingsCoordinator.loadSettings(), localGatewayDefaults: null };
+            : {
+                settings: await settingsCoordinator.loadSettings(),
+                localGatewayDefaults: null,
+              };
         const settings = envelope.settings ?? null;
         const gateway = settings?.gateway ?? null;
         if (cancelled) return;
-        setLocalGatewayDefaults(normalizeLocalGatewayDefaults(envelope.localGatewayDefaults));
-        const nextGatewayUrl = gateway?.url?.trim() ? gateway.url : DEFAULT_UPSTREAM_GATEWAY_URL;
-        const nextToken = typeof gateway?.token === "string" ? gateway.token : "";
+        setLocalGatewayDefaults(
+          normalizeLocalGatewayDefaults(envelope.localGatewayDefaults),
+        );
+        const nextGatewayUrl = gateway?.url?.trim()
+          ? gateway.url
+          : DEFAULT_UPSTREAM_GATEWAY_URL;
+        const nextToken =
+          typeof gateway?.token === "string" ? gateway.token : "";
         loadedGatewaySettings.current = {
           gatewayUrl: nextGatewayUrl.trim(),
           token: nextToken,
@@ -523,7 +564,10 @@ export const useGatewayConnection = (
         setToken(nextToken);
       } catch (err) {
         if (!cancelled) {
-          const message = err instanceof Error ? err.message : "Failed to load gateway settings.";
+          const message =
+            err instanceof Error
+              ? err.message
+              : "Failed to load gateway settings.";
           setError(message);
         }
       } finally {
@@ -577,7 +621,7 @@ export const useGatewayConnection = (
         token,
         authScopeKey: gatewayUrl,
         clientName: "openclaw-control-ui",
-        disableDeviceAuth: true,
+        mode: "backend",
       });
       await ensureGatewayReloadModeHotForLocalStudio({
         client,
@@ -585,7 +629,9 @@ export const useGatewayConnection = (
       });
       retryAttemptRef.current = 0;
     } catch (err) {
-      setConnectErrorCode(err instanceof GatewayResponseError ? err.code : null);
+      setConnectErrorCode(
+        err instanceof GatewayResponseError ? err.code : null,
+      );
       setError(formatGatewayError(err));
     }
   }, [client, gatewayUrl, settingsCoordinator, token]);
@@ -646,7 +692,7 @@ export const useGatewayConnection = (
           token,
         },
       },
-      400
+      400,
     );
   }, [gatewayUrl, settingsCoordinator, settingsLoaded, token]);
 

@@ -1,6 +1,12 @@
 import { buildAgentMainSessionKey } from "@/lib/gateway/GatewayClient";
-import { resolveConfiguredModelKey, type GatewayModelPolicySnapshot } from "@/lib/gateway/models";
-import { resolveAgentAvatarSeed, type StudioSettings } from "@/lib/studio/settings";
+import {
+  resolveConfiguredModelKey,
+  type GatewayModelPolicySnapshot,
+} from "@/lib/gateway/models";
+import {
+  resolveAgentAvatarSeed,
+  type StudioSettings,
+} from "@/lib/studio/settings";
 import {
   buildSummarySnapshotPatches,
   type SummaryPreviewSnapshot,
@@ -35,6 +41,8 @@ type SessionsListEntry = {
   thinkingLevel?: string;
   modelProvider?: string;
   model?: string;
+  providerOverride?: string;
+  modelOverride?: string;
   execHost?: string | null;
   execSecurity?: string | null;
   execAsk?: string | null;
@@ -62,7 +70,7 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
 
 const resolveAgentSandboxMode = (
   agentId: string,
-  snapshot: GatewayModelPolicySnapshot | null
+  snapshot: GatewayModelPolicySnapshot | null,
 ): SandboxMode | null => {
   const resolvedAgentId = agentId.trim();
   if (!resolvedAgentId) return null;
@@ -75,7 +83,10 @@ const resolveAgentSandboxMode = (
     const id = typeof entryRaw.id === "string" ? entryRaw.id.trim() : "";
     if (!id || id !== resolvedAgentId) continue;
     const sandbox = isRecord(entryRaw.sandbox) ? entryRaw.sandbox : null;
-    const modeRaw = typeof sandbox?.mode === "string" ? sandbox.mode.trim().toLowerCase() : "";
+    const modeRaw =
+      typeof sandbox?.mode === "string"
+        ? sandbox.mode.trim().toLowerCase()
+        : "";
     if (modeRaw === "off" || modeRaw === "non-main" || modeRaw === "all") {
       return modeRaw;
     }
@@ -84,28 +95,46 @@ const resolveAgentSandboxMode = (
   return null;
 };
 
-const normalizeExecHost = (raw: string | null | undefined): ExecHost | undefined => {
+const normalizeExecHost = (
+  raw: string | null | undefined,
+): ExecHost | undefined => {
   if (typeof raw !== "string") return undefined;
   const normalized = raw.trim().toLowerCase();
-  if (normalized === "sandbox" || normalized === "gateway" || normalized === "node") {
+  if (
+    normalized === "sandbox" ||
+    normalized === "gateway" ||
+    normalized === "node"
+  ) {
     return normalized;
   }
   return undefined;
 };
 
-const normalizeExecSecurity = (raw: string | null | undefined): ExecSecurity | undefined => {
+const normalizeExecSecurity = (
+  raw: string | null | undefined,
+): ExecSecurity | undefined => {
   if (typeof raw !== "string") return undefined;
   const normalized = raw.trim().toLowerCase();
-  if (normalized === "deny" || normalized === "allowlist" || normalized === "full") {
+  if (
+    normalized === "deny" ||
+    normalized === "allowlist" ||
+    normalized === "full"
+  ) {
     return normalized;
   }
   return undefined;
 };
 
-const normalizeExecAsk = (raw: string | null | undefined): ExecAsk | undefined => {
+const normalizeExecAsk = (
+  raw: string | null | undefined,
+): ExecAsk | undefined => {
   if (typeof raw !== "string") return undefined;
   const normalized = raw.trim().toLowerCase();
-  if (normalized === "off" || normalized === "on-miss" || normalized === "always") {
+  if (
+    normalized === "off" ||
+    normalized === "on-miss" ||
+    normalized === "always"
+  ) {
     return normalized;
   }
   return undefined;
@@ -114,7 +143,8 @@ const normalizeExecAsk = (raw: string | null | undefined): ExecAsk | undefined =
 const resolveAgentName = (agent: AgentsListResult["agents"][number]) => {
   const fromList = typeof agent.name === "string" ? agent.name.trim() : "";
   if (fromList) return fromList;
-  const fromIdentity = typeof agent.identity?.name === "string" ? agent.identity.name.trim() : "";
+  const fromIdentity =
+    typeof agent.identity?.name === "string" ? agent.identity.name.trim() : "";
   if (fromIdentity) return fromIdentity;
   return agent.id;
 };
@@ -124,22 +154,24 @@ const resolveAgentAvatarUrl = (agent: AgentsListResult["agents"][number]) => {
   if (typeof candidate !== "string") return null;
   const trimmed = candidate.trim();
   if (!trimmed) return null;
-  if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) return trimmed;
+  if (trimmed.startsWith("http://") || trimmed.startsWith("https://"))
+    return trimmed;
   if (trimmed.startsWith("data:image/")) return trimmed;
   return null;
 };
 
 const resolveDefaultModelForAgent = (
   agentId: string,
-  snapshot: GatewayModelPolicySnapshot | null
+  snapshot: GatewayModelPolicySnapshot | null,
 ): string | null => {
   const resolvedAgentId = agentId.trim();
   if (!resolvedAgentId) return null;
   const defaults = snapshot?.config?.agents?.defaults;
   const modelAliases = defaults?.models;
   const agentEntry =
-    snapshot?.config?.agents?.list?.find((entry) => entry?.id?.trim() === resolvedAgentId) ??
-    null;
+    snapshot?.config?.agents?.list?.find(
+      (entry) => entry?.id?.trim() === resolvedAgentId,
+    ) ?? null;
   const agentModel = agentEntry?.model;
   let raw: string | null = null;
   if (typeof agentModel === "string") {
@@ -180,7 +212,7 @@ export type DerivedHydrateAgentFleetResult = {
 };
 
 export const deriveHydrateAgentFleetResult = (
-  input: DeriveFleetHydrationInput
+  input: DeriveFleetHydrationInput,
 ): DerivedHydrateAgentFleetResult => {
   const execPolicyByAgentId = new Map<string, ExecPolicyEntry>();
   const execAgents = input.execApprovalsSnapshot?.file?.agents ?? {};
@@ -200,22 +232,43 @@ export const deriveHydrateAgentFleetResult = (
   const needsSessionSettingsSync = new Set<string>();
   const seeds: AgentStoreSeed[] = input.agentsResult.agents.map((agent) => {
     const persistedSeed =
-      input.settings && gatewayKey ? resolveAgentAvatarSeed(input.settings, gatewayKey, agent.id) : null;
+      input.settings && gatewayKey
+        ? resolveAgentAvatarSeed(input.settings, gatewayKey, agent.id)
+        : null;
     const avatarSeed = persistedSeed ?? agent.id;
     const avatarUrl = resolveAgentAvatarUrl(agent);
     const name = resolveAgentName(agent);
     const mainSession = input.mainSessionByAgentId.get(agent.id) ?? null;
-    const modelProvider =
-      typeof mainSession?.modelProvider === "string" ? mainSession.modelProvider.trim() : "";
-    const modelId = typeof mainSession?.model === "string" ? mainSession.model.trim() : "";
+    // Prefer modelOverride/providerOverride (active override set via sessions.patch)
+    // over the base model/modelProvider fields.
+    const overrideProvider =
+      typeof mainSession?.providerOverride === "string"
+        ? mainSession.providerOverride.trim()
+        : "";
+    const overrideModel =
+      typeof mainSession?.modelOverride === "string"
+        ? mainSession.modelOverride.trim()
+        : "";
+    const baseProvider =
+      typeof mainSession?.modelProvider === "string"
+        ? mainSession.modelProvider.trim()
+        : "";
+    const baseModel =
+      typeof mainSession?.model === "string" ? mainSession.model.trim() : "";
+    const modelProvider = overrideProvider || baseProvider;
+    const modelId = overrideModel || baseModel;
     const model =
       modelProvider && modelId
         ? `${modelProvider}/${modelId}`
         : resolveDefaultModelForAgent(agent.id, input.configSnapshot);
     const thinkingLevel =
-      typeof mainSession?.thinkingLevel === "string" ? mainSession.thinkingLevel : null;
+      typeof mainSession?.thinkingLevel === "string"
+        ? mainSession.thinkingLevel
+        : null;
     const sessionExecHost = normalizeExecHost(mainSession?.execHost);
-    const sessionExecSecurity = normalizeExecSecurity(mainSession?.execSecurity);
+    const sessionExecSecurity = normalizeExecSecurity(
+      mainSession?.execSecurity,
+    );
     const sessionExecAsk = normalizeExecAsk(mainSession?.execAsk);
     const policy = execPolicyByAgentId.get(agent.id);
     const sandboxMode = resolveAgentSandboxMode(agent.id, input.configSnapshot);
@@ -226,10 +279,10 @@ export const deriveHydrateAgentFleetResult = (
       Boolean(sessionExecHost || resolvedExecSecurity || resolvedExecAsk);
     const resolvedExecHost = shouldForceSandboxExecHost
       ? "sandbox"
-      : sessionExecHost ??
-        (resolvedExecSecurity || resolvedExecAsk ? "gateway" : undefined);
+      : (sessionExecHost ??
+        (resolvedExecSecurity || resolvedExecAsk ? "gateway" : undefined));
     const expectsExecOverrides = Boolean(
-      resolvedExecHost || resolvedExecSecurity || resolvedExecAsk
+      resolvedExecHost || resolvedExecSecurity || resolvedExecAsk,
     );
     const hasMatchingExecOverrides =
       sessionExecHost === resolvedExecHost &&
@@ -277,7 +330,11 @@ export const deriveHydrateAgentFleetResult = (
       });
     }
     const sessionKeys = Array.from(
-      new Set(activeAgents.map((agent) => agent.sessionKey).filter((key) => key.trim().length > 0))
+      new Set(
+        activeAgents
+          .map((agent) => agent.sessionKey)
+          .filter((key) => key.trim().length > 0),
+      ),
     ).slice(0, 64);
     if (sessionKeys.length > 0) {
       summaryPatches = buildSummarySnapshotPatches({
@@ -289,12 +346,17 @@ export const deriveHydrateAgentFleetResult = (
       const assistantAtByAgentId = new Map<string, number>();
       for (const entry of summaryPatches) {
         if (typeof entry.patch.lastAssistantMessageAt === "number") {
-          assistantAtByAgentId.set(entry.agentId, entry.patch.lastAssistantMessageAt);
+          assistantAtByAgentId.set(
+            entry.agentId,
+            entry.patch.lastAssistantMessageAt,
+          );
         }
       }
 
       let bestAgentId: string | null = seeds[0]?.agentId ?? null;
-      let bestTs = bestAgentId ? assistantAtByAgentId.get(bestAgentId) ?? 0 : 0;
+      let bestTs = bestAgentId
+        ? (assistantAtByAgentId.get(bestAgentId) ?? 0)
+        : 0;
       for (const seed of seeds) {
         const ts = assistantAtByAgentId.get(seed.agentId) ?? 0;
         if (ts <= bestTs) continue;
