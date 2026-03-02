@@ -1,5 +1,3 @@
-const path = require("node:path");
-
 // Services supported by OpenClaw Studio
 const SERVICES = [
   // AI Providers

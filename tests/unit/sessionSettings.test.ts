@@ -11,7 +11,8 @@ describe("session settings sync helper", () => {
   it("detects webchat session mutation blocked gateway errors", () => {
     const blocked = new GatewayResponseError({
       code: "INVALID_REQUEST",
-      message: "webchat clients cannot patch sessions; use chat.send for session-scoped updates",
+      message:
+        "webchat clients cannot patch sessions; use chat.send for session-scoped updates",
     });
     expect(isWebchatSessionMutationBlockedError(blocked)).toBe(true);
   });
@@ -27,8 +28,10 @@ describe("session settings sync helper", () => {
   it("does not misclassify non-gateway errors", () => {
     expect(
       isWebchatSessionMutationBlockedError(
-        new Error("webchat clients cannot patch sessions; use chat.send for session-scoped updates")
-      )
+        new Error(
+          "webchat clients cannot patch sessions; use chat.send for session-scoped updates",
+        ),
+      ),
     ).toBe(false);
   });
 
@@ -39,7 +42,7 @@ describe("session settings sync helper", () => {
         client,
         sessionKey: "",
         model: "openai/gpt-5",
-      })
+      }),
     ).rejects.toThrow("Session key is required.");
   });
 
@@ -49,7 +52,7 @@ describe("session settings sync helper", () => {
       syncGatewaySessionSettings({
         client,
         sessionKey: "agent:1:studio:abc",
-      })
+      }),
     ).rejects.toThrow("At least one session setting must be provided.");
   });
 
@@ -67,7 +70,8 @@ describe("session settings sync helper", () => {
 
     expect(client.call).toHaveBeenCalledWith("sessions.patch", {
       key: "agent:1:studio:abc",
-      model: "openai/gpt-5",
+      modelProvider: "openai",
+      model: "gpt-5",
       thinkingLevel: "medium",
     });
   });
@@ -86,6 +90,7 @@ describe("session settings sync helper", () => {
     expect(client.call).toHaveBeenCalledWith("sessions.patch", {
       key: "agent:1:studio:abc",
       model: null,
+      modelProvider: null,
     });
   });
 

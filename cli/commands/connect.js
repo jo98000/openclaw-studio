@@ -1,5 +1,5 @@
 const { execSync } = require("node:child_process");
-const { ask, askSecret, confirm } = require("../lib/prompts");
+const { askSecret, confirm } = require("../lib/prompts");
 const { api } = require("../lib/api-client");
 const { SERVICES } = require("./services");
 

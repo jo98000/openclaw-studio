@@ -7,7 +7,8 @@ import { GatewayResponseError } from "@/lib/gateway/errors";
 const createWebchatBlockedPatchError = () =>
   new GatewayResponseError({
     code: "INVALID_REQUEST",
-    message: "webchat clients cannot patch sessions; use chat.send for session-scoped updates",
+    message:
+      "webchat clients cannot patch sessions; use chat.send for session-scoped updates",
   });
 
 describe("session settings mutations helper", () => {
@@ -52,7 +53,8 @@ describe("session settings mutations helper", () => {
 
     expect(client.call).toHaveBeenCalledWith("sessions.patch", {
       key: "agent:1:studio:abc",
-      model: "openai/gpt-5",
+      modelProvider: "openai",
+      model: "gpt-5",
     });
   });
 
@@ -106,7 +108,7 @@ describe("session settings mutations helper", () => {
     expect(dispatch).toHaveBeenCalledWith({
       type: "updateAgent",
       agentId: "agent-1",
-      patch: { model: "openai/gpt-5-mini", sessionSettingsSynced: true, sessionCreated: true },
+      patch: { sessionSettingsSynced: true, sessionCreated: true },
     });
   });
 
@@ -144,7 +146,13 @@ describe("session settings mutations helper", () => {
     } as unknown as GatewayClient;
 
     await applySessionSettingMutation({
-      agents: [{ agentId: "agent-1", sessionCreated: true, model: "openai/gpt-5-mini" }],
+      agents: [
+        {
+          agentId: "agent-1",
+          sessionCreated: true,
+          model: "openai/gpt-5-mini",
+        },
+      ],
       dispatch,
       client,
       agentId: "agent-1",
@@ -165,15 +173,14 @@ describe("session settings mutations helper", () => {
     expect(dispatch).toHaveBeenCalledWith({
       type: "appendOutput",
       agentId: "agent-1",
-      line:
-        "Model update not applied: this gateway blocks sessions.patch for WebChat clients; message sending still works.",
+      line: "Model update not applied: this gateway blocks sessions.patch for WebChat clients; message sending still works.",
     });
 
     const failureLines = dispatch.mock.calls
       .map((entry) => entry[0])
       .filter(
         (
-          action
+          action,
         ): action is {
           type: "appendOutput";
           line: string;
@@ -184,7 +191,7 @@ describe("session settings mutations helper", () => {
           action.type === "appendOutput" &&
           "line" in action &&
           typeof action.line === "string" &&
-          action.line.startsWith("Model update failed:")
+          action.line.startsWith("Model update failed:"),
       );
     expect(failureLines).toHaveLength(0);
   });

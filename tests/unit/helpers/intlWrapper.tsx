@@ -7,4 +7,9 @@ import messages from "../../../messages/en.json";
  * Uses English messages by default.
  */
 export const withIntl = (ui: ReactElement): ReactElement =>
-  createElement(NextIntlClientProvider, { locale: "en", messages, children: ui });
+  // eslint-disable-next-line react/no-children-prop
+  createElement(NextIntlClientProvider, {
+    locale: "en",
+    messages,
+    children: ui,
+  });

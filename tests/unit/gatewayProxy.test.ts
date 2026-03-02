@@ -5,7 +5,7 @@ import { WebSocket, WebSocketServer } from "ws";
 
 const waitForEvent = <T = unknown>(
   target: { once: (event: string, cb: (...args: unknown[]) => void) => void },
-  event: string
+  event: string,
 ) =>
   new Promise<T>((resolve) => {
     target.once(event, (...args: unknown[]) => resolve(args as unknown as T));
@@ -54,7 +54,7 @@ describe("createGatewayProxy", () => {
               id: parsed.id,
               ok: true,
               payload: { type: "hello-ok", protocol: 3, auth: {} },
-            })
+            }),
           );
         }
       });
@@ -64,19 +64,28 @@ describe("createGatewayProxy", () => {
 
     const proxyHttp = await import("node:http").then((m) => m.createServer());
     const proxy = createGatewayProxy({
-      loadUpstreamSettings: async () => ({ url: upstreamUrl, token: "token-123" }),
+      loadUpstreamSettings: async () => ({
+        url: upstreamUrl,
+        token: "token-123",
+      }),
       allowWs: (req: { url?: string }) => req.url === "/api/gateway/ws",
       logError: () => {},
     });
-    proxyHttp.on("upgrade", (req, socket, head) => proxy.handleUpgrade(req, socket, head));
+    proxyHttp.on("upgrade", (req, socket, head) =>
+      proxy.handleUpgrade(req, socket, head),
+    );
 
-    await new Promise<void>((resolve) => proxyHttp.listen(0, "127.0.0.1", resolve));
+    await new Promise<void>((resolve) =>
+      proxyHttp.listen(0, "127.0.0.1", resolve),
+    );
     const proxyAddr = proxyHttp.address();
     if (!proxyAddr || typeof proxyAddr === "string") {
       throw new Error("expected proxy server to have a port");
     }
 
-    const browser = new WebSocket(`ws://127.0.0.1:${proxyAddr.port}/api/gateway/ws`);
+    const browser = new WebSocket(
+      `ws://127.0.0.1:${proxyAddr.port}/api/gateway/ws`,
+    );
     try {
       await waitForEvent(browser, "open");
 
@@ -86,7 +95,7 @@ describe("createGatewayProxy", () => {
           id: "connect-1",
           method: "connect",
           params: { auth: {} },
-        })
+        }),
       );
 
       await waitForEvent(browser, "message");
@@ -125,7 +134,7 @@ describe("createGatewayProxy", () => {
               id: parsed.id,
               ok: true,
               payload: { type: "hello-ok", protocol: 3, auth: {} },
-            })
+            }),
           );
         }
       });
@@ -139,15 +148,21 @@ describe("createGatewayProxy", () => {
       allowWs: (req: { url?: string }) => req.url === "/api/gateway/ws",
       logError: () => {},
     });
-    proxyHttp.on("upgrade", (req, socket, head) => proxy.handleUpgrade(req, socket, head));
+    proxyHttp.on("upgrade", (req, socket, head) =>
+      proxy.handleUpgrade(req, socket, head),
+    );
 
-    await new Promise<void>((resolve) => proxyHttp.listen(0, "127.0.0.1", resolve));
+    await new Promise<void>((resolve) =>
+      proxyHttp.listen(0, "127.0.0.1", resolve),
+    );
     const proxyAddr = proxyHttp.address();
     if (!proxyAddr || typeof proxyAddr === "string") {
       throw new Error("expected proxy server to have a port");
     }
 
-    const browser = new WebSocket(`ws://127.0.0.1:${proxyAddr.port}/api/gateway/ws`);
+    const browser = new WebSocket(
+      `ws://127.0.0.1:${proxyAddr.port}/api/gateway/ws`,
+    );
     try {
       await waitForEvent(browser, "open");
       browser.send(
@@ -156,12 +171,19 @@ describe("createGatewayProxy", () => {
           id: "connect-pass-token",
           method: "connect",
           params: { auth: { token: "browser-token-123" } },
-        })
+        }),
       );
 
-      const [rawMessage] = await waitForEvent<[WebSocket.RawData]>(browser, "message");
+      const [rawMessage] = await waitForEvent<[WebSocket.RawData]>(
+        browser,
+        "message",
+      );
       const response = JSON.parse(String(rawMessage ?? ""));
-      expect(response).toMatchObject({ type: "res", id: "connect-pass-token", ok: true });
+      expect(response).toMatchObject({
+        type: "res",
+        id: "connect-pass-token",
+        ok: true,
+      });
       expect(seenToken).toBe("browser-token-123");
     } finally {
       for (const client of upstream.clients) {
@@ -195,7 +217,7 @@ describe("createGatewayProxy", () => {
               id: parsed.id,
               ok: true,
               payload: { type: "hello-ok", protocol: 3, auth: {} },
-            })
+            }),
           );
         }
       });
@@ -205,19 +227,28 @@ describe("createGatewayProxy", () => {
 
     const proxyHttp = await import("node:http").then((m) => m.createServer());
     const proxy = createGatewayProxy({
-      loadUpstreamSettings: async () => ({ url: upstreamUrl, token: "host-token-456" }),
+      loadUpstreamSettings: async () => ({
+        url: upstreamUrl,
+        token: "host-token-456",
+      }),
       allowWs: (req: { url?: string }) => req.url === "/api/gateway/ws",
       logError: () => {},
     });
-    proxyHttp.on("upgrade", (req, socket, head) => proxy.handleUpgrade(req, socket, head));
+    proxyHttp.on("upgrade", (req, socket, head) =>
+      proxy.handleUpgrade(req, socket, head),
+    );
 
-    await new Promise<void>((resolve) => proxyHttp.listen(0, "127.0.0.1", resolve));
+    await new Promise<void>((resolve) =>
+      proxyHttp.listen(0, "127.0.0.1", resolve),
+    );
     const proxyAddr = proxyHttp.address();
     if (!proxyAddr || typeof proxyAddr === "string") {
       throw new Error("expected proxy server to have a port");
     }
 
-    const browser = new WebSocket(`ws://127.0.0.1:${proxyAddr.port}/api/gateway/ws`);
+    const browser = new WebSocket(
+      `ws://127.0.0.1:${proxyAddr.port}/api/gateway/ws`,
+    );
     try {
       await waitForEvent(browser, "open");
       browser.send(
@@ -226,12 +257,19 @@ describe("createGatewayProxy", () => {
           id: "connect-browser-precedence",
           method: "connect",
           params: { auth: { token: "browser-token-789" } },
-        })
+        }),
       );
 
-      const [rawMessage] = await waitForEvent<[WebSocket.RawData]>(browser, "message");
+      const [rawMessage] = await waitForEvent<[WebSocket.RawData]>(
+        browser,
+        "message",
+      );
       const response = JSON.parse(String(rawMessage ?? ""));
-      expect(response).toMatchObject({ type: "res", id: "connect-browser-precedence", ok: true });
+      expect(response).toMatchObject({
+        type: "res",
+        id: "connect-browser-precedence",
+        ok: true,
+      });
       expect(seenToken).toBe("browser-token-789");
     } finally {
       for (const client of upstream.clients) {
@@ -275,7 +313,7 @@ describe("createGatewayProxy", () => {
               id: parsed.id,
               ok: true,
               payload: { type: "hello-ok", protocol: 3, auth: {} },
-            })
+            }),
           );
         }
       });
@@ -289,15 +327,21 @@ describe("createGatewayProxy", () => {
       allowWs: (req: { url?: string }) => req.url === "/api/gateway/ws",
       logError: () => {},
     });
-    proxyHttp.on("upgrade", (req, socket, head) => proxy.handleUpgrade(req, socket, head));
+    proxyHttp.on("upgrade", (req, socket, head) =>
+      proxy.handleUpgrade(req, socket, head),
+    );
 
-    await new Promise<void>((resolve) => proxyHttp.listen(0, "127.0.0.1", resolve));
+    await new Promise<void>((resolve) =>
+      proxyHttp.listen(0, "127.0.0.1", resolve),
+    );
     const proxyAddr = proxyHttp.address();
     if (!proxyAddr || typeof proxyAddr === "string") {
       throw new Error("expected proxy server to have a port");
     }
 
-    const browser = new WebSocket(`ws://127.0.0.1:${proxyAddr.port}/api/gateway/ws`);
+    const browser = new WebSocket(
+      `ws://127.0.0.1:${proxyAddr.port}/api/gateway/ws`,
+    );
     try {
       await waitForEvent(browser, "open");
       browser.send(
@@ -314,12 +358,19 @@ describe("createGatewayProxy", () => {
               nonce: "device-nonce-123",
             },
           },
-        })
+        }),
       );
 
-      const [rawMessage] = await waitForEvent<[WebSocket.RawData]>(browser, "message");
+      const [rawMessage] = await waitForEvent<[WebSocket.RawData]>(
+        browser,
+        "message",
+      );
       const response = JSON.parse(String(rawMessage ?? ""));
-      expect(response).toMatchObject({ type: "res", id: "connect-pass-device", ok: true });
+      expect(response).toMatchObject({
+        type: "res",
+        id: "connect-pass-device",
+        ok: true,
+      });
       expect(seenDeviceSignature).toBe("device-signature-123");
       expect(seenDeviceId).toBe("device-id-123");
       expect(seenDevicePublicKey).toBe("device-public-key-123");
@@ -360,7 +411,7 @@ describe("createGatewayProxy", () => {
               id: parsed.id,
               ok: true,
               payload: { type: "hello-ok", protocol: 3, auth: {} },
-            })
+            }),
           );
         }
       });
@@ -374,15 +425,21 @@ describe("createGatewayProxy", () => {
       allowWs: (req: { url?: string }) => req.url === "/api/gateway/ws",
       logError: () => {},
     });
-    proxyHttp.on("upgrade", (req, socket, head) => proxy.handleUpgrade(req, socket, head));
+    proxyHttp.on("upgrade", (req, socket, head) =>
+      proxy.handleUpgrade(req, socket, head),
+    );
 
-    await new Promise<void>((resolve) => proxyHttp.listen(0, "127.0.0.1", resolve));
+    await new Promise<void>((resolve) =>
+      proxyHttp.listen(0, "127.0.0.1", resolve),
+    );
     const proxyAddr = proxyHttp.address();
     if (!proxyAddr || typeof proxyAddr === "string") {
       throw new Error("expected proxy server to have a port");
     }
 
-    const browser = new WebSocket(`ws://127.0.0.1:${proxyAddr.port}/api/gateway/ws`);
+    const browser = new WebSocket(
+      `ws://127.0.0.1:${proxyAddr.port}/api/gateway/ws`,
+    );
     try {
       await waitForEvent(browser, "open");
       browser.send(
@@ -391,12 +448,19 @@ describe("createGatewayProxy", () => {
           id: "connect-pass-password",
           method: "connect",
           params: { auth: { password: "browser-password-123" } },
-        })
+        }),
       );
 
-      const [rawMessage] = await waitForEvent<[WebSocket.RawData]>(browser, "message");
+      const [rawMessage] = await waitForEvent<[WebSocket.RawData]>(
+        browser,
+        "message",
+      );
       const response = JSON.parse(String(rawMessage ?? ""));
-      expect(response).toMatchObject({ type: "res", id: "connect-pass-password", ok: true });
+      expect(response).toMatchObject({
+        type: "res",
+        id: "connect-pass-password",
+        ok: true,
+      });
       expect(seenPassword).toBe("browser-password-123");
       expect(seenToken).toBeNull();
     } finally {
@@ -433,7 +497,7 @@ describe("createGatewayProxy", () => {
               id: parsed.id,
               ok: true,
               payload: { type: "hello-ok", protocol: 3, auth: {} },
-            })
+            }),
           );
         }
       });
@@ -447,15 +511,21 @@ describe("createGatewayProxy", () => {
       allowWs: (req: { url?: string }) => req.url === "/api/gateway/ws",
       logError: () => {},
     });
-    proxyHttp.on("upgrade", (req, socket, head) => proxy.handleUpgrade(req, socket, head));
+    proxyHttp.on("upgrade", (req, socket, head) =>
+      proxy.handleUpgrade(req, socket, head),
+    );
 
-    await new Promise<void>((resolve) => proxyHttp.listen(0, "127.0.0.1", resolve));
+    await new Promise<void>((resolve) =>
+      proxyHttp.listen(0, "127.0.0.1", resolve),
+    );
     const proxyAddr = proxyHttp.address();
     if (!proxyAddr || typeof proxyAddr === "string") {
       throw new Error("expected proxy server to have a port");
     }
 
-    const browser = new WebSocket(`ws://127.0.0.1:${proxyAddr.port}/api/gateway/ws`);
+    const browser = new WebSocket(
+      `ws://127.0.0.1:${proxyAddr.port}/api/gateway/ws`,
+    );
     try {
       await waitForEvent(browser, "open");
       browser.send(
@@ -464,12 +534,19 @@ describe("createGatewayProxy", () => {
           id: "connect-pass-device-token",
           method: "connect",
           params: { auth: { deviceToken: "browser-device-token-123" } },
-        })
+        }),
       );
 
-      const [rawMessage] = await waitForEvent<[WebSocket.RawData]>(browser, "message");
+      const [rawMessage] = await waitForEvent<[WebSocket.RawData]>(
+        browser,
+        "message",
+      );
       const response = JSON.parse(String(rawMessage ?? ""));
-      expect(response).toMatchObject({ type: "res", id: "connect-pass-device-token", ok: true });
+      expect(response).toMatchObject({
+        type: "res",
+        id: "connect-pass-device-token",
+        ok: true,
+      });
       expect(seenDeviceToken).toBe("browser-device-token-123");
       expect(seenToken).toBeNull();
     } finally {
@@ -484,7 +561,7 @@ describe("createGatewayProxy", () => {
     }
   });
 
-  it("returns studio.gateway_token_missing when browser auth and host token are both missing", async () => {
+  it("forwards connect to upstream when browser auth and host token are both missing", async () => {
     const upstream = new WebSocketServer({ port: 0 });
     const address = upstream.address();
     if (!address || typeof address === "string") {
@@ -493,8 +570,23 @@ describe("createGatewayProxy", () => {
     const upstreamUrl = `ws://127.0.0.1:${address.port}`;
 
     let upstreamConnectionCount = 0;
-    upstream.on("connection", () => {
+    let seenToken: string | null = null;
+    upstream.on("connection", (ws) => {
       upstreamConnectionCount += 1;
+      ws.on("message", (raw) => {
+        const parsed = JSON.parse(String(raw));
+        if (parsed?.method === "connect") {
+          seenToken = parsed?.params?.auth?.token ?? null;
+          ws.send(
+            JSON.stringify({
+              type: "res",
+              id: parsed.id,
+              ok: true,
+              payload: { type: "hello-ok", protocol: 3, auth: {} },
+            }),
+          );
+        }
+      });
     });
 
     const { createGatewayProxy } = await import("../../server/gateway-proxy");
@@ -505,39 +597,45 @@ describe("createGatewayProxy", () => {
       allowWs: (req: { url?: string }) => req.url === "/api/gateway/ws",
       logError: () => {},
     });
-    proxyHttp.on("upgrade", (req, socket, head) => proxy.handleUpgrade(req, socket, head));
+    proxyHttp.on("upgrade", (req, socket, head) =>
+      proxy.handleUpgrade(req, socket, head),
+    );
 
-    await new Promise<void>((resolve) => proxyHttp.listen(0, "127.0.0.1", resolve));
+    await new Promise<void>((resolve) =>
+      proxyHttp.listen(0, "127.0.0.1", resolve),
+    );
     const proxyAddr = proxyHttp.address();
     if (!proxyAddr || typeof proxyAddr === "string") {
       throw new Error("expected proxy server to have a port");
     }
 
-    const browser = new WebSocket(`ws://127.0.0.1:${proxyAddr.port}/api/gateway/ws`);
+    const browser = new WebSocket(
+      `ws://127.0.0.1:${proxyAddr.port}/api/gateway/ws`,
+    );
     try {
       await waitForEvent(browser, "open");
-      const closePromise = waitForEvent<[number, Buffer]>(browser, "close");
       browser.send(
         JSON.stringify({
           type: "req",
           id: "connect-missing-token",
           method: "connect",
           params: { auth: {} },
-        })
+        }),
       );
 
-      const [rawMessage] = await waitForEvent<[WebSocket.RawData]>(browser, "message");
+      const [rawMessage] = await waitForEvent<[WebSocket.RawData]>(
+        browser,
+        "message",
+      );
       const response = JSON.parse(String(rawMessage ?? ""));
       expect(response).toMatchObject({
         type: "res",
         id: "connect-missing-token",
-        ok: false,
-        error: { code: "studio.gateway_token_missing" },
+        ok: true,
       });
 
-      const [closeCode] = await closePromise;
-      expect(closeCode).toBe(1011);
-      expect(upstreamConnectionCount).toBe(0);
+      expect(upstreamConnectionCount).toBe(1);
+      expect(seenToken).toBeNull();
     } finally {
       for (const client of upstream.clients) {
         client.close();

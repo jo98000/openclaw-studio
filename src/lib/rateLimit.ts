@@ -1,4 +1,4 @@
-import type { NextRequest, NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 
 type RateLimitConfig = {
   windowMs: number;
@@ -29,8 +29,11 @@ const ensureCleanup = () => {
 export const rateLimit = (config: RateLimitConfig) => {
   ensureCleanup();
 
-  return (req: NextRequest): { allowed: boolean; headers: Record<string, string> } => {
-    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  return (
+    req: NextRequest,
+  ): { allowed: boolean; headers: Record<string, string> } => {
+    const ip =
+      req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
     const key = `${ip}:${req.nextUrl.pathname}`;
     const now = Date.now();
 
@@ -73,8 +76,7 @@ export const applyRateLimit = (
   const { allowed, headers } = limiter(req);
   if (allowed) return null;
 
-  const { NextResponse: NR } = require("next/server") as typeof import("next/server");
-  const res = NR.json(
+  const res = NextResponse.json(
     { error: "Too Many Requests", retryAfter: headers["X-RateLimit-Reset"] },
     { status: 429 },
   );

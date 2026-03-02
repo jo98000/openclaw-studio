@@ -1,7 +1,5 @@
 #!/usr/bin/env node
 
-const { resolve } = require("node:path");
-
 const COMMANDS = {
   setup: () => require("./commands/setup"),
   connect: () => require("./commands/connect"),

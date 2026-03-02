@@ -53,7 +53,8 @@ const createAgent = (overrides?: Partial<AgentState>): AgentState => {
 const createWebchatBlockedPatchError = () =>
   new GatewayResponseError({
     code: "INVALID_REQUEST",
-    message: "webchat clients cannot patch sessions; use chat.send for session-scoped updates",
+    message:
+      "webchat clients cannot patch sessions; use chat.send for session-scoped updates",
   });
 
 describe("sendChatMessageViaStudio", () => {
@@ -94,12 +95,15 @@ describe("sendChatMessageViaStudio", () => {
           lastResult: null,
           transcriptEntries: [],
         }),
-      })
+      }),
     );
   });
 
   it("syncs_session_settings_when_not_synced", async () => {
-    const agent = createAgent({ sessionSettingsSynced: false, sessionCreated: false });
+    const agent = createAgent({
+      sessionSettingsSynced: false,
+      sessionCreated: false,
+    });
     const dispatch = vi.fn();
     const call = vi.fn(async (method: string) => {
       if (method === "sessions.patch") {
@@ -130,9 +134,10 @@ describe("sendChatMessageViaStudio", () => {
       "sessions.patch",
       expect.objectContaining({
         key: agent.sessionKey,
-        model: "openai/gpt-5",
+        modelProvider: "openai",
+        model: "gpt-5",
         thinkingLevel: "medium",
-      })
+      }),
     );
     expect(dispatch).toHaveBeenCalledWith({
       type: "updateAgent",
@@ -142,7 +147,10 @@ describe("sendChatMessageViaStudio", () => {
   });
 
   it("continues_send_when_webchat_patch_is_blocked", async () => {
-    const agent = createAgent({ sessionSettingsSynced: false, sessionCreated: false });
+    const agent = createAgent({
+      sessionSettingsSynced: false,
+      sessionCreated: false,
+    });
     const dispatch = vi.fn();
     const call = vi.fn(async (method: string, payload?: unknown) => {
       if (method === "sessions.patch") {
@@ -184,7 +192,7 @@ describe("sendChatMessageViaStudio", () => {
       .map((entry) => entry[0])
       .filter(
         (
-          action
+          action,
         ): action is {
           type: "appendOutput";
           line: string;
@@ -195,14 +203,17 @@ describe("sendChatMessageViaStudio", () => {
           action.type === "appendOutput" &&
           "line" in action &&
           typeof action.line === "string" &&
-          action.line.startsWith("Error:")
+          action.line.startsWith("Error:"),
       )
       .map((action) => action.line);
     expect(errorLines).toEqual([]);
   });
 
   it("fails_send_when_patch_error_is_not_webchat_blocked", async () => {
-    const agent = createAgent({ sessionSettingsSynced: false, sessionCreated: false });
+    const agent = createAgent({
+      sessionSettingsSynced: false,
+      sessionCreated: false,
+    });
     const dispatch = vi.fn();
     const call = vi.fn(async (method: string) => {
       if (method === "sessions.patch") {
@@ -235,14 +246,25 @@ describe("sendChatMessageViaStudio", () => {
   });
 
   it("suppresses_patch_retry_after_webchat_blocked_patch_error", async () => {
-    let agent = createAgent({ sessionSettingsSynced: false, sessionCreated: false });
+    let agent = createAgent({
+      sessionSettingsSynced: false,
+      sessionCreated: false,
+    });
     const dispatch = vi.fn(
-      (action: { type: string; agentId?: string; patch?: Partial<AgentState> }) => {
-        if (action.type !== "updateAgent" || action.agentId !== agent.agentId || !action.patch) {
+      (action: {
+        type: string;
+        agentId?: string;
+        patch?: Partial<AgentState>;
+      }) => {
+        if (
+          action.type !== "updateAgent" ||
+          action.agentId !== agent.agentId ||
+          !action.patch
+        ) {
           return;
         }
         agent = { ...agent, ...action.patch };
-      }
+      },
     );
     const call = vi.fn(async (method: string, payload?: unknown) => {
       if (method === "sessions.patch") {
@@ -283,7 +305,9 @@ describe("sendChatMessageViaStudio", () => {
     });
 
     const methods = call.mock.calls.map((entry) => entry[0]);
-    expect(methods.filter((method) => method === "sessions.patch")).toHaveLength(1);
+    expect(
+      methods.filter((method) => method === "sessions.patch"),
+    ).toHaveLength(1);
     expect(methods.filter((method) => method === "chat.send")).toHaveLength(2);
     expect(agent.sessionSettingsSynced).toBe(true);
     expect(agent.sessionCreated).toBe(true);
@@ -328,7 +352,7 @@ describe("sendChatMessageViaStudio", () => {
         execHost: "gateway",
         execSecurity: "allowlist",
         execAsk: "always",
-      })
+      }),
     );
   });
 
@@ -350,16 +374,16 @@ describe("sendChatMessageViaStudio", () => {
 
     expect(call).toHaveBeenCalledWith(
       "chat.send",
-      expect.objectContaining({ sessionKey: agent.sessionKey })
+      expect.objectContaining({ sessionKey: agent.sessionKey }),
     );
-    expect(call).not.toHaveBeenCalledWith(
-      "sessions.patch",
-      expect.anything()
-    );
+    expect(call).not.toHaveBeenCalledWith("sessions.patch", expect.anything());
   });
 
   it("clears_running_state_for_unknown_success_payload_shape", async () => {
-    const agent = createAgent({ sessionSettingsSynced: true, sessionCreated: true });
+    const agent = createAgent({
+      sessionSettingsSynced: true,
+      sessionCreated: true,
+    });
     const dispatch = vi.fn();
     const call = vi.fn(async () => ({ ok: true }));
 
@@ -381,13 +405,16 @@ describe("sendChatMessageViaStudio", () => {
           action?.type === "updateAgent" &&
           action?.agentId === agent.agentId &&
           action?.patch?.status === "idle" &&
-          action?.patch?.runId === null
+          action?.patch?.runId === null,
       );
     expect(idlePatchAction).toBeTruthy();
   });
 
   it("clears_running_state_for_stop_style_immediate_success_payload", async () => {
-    const agent = createAgent({ sessionSettingsSynced: true, sessionCreated: true });
+    const agent = createAgent({
+      sessionSettingsSynced: true,
+      sessionCreated: true,
+    });
     const dispatch = vi.fn();
     const call = vi.fn(async () => ({ ok: true, aborted: false, runIds: [] }));
 
@@ -412,16 +439,22 @@ describe("sendChatMessageViaStudio", () => {
           action?.patch?.runId === null &&
           action?.patch?.runStartedAt === null &&
           action?.patch?.streamText === null &&
-          action?.patch?.thinkingTrace === null
+          action?.patch?.thinkingTrace === null,
       );
     expect(idlePatchAction).toBeTruthy();
   });
 
   it("keeps_running_state_for_matching_streaming_status_payloads", async () => {
-    const payloads = [{ runId: "run-1", status: "started" }, { runId: "run-1", status: "in_flight" }];
+    const payloads = [
+      { runId: "run-1", status: "started" },
+      { runId: "run-1", status: "in_flight" },
+    ];
 
     for (const payload of payloads) {
-      const agent = createAgent({ sessionSettingsSynced: true, sessionCreated: true });
+      const agent = createAgent({
+        sessionSettingsSynced: true,
+        sessionCreated: true,
+      });
       const dispatch = vi.fn();
       const call = vi.fn(async () => payload);
 
@@ -442,16 +475,22 @@ describe("sendChatMessageViaStudio", () => {
           (action) =>
             action?.type === "updateAgent" &&
             action?.agentId === agent.agentId &&
-            action?.patch?.status === "idle"
+            action?.patch?.status === "idle",
         );
       expect(idlePatchAction).toBeUndefined();
     }
   });
 
   it("clears_running_state_for_streaming_shape_with_mismatched_run_id", async () => {
-    const agent = createAgent({ sessionSettingsSynced: true, sessionCreated: true });
+    const agent = createAgent({
+      sessionSettingsSynced: true,
+      sessionCreated: true,
+    });
     const dispatch = vi.fn();
-    const call = vi.fn(async () => ({ runId: "different-run", status: "started" }));
+    const call = vi.fn(async () => ({
+      runId: "different-run",
+      status: "started",
+    }));
 
     await sendChatMessageViaStudio({
       client: { call },
@@ -471,7 +510,7 @@ describe("sendChatMessageViaStudio", () => {
           action?.type === "updateAgent" &&
           action?.agentId === agent.agentId &&
           action?.patch?.status === "idle" &&
-          action?.patch?.runId === null
+          action?.patch?.runId === null,
       );
     expect(idlePatchAction).toBeTruthy();
   });
@@ -496,11 +535,14 @@ describe("sendChatMessageViaStudio", () => {
     const dispatchedActions = dispatch.mock.calls.map((entry) => entry[0]);
     expect(
       dispatchedActions.some(
-        (action) => action.type === "appendOutput" && action.line === "> internal follow-up"
-      )
+        (action) =>
+          action.type === "appendOutput" &&
+          action.line === "> internal follow-up",
+      ),
     ).toBe(false);
     const runningUpdate = dispatchedActions.find(
-      (action) => action.type === "updateAgent" && action.patch?.status === "running"
+      (action) =>
+        action.type === "updateAgent" && action.patch?.status === "running",
     );
     expect(runningUpdate).toBeTruthy();
     if (runningUpdate && runningUpdate.type === "updateAgent") {
@@ -532,7 +574,13 @@ describe("sendChatMessageViaStudio", () => {
     expect(dispatch).toHaveBeenCalledWith({
       type: "updateAgent",
       agentId: agent.agentId,
-      patch: { status: "error", runId: null, runStartedAt: null, streamText: null, thinkingTrace: null },
+      patch: {
+        status: "error",
+        runId: null,
+        runStartedAt: null,
+        streamText: null,
+        thinkingTrace: null,
+      },
     });
     expect(dispatch).toHaveBeenCalledWith({
       type: "appendOutput",
@@ -562,11 +610,11 @@ describe("sendChatMessageViaStudio", () => {
       .filter((action): action is { type: "appendOutput"; line: string } => {
         return Boolean(
           action &&
-            typeof action === "object" &&
-            "type" in action &&
-            action.type === "appendOutput" &&
-            "line" in action &&
-            typeof action.line === "string"
+          typeof action === "object" &&
+          "type" in action &&
+          action.type === "appendOutput" &&
+          "line" in action &&
+          typeof action.line === "string",
         );
       })
       .map((action) => action.line);
@@ -618,10 +666,13 @@ describe("sendChatMessageViaStudio", () => {
           "type" in action &&
           action.type === "appendOutput" &&
           "line" in action &&
-          action.line === "> new message"
+          action.line === "> new message",
       );
     expect(optimisticUserAppend).toBeTruthy();
-    expect((optimisticUserAppend as { transcript?: { timestampMs?: number } }).transcript?.timestampMs).toBe(5001);
+    expect(
+      (optimisticUserAppend as { transcript?: { timestampMs?: number } })
+        .transcript?.timestampMs,
+    ).toBe(5001);
   });
 
   it("uses_output_meta_timestamps_when_transcript_entries_are_missing", async () => {
@@ -657,9 +708,12 @@ describe("sendChatMessageViaStudio", () => {
           "type" in action &&
           action.type === "appendOutput" &&
           "line" in action &&
-          action.line === "> new message"
+          action.line === "> new message",
       );
     expect(optimisticUserAppend).toBeTruthy();
-    expect((optimisticUserAppend as { transcript?: { timestampMs?: number } }).transcript?.timestampMs).toBe(12_001);
+    expect(
+      (optimisticUserAppend as { transcript?: { timestampMs?: number } })
+        .transcript?.timestampMs,
+    ).toBe(12_001);
   });
 });

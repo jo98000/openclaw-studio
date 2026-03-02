@@ -5,7 +5,6 @@ const { resolveStateDir } = require("./studio-settings");
 
 const ALGORITHM = "aes-256-gcm";
 const IV_BYTES = 12;
-const TAG_BYTES = 16;
 
 /**
  * Resolves the directory where encrypted credential files are stored.
