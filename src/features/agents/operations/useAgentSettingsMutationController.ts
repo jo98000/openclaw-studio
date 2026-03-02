@@ -36,7 +36,10 @@ import {
   updateGatewayAgentSkillsAllowlist,
 } from "@/lib/gateway/agentConfig";
 import { fetchJson } from "@/lib/http";
-import { canRemoveSkillSource, filterOsCompatibleSkills } from "@/lib/skills/presentation";
+import {
+  canRemoveSkillSource,
+  filterOsCompatibleSkills,
+} from "@/lib/skills/presentation";
 import { removeSkillFromGateway } from "@/lib/skills/remove";
 import {
   installSkill,
@@ -46,11 +49,16 @@ import {
   type SkillStatusReport,
 } from "@/lib/skills/types";
 
-export type RestartingMutationBlockState = MutationBlockState & { kind: MutationWorkflowKind };
+export type RestartingMutationBlockState = MutationBlockState & {
+  kind: MutationWorkflowKind;
+};
 export type SkillSetupMessage = { kind: "success" | "error"; message: string };
 export type SkillSetupMessageMap = Record<string, SkillSetupMessage>;
 
-type AgentForSettingsMutation = Pick<AgentState, "agentId" | "name" | "sessionKey">;
+type AgentForSettingsMutation = Pick<
+  AgentState,
+  "agentId" | "name" | "sessionKey"
+>;
 
 export type UseAgentSettingsMutationControllerParams = {
   client: GatewayClient;
@@ -77,32 +85,48 @@ export type UseAgentSettingsMutationControllerParams = {
   setError: (message: string) => void;
 };
 
-export function useAgentSettingsMutationController(params: UseAgentSettingsMutationControllerParams) {
+export function useAgentSettingsMutationController(
+  params: UseAgentSettingsMutationControllerParams,
+) {
   const skillsLoadRequestIdRef = useRef(0);
-  const [settingsSkillsReport, setSettingsSkillsReport] = useState<SkillStatusReport | null>(null);
+  const [settingsSkillsReport, setSettingsSkillsReport] =
+    useState<SkillStatusReport | null>(null);
   const [settingsSkillsLoading, setSettingsSkillsLoading] = useState(false);
-  const [settingsSkillsError, setSettingsSkillsError] = useState<string | null>(null);
-  const [settingsSkillsBusy, setSettingsSkillsBusy] = useState(false);
-  const [settingsSkillsBusyKey, setSettingsSkillsBusyKey] = useState<string | null>(null);
-  const [settingsSkillMessages, setSettingsSkillMessages] = useState<SkillSetupMessageMap>({});
-  const [settingsSkillApiKeyDrafts, setSettingsSkillApiKeyDrafts] = useState<Record<string, string>>(
-    {}
+  const [settingsSkillsError, setSettingsSkillsError] = useState<string | null>(
+    null,
   );
-  const [settingsCronJobs, setSettingsCronJobs] = useState<CronJobSummary[]>([]);
+  const [settingsSkillsBusy, setSettingsSkillsBusy] = useState(false);
+  const [settingsSkillsBusyKey, setSettingsSkillsBusyKey] = useState<
+    string | null
+  >(null);
+  const [settingsSkillMessages, setSettingsSkillMessages] =
+    useState<SkillSetupMessageMap>({});
+  const [settingsSkillApiKeyDrafts, setSettingsSkillApiKeyDrafts] = useState<
+    Record<string, string>
+  >({});
+  const [settingsCronJobs, setSettingsCronJobs] = useState<CronJobSummary[]>(
+    [],
+  );
   const [settingsCronLoading, setSettingsCronLoading] = useState(false);
-  const [settingsCronError, setSettingsCronError] = useState<string | null>(null);
+  const [settingsCronError, setSettingsCronError] = useState<string | null>(
+    null,
+  );
   const [cronCreateBusy, setCronCreateBusy] = useState(false);
   const [cronRunBusyJobId, setCronRunBusyJobId] = useState<string | null>(null);
-  const [cronDeleteBusyJobId, setCronDeleteBusyJobId] = useState<string | null>(null);
+  const [cronDeleteBusyJobId, setCronDeleteBusyJobId] = useState<string | null>(
+    null,
+  );
   const [restartingMutationBlock, setRestartingMutationBlock] =
     useState<RestartingMutationBlockState | null>(null);
   const REMOTE_MUTATION_EXEC_TIMEOUT_MS = 45_000;
   const SKILL_INSTALL_TIMEOUT_MS = 120_000;
 
-  const hasRenameMutationBlock = restartingMutationBlock?.kind === "rename-agent";
-  const hasDeleteMutationBlock = restartingMutationBlock?.kind === "delete-agent";
+  const hasRenameMutationBlock =
+    restartingMutationBlock?.kind === "rename-agent";
+  const hasDeleteMutationBlock =
+    restartingMutationBlock?.kind === "delete-agent";
   const hasRestartBlockInProgress = Boolean(
-    restartingMutationBlock && restartingMutationBlock.phase !== "queued"
+    restartingMutationBlock && restartingMutationBlock.phase !== "queued",
   );
 
   const mutationContext: AgentSettingsMutationContext = useMemo(
@@ -123,24 +147,27 @@ export function useAgentSettingsMutationController(params: UseAgentSettingsMutat
       hasRenameMutationBlock,
       params.hasCreateBlock,
       params.status,
-    ]
+    ],
   );
 
-  const setSkillMessage = useCallback((skillKey: string, message?: SkillSetupMessage) => {
-    const normalizedSkillKey = skillKey.trim();
-    if (!normalizedSkillKey) {
-      return;
-    }
-    setSettingsSkillMessages((current) => {
-      const next = { ...current };
-      if (!message) {
-        delete next[normalizedSkillKey];
-      } else {
-        next[normalizedSkillKey] = message;
+  const setSkillMessage = useCallback(
+    (skillKey: string, message?: SkillSetupMessage) => {
+      const normalizedSkillKey = skillKey.trim();
+      if (!normalizedSkillKey) {
+        return;
       }
-      return next;
-    });
-  }, []);
+      setSettingsSkillMessages((current) => {
+        const next = { ...current };
+        if (!message) {
+          delete next[normalizedSkillKey];
+        } else {
+          next[normalizedSkillKey] = message;
+        }
+        return next;
+      });
+    },
+    [],
+  );
 
   const loadSkillsForSettingsAgent = useCallback(
     async (agentId: string) => {
@@ -157,7 +184,10 @@ export function useAgentSettingsMutationController(params: UseAgentSettingsMutat
       setSettingsSkillsLoading(true);
       setSettingsSkillsError(null);
       try {
-        const report = await loadAgentSkillStatus(params.client, resolvedAgentId);
+        const report = await loadAgentSkillStatus(
+          params.client,
+          resolvedAgentId,
+        );
         if (requestId !== skillsLoadRequestIdRef.current) {
           return;
         }
@@ -166,7 +196,8 @@ export function useAgentSettingsMutationController(params: UseAgentSettingsMutat
         if (requestId !== skillsLoadRequestIdRef.current) {
           return;
         }
-        const message = err instanceof Error ? err.message : "Failed to load skills.";
+        const message =
+          err instanceof Error ? err.message : "Failed to load skills.";
         setSettingsSkillsReport(null);
         setSettingsSkillsError(message);
         if (!isGatewayDisconnectLikeError(err)) {
@@ -178,12 +209,13 @@ export function useAgentSettingsMutationController(params: UseAgentSettingsMutat
         }
       }
     },
-    [params.client]
+    [params.client],
   );
 
   useEffect(() => {
     const skillsTabActive =
-      params.inspectSidebarTab === "skills" || params.inspectSidebarTab === "system";
+      params.inspectSidebarTab === "skills" ||
+      params.inspectSidebarTab === "system";
     if (
       !params.settingsRouteActive ||
       !params.inspectSidebarAgentId ||
@@ -226,11 +258,14 @@ export function useAgentSettingsMutationController(params: UseAgentSettingsMutat
       setSettingsCronLoading(true);
       setSettingsCronError(null);
       try {
-        const result = await listCronJobs(params.client, { includeDisabled: true });
+        const result = await listCronJobs(params.client, {
+          includeDisabled: true,
+        });
         const filtered = filterCronJobsForAgent(result.jobs, resolvedAgentId);
         setSettingsCronJobs(sortCronJobsByUpdatedAt(filtered));
       } catch (err) {
-        const message = err instanceof Error ? err.message : "Failed to load schedules.";
+        const message =
+          err instanceof Error ? err.message : "Failed to load schedules.";
         setSettingsCronJobs([]);
         setSettingsCronError(message);
         if (!isGatewayDisconnectLikeError(err)) {
@@ -240,7 +275,7 @@ export function useAgentSettingsMutationController(params: UseAgentSettingsMutat
         setSettingsCronLoading(false);
       }
     },
-    [params.client]
+    [params.client],
   );
 
   useEffect(() => {
@@ -299,7 +334,11 @@ export function useAgentSettingsMutationController(params: UseAgentSettingsMutat
           setMutatingBlock: () => {
             setRestartingMutationBlock((current) => {
               if (!current) return current;
-              if (current.kind !== input.kind || current.agentId !== input.agentId) return current;
+              if (
+                current.kind !== input.kind ||
+                current.agentId !== input.agentId
+              )
+                return current;
               return {
                 ...current,
                 phase: "mutating",
@@ -309,7 +348,11 @@ export function useAgentSettingsMutationController(params: UseAgentSettingsMutat
           patchBlockAwaitingRestart: (patch) => {
             setRestartingMutationBlock((current) => {
               if (!current) return current;
-              if (current.kind !== input.kind || current.agentId !== input.agentId) return current;
+              if (
+                current.kind !== input.kind ||
+                current.agentId !== input.agentId
+              )
+                return current;
               return {
                 ...current,
                 ...patch,
@@ -319,7 +362,11 @@ export function useAgentSettingsMutationController(params: UseAgentSettingsMutat
           clearBlock: () => {
             setRestartingMutationBlock((current) => {
               if (!current) return current;
-              if (current.kind !== input.kind || current.agentId !== input.agentId) return current;
+              if (
+                current.kind !== input.kind ||
+                current.agentId !== input.agentId
+              )
+                return current;
               return null;
             });
           },
@@ -335,10 +382,10 @@ export function useAgentSettingsMutationController(params: UseAgentSettingsMutat
                   () =>
                     reject(
                       new Error(
-                        `${timeoutLabel} The gateway did not respond in time.`
-                      )
+                        `${timeoutLabel} The gateway did not respond in time.`,
+                      ),
                     ),
-                  REMOTE_MUTATION_EXEC_TIMEOUT_MS
+                  REMOTE_MUTATION_EXEC_TIMEOUT_MS,
                 );
               }),
             ]);
@@ -356,7 +403,7 @@ export function useAgentSettingsMutationController(params: UseAgentSettingsMutat
       params.loadAgents,
       params.setError,
       params.setMobilePaneChat,
-    ]
+    ],
   );
 
   useGatewayRestartBlock({
@@ -372,9 +419,13 @@ export function useAgentSettingsMutationController(params: UseAgentSettingsMutat
       setRestartingMutationBlock(null);
       params.setError(timeoutMessage);
     },
-    onRestartComplete: async (_, ctx) => {
+    onRestartComplete: async (block, ctx) => {
       await params.loadAgents();
       if (ctx.isCancelled()) return;
+      // Clear the optimistic _pendingName now that gateway has restarted with the new name.
+      if (block.agentId) {
+        params.dispatchUpdateAgent(block.agentId, { _pendingName: undefined });
+      }
       setRestartingMutationBlock(null);
       params.setMobilePaneChat();
     },
@@ -387,7 +438,7 @@ export function useAgentSettingsMutationController(params: UseAgentSettingsMutat
     if (params.status !== "connected") return;
 
     const deletedAgentStillPresent = params.agents.some(
-      (entry) => entry.agentId === restartingMutationBlock.agentId
+      (entry) => entry.agentId === restartingMutationBlock.agentId,
     );
     if (!deletedAgentStillPresent) {
       setRestartingMutationBlock(null);
@@ -401,7 +452,10 @@ export function useAgentSettingsMutationController(params: UseAgentSettingsMutat
         await params.loadAgents();
       } catch (error) {
         if (!isGatewayDisconnectLikeError(error)) {
-          console.error("Failed to refresh agents while awaiting delete restart.", error);
+          console.error(
+            "Failed to refresh agents while awaiting delete restart.",
+            error,
+          );
         }
       }
     };
@@ -409,7 +463,7 @@ export function useAgentSettingsMutationController(params: UseAgentSettingsMutat
     const intervalId = window.setInterval(() => {
       if (cancelled) return;
       void refreshAgents();
-    }, 2500);
+    }, 800);
     void refreshAgents();
 
     return () => {
@@ -428,7 +482,7 @@ export function useAgentSettingsMutationController(params: UseAgentSettingsMutat
     async (agentId: string) => {
       const decision = planAgentSettingsMutation(
         { kind: "delete-agent", agentId },
-        mutationContext
+        mutationContext,
       );
       if (decision.kind === "deny") {
         if (decision.message) {
@@ -437,10 +491,12 @@ export function useAgentSettingsMutationController(params: UseAgentSettingsMutat
         return;
       }
 
-      const agent = params.agents.find((entry) => entry.agentId === decision.normalizedAgentId);
+      const agent = params.agents.find(
+        (entry) => entry.agentId === decision.normalizedAgentId,
+      );
       if (!agent) return;
       const confirmed = window.confirm(
-        `Delete ${agent.name}? This removes the agent from gateway config + scheduled automations and moves its workspace/state into ~/.openclaw/trash on the gateway host.`
+        `Delete ${agent.name}? This removes the agent from gateway config + scheduled automations and moves its workspace/state into ~/.openclaw/trash on the gateway host.`,
       );
       if (!confirmed) return;
 
@@ -460,14 +516,14 @@ export function useAgentSettingsMutationController(params: UseAgentSettingsMutat
         },
       });
     },
-    [mutationContext, params, runRestartingMutationLifecycle]
+    [mutationContext, params, runRestartingMutationLifecycle],
   );
 
   const handleCreateCronJob = useCallback(
     async (agentId: string, draft: CronCreateDraft) => {
       const decision = planAgentSettingsMutation(
         { kind: "create-cron-job", agentId },
-        mutationContext
+        mutationContext,
       );
       if (decision.kind === "deny") {
         if (decision.message) {
@@ -491,21 +547,28 @@ export function useAgentSettingsMutationController(params: UseAgentSettingsMutat
           onJobs: setSettingsCronJobs,
         });
       } catch (err) {
-        const message = err instanceof Error ? err.message : "Failed to create automation.";
+        const message =
+          err instanceof Error ? err.message : "Failed to create automation.";
         if (!isGatewayDisconnectLikeError(err)) {
           console.error(message);
         }
         throw err;
       }
     },
-    [cronCreateBusy, cronDeleteBusyJobId, cronRunBusyJobId, mutationContext, params.client]
+    [
+      cronCreateBusy,
+      cronDeleteBusyJobId,
+      cronRunBusyJobId,
+      mutationContext,
+      params.client,
+    ],
   );
 
   const handleRunCronJob = useCallback(
     async (agentId: string, jobId: string) => {
       const decision = planAgentSettingsMutation(
         { kind: "run-cron-job", agentId, jobId },
-        mutationContext
+        mutationContext,
       );
       if (decision.kind === "deny") {
         if (decision.message) {
@@ -522,21 +585,24 @@ export function useAgentSettingsMutationController(params: UseAgentSettingsMutat
         await runCronJobNow(params.client, resolvedJobId);
         await loadCronJobsForSettingsAgent(resolvedAgentId);
       } catch (err) {
-        const message = err instanceof Error ? err.message : "Failed to run schedule.";
+        const message =
+          err instanceof Error ? err.message : "Failed to run schedule.";
         setSettingsCronError(message);
         console.error(message);
       } finally {
-        setCronRunBusyJobId((current) => (current === resolvedJobId ? null : current));
+        setCronRunBusyJobId((current) =>
+          current === resolvedJobId ? null : current,
+        );
       }
     },
-    [loadCronJobsForSettingsAgent, mutationContext, params.client]
+    [loadCronJobsForSettingsAgent, mutationContext, params.client],
   );
 
   const handleDeleteCronJob = useCallback(
     async (agentId: string, jobId: string) => {
       const decision = planAgentSettingsMutation(
         { kind: "delete-cron-job", agentId, jobId },
-        mutationContext
+        mutationContext,
       );
       if (decision.kind === "deny") {
         if (decision.message) {
@@ -552,25 +618,30 @@ export function useAgentSettingsMutationController(params: UseAgentSettingsMutat
       try {
         const result = await removeCronJob(params.client, resolvedJobId);
         if (result.ok && result.removed) {
-          setSettingsCronJobs((jobs) => jobs.filter((job) => job.id !== resolvedJobId));
+          setSettingsCronJobs((jobs) =>
+            jobs.filter((job) => job.id !== resolvedJobId),
+          );
         }
         await loadCronJobsForSettingsAgent(resolvedAgentId);
       } catch (err) {
-        const message = err instanceof Error ? err.message : "Failed to delete schedule.";
+        const message =
+          err instanceof Error ? err.message : "Failed to delete schedule.";
         setSettingsCronError(message);
         console.error(message);
       } finally {
-        setCronDeleteBusyJobId((current) => (current === resolvedJobId ? null : current));
+        setCronDeleteBusyJobId((current) =>
+          current === resolvedJobId ? null : current,
+        );
       }
     },
-    [loadCronJobsForSettingsAgent, mutationContext, params.client]
+    [loadCronJobsForSettingsAgent, mutationContext, params.client],
   );
 
   const handleRenameAgent = useCallback(
     async (agentId: string, name: string) => {
       const decision = planAgentSettingsMutation(
         { kind: "rename-agent", agentId },
-        mutationContext
+        mutationContext,
       );
       if (decision.kind === "deny") {
         if (decision.message) {
@@ -578,7 +649,9 @@ export function useAgentSettingsMutationController(params: UseAgentSettingsMutat
         }
         return false;
       }
-      const agent = params.agents.find((entry) => entry.agentId === decision.normalizedAgentId);
+      const agent = params.agents.find(
+        (entry) => entry.agentId === decision.normalizedAgentId,
+      );
       if (!agent) return false;
 
       return await runRestartingMutationLifecycle({
@@ -592,18 +665,21 @@ export function useAgentSettingsMutationController(params: UseAgentSettingsMutat
             agentId: decision.normalizedAgentId,
             name,
           });
-          params.dispatchUpdateAgent(decision.normalizedAgentId, { name });
+          params.dispatchUpdateAgent(decision.normalizedAgentId, {
+            name,
+            _pendingName: name,
+          });
         },
       });
     },
-    [mutationContext, params, runRestartingMutationLifecycle]
+    [mutationContext, params, runRestartingMutationLifecycle],
   );
 
   const handleUpdateAgentPermissions = useCallback(
     async (agentId: string, draft: AgentPermissionsDraft) => {
       const decision = planAgentSettingsMutation(
         { kind: "update-agent-permissions", agentId },
-        mutationContext
+        mutationContext,
       );
       if (decision.kind === "deny") {
         if (decision.message) {
@@ -612,7 +688,9 @@ export function useAgentSettingsMutationController(params: UseAgentSettingsMutat
         return;
       }
 
-      const agent = params.agents.find((entry) => entry.agentId === decision.normalizedAgentId);
+      const agent = params.agents.find(
+        (entry) => entry.agentId === decision.normalizedAgentId,
+      );
       if (!agent) return;
 
       await params.enqueueConfigMutation({
@@ -633,13 +711,14 @@ export function useAgentSettingsMutationController(params: UseAgentSettingsMutat
         },
       });
     },
-    [mutationContext, params]
+    [mutationContext, params],
   );
 
   const reloadSkillsIfVisible = useCallback(
     async (agentId: string) => {
       const skillsTabActive =
-        params.inspectSidebarTab === "skills" || params.inspectSidebarTab === "system";
+        params.inspectSidebarTab === "skills" ||
+        params.inspectSidebarTab === "system";
       if (
         params.settingsRouteActive &&
         skillsTabActive &&
@@ -655,7 +734,7 @@ export function useAgentSettingsMutationController(params: UseAgentSettingsMutat
       params.inspectSidebarTab,
       params.settingsRouteActive,
       params.status,
-    ]
+    ],
   );
 
   const runSkillsMutation = useCallback(
@@ -675,7 +754,7 @@ export function useAgentSettingsMutationController(params: UseAgentSettingsMutat
           agentId: input.agentId,
           ...(input.skillName ? { skillName: input.skillName } : {}),
         },
-        mutationContext
+        mutationContext,
       );
       if (decision.kind === "deny") {
         if (decision.message) {
@@ -685,7 +764,9 @@ export function useAgentSettingsMutationController(params: UseAgentSettingsMutat
       }
 
       const agent =
-        params.agents.find((entry) => entry.agentId === decision.normalizedAgentId) ?? null;
+        params.agents.find(
+          (entry) => entry.agentId === decision.normalizedAgentId,
+        ) ?? null;
       setSettingsSkillsBusy(true);
       setSettingsSkillsError(null);
       try {
@@ -700,7 +781,8 @@ export function useAgentSettingsMutationController(params: UseAgentSettingsMutat
           },
         });
       } catch (err) {
-        const message = err instanceof Error ? err.message : "Failed to update skills.";
+        const message =
+          err instanceof Error ? err.message : "Failed to update skills.";
         setSettingsSkillsError(message);
         if (!isGatewayDisconnectLikeError(err)) {
           console.error(message);
@@ -709,7 +791,7 @@ export function useAgentSettingsMutationController(params: UseAgentSettingsMutat
         setSettingsSkillsBusy(false);
       }
     },
-    [mutationContext, params, reloadSkillsIfVisible]
+    [mutationContext, params, reloadSkillsIfVisible],
   );
 
   const handleUseAllSkills = useCallback(
@@ -726,7 +808,7 @@ export function useAgentSettingsMutationController(params: UseAgentSettingsMutat
         },
       });
     },
-    [params.client, runSkillsMutation]
+    [params.client, runSkillsMutation],
   );
 
   const handleDisableAllSkills = useCallback(
@@ -743,7 +825,7 @@ export function useAgentSettingsMutationController(params: UseAgentSettingsMutat
         },
       });
     },
-    [params.client, runSkillsMutation]
+    [params.client, runSkillsMutation],
   );
 
   const handleSetSkillEnabled = useCallback(
@@ -758,11 +840,13 @@ export function useAgentSettingsMutationController(params: UseAgentSettingsMutat
             new Set(
               filterOsCompatibleSkills(settingsSkillsReport?.skills ?? [])
                 .map((entry) => entry.name.trim())
-                .filter((name) => name.length > 0)
-            )
+                .filter((name) => name.length > 0),
+            ),
           );
           if (visibleSkillNames.length === 0) {
-            throw new Error("Cannot update skill access: no skills available for this agent.");
+            throw new Error(
+              "Cannot update skill access: no skills available for this agent.",
+            );
           }
           const existingAllowlist = await readGatewayAgentSkillsAllowlist({
             client: params.client,
@@ -770,7 +854,9 @@ export function useAgentSettingsMutationController(params: UseAgentSettingsMutat
           });
           const baseline = existingAllowlist ?? visibleSkillNames;
           const next = new Set(
-            baseline.map((value) => value.trim()).filter((value) => value.length > 0)
+            baseline
+              .map((value) => value.trim())
+              .filter((value) => value.length > 0),
           );
           if (enabled) {
             next.add(resolvedSkillName);
@@ -786,7 +872,7 @@ export function useAgentSettingsMutationController(params: UseAgentSettingsMutat
         },
       });
     },
-    [params.client, runSkillsMutation, settingsSkillsReport]
+    [params.client, runSkillsMutation, settingsSkillsReport],
   );
 
   const handleSetSkillsAllowlist = useCallback(
@@ -799,11 +885,13 @@ export function useAgentSettingsMutationController(params: UseAgentSettingsMutat
             new Set(
               skillNames
                 .map((value) => value.trim())
-                .filter((value) => value.length > 0)
-            )
+                .filter((value) => value.length > 0),
+            ),
           );
           if (normalizedSkillNames.length === 0) {
-            throw new Error("Cannot set selected skills mode: choose at least one skill.");
+            throw new Error(
+              "Cannot set selected skills mode: choose at least one skill.",
+            );
           }
           await updateGatewayAgentSkillsAllowlist({
             client: params.client,
@@ -814,19 +902,22 @@ export function useAgentSettingsMutationController(params: UseAgentSettingsMutat
         },
       });
     },
-    [params.client, runSkillsMutation]
+    [params.client, runSkillsMutation],
   );
 
-  const handleSkillApiKeyDraftChange = useCallback((skillKey: string, value: string) => {
-    const normalizedSkillKey = skillKey.trim();
-    if (!normalizedSkillKey) {
-      return;
-    }
-    setSettingsSkillApiKeyDrafts((current) => ({
-      ...current,
-      [normalizedSkillKey]: value,
-    }));
-  }, []);
+  const handleSkillApiKeyDraftChange = useCallback(
+    (skillKey: string, value: string) => {
+      const normalizedSkillKey = skillKey.trim();
+      if (!normalizedSkillKey) {
+        return;
+      }
+      setSettingsSkillApiKeyDrafts((current) => ({
+        ...current,
+        [normalizedSkillKey]: value,
+      }));
+    },
+    [],
+  );
 
   const runSkillSetupMutation = useCallback(
     async (input: {
@@ -848,7 +939,7 @@ export function useAgentSettingsMutationController(params: UseAgentSettingsMutat
           agentId: input.agentId,
           skillKey: normalizedSkillKey,
         },
-        mutationContext
+        mutationContext,
       );
       if (decision.kind === "deny") {
         if (decision.message) {
@@ -877,7 +968,8 @@ export function useAgentSettingsMutationController(params: UseAgentSettingsMutat
           },
         });
       } catch (err) {
-        const message = err instanceof Error ? err.message : "Failed to update skill setup.";
+        const message =
+          err instanceof Error ? err.message : "Failed to update skill setup.";
         setSettingsSkillsError(message);
         setSkillMessage(normalizedSkillKey, {
           kind: "error",
@@ -887,14 +979,21 @@ export function useAgentSettingsMutationController(params: UseAgentSettingsMutat
           console.error(message);
         }
       } finally {
-        setSettingsSkillsBusyKey((current) => (current === normalizedSkillKey ? null : current));
+        setSettingsSkillsBusyKey((current) =>
+          current === normalizedSkillKey ? null : current,
+        );
       }
     },
-    [mutationContext, params, reloadSkillsIfVisible, setSkillMessage]
+    [mutationContext, params, reloadSkillsIfVisible, setSkillMessage],
   );
 
   const handleInstallSkill = useCallback(
-    async (agentId: string, skillKey: string, name: string, installId: string) => {
+    async (
+      agentId: string,
+      skillKey: string,
+      name: string,
+      installId: string,
+    ) => {
       await runSkillSetupMutation({
         agentId,
         decisionKind: "install-skill",
@@ -912,13 +1011,13 @@ export function useAgentSettingsMutationController(params: UseAgentSettingsMutat
         },
       });
     },
-    [SKILL_INSTALL_TIMEOUT_MS, params.client, runSkillSetupMutation]
+    [SKILL_INSTALL_TIMEOUT_MS, params.client, runSkillSetupMutation],
   );
 
   const handleRemoveSkill = useCallback(
     async (
       agentId: string,
-      skill: Pick<SkillStatusEntry, "skillKey" | "source" | "baseDir">
+      skill: Pick<SkillStatusEntry, "skillKey" | "source" | "baseDir">,
     ) => {
       const report = settingsSkillsReport;
       const normalizedSkillKey = skill.skillKey.trim();
@@ -968,13 +1067,15 @@ export function useAgentSettingsMutationController(params: UseAgentSettingsMutat
         },
       });
     },
-    [runSkillSetupMutation, setSkillMessage, settingsSkillsReport]
+    [runSkillSetupMutation, setSkillMessage, settingsSkillsReport],
   );
 
   const handleSaveSkillApiKey = useCallback(
     async (agentId: string, skillKey: string) => {
       const normalizedSkillKey = skillKey.trim();
-      const apiKey = (settingsSkillApiKeyDrafts[normalizedSkillKey] ?? "").trim();
+      const apiKey = (
+        settingsSkillApiKeyDrafts[normalizedSkillKey] ?? ""
+      ).trim();
       if (!apiKey) {
         const message = "API key cannot be empty.";
         setSettingsSkillsError(message);
@@ -1001,7 +1102,12 @@ export function useAgentSettingsMutationController(params: UseAgentSettingsMutat
         },
       });
     },
-    [params.client, runSkillSetupMutation, setSkillMessage, settingsSkillApiKeyDrafts]
+    [
+      params.client,
+      runSkillSetupMutation,
+      setSkillMessage,
+      settingsSkillApiKeyDrafts,
+    ],
   );
 
   const handleSetSkillGlobalEnabled = useCallback(
@@ -1019,12 +1125,14 @@ export function useAgentSettingsMutationController(params: UseAgentSettingsMutat
             enabled,
           });
           return {
-            successMessage: enabled ? "Skill enabled globally" : "Skill disabled globally",
+            successMessage: enabled
+              ? "Skill enabled globally"
+              : "Skill disabled globally",
           };
         },
       });
     },
-    [params.client, runSkillSetupMutation]
+    [params.client, runSkillSetupMutation],
   );
 
   return {

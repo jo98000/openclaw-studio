@@ -8,6 +8,7 @@ import { FleetSidebar } from "@/features/agents/components/FleetSidebar";
 import { HeaderBar } from "@/features/agents/components/HeaderBar";
 import { GatewayConnectScreen } from "@/features/agents/components/GatewayConnectScreen";
 import { EmptyStatePanel } from "@/features/agents/components/EmptyStatePanel";
+import { getChannelsByAgent } from "@/features/routing/agentChannelResolver";
 
 const AgentCreateModal = dynamic(
   () =>
@@ -432,6 +433,8 @@ const AgentStudioPage = () => {
     () => getFilteredAgents(state, focusFilter),
     [focusFilter, state],
   );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const channelsByAgent = useMemo(() => getChannelsByAgent(), [agents]);
   const focusedAgent = useMemo(() => {
     if (filteredAgents.length === 0) return null;
     const selectedInFilter = selectedAgent
@@ -2157,6 +2160,11 @@ const AgentStudioPage = () => {
                               )
                             }
                             controlUiUrl={controlUiUrl}
+                            connectedChannels={
+                              channelsByAgent.get(
+                                inspectSidebarAgent.agentId,
+                              ) ?? []
+                            }
                           />
                         </div>
                       </div>
@@ -2216,6 +2224,7 @@ const AgentStudioPage = () => {
                     }
                     createBusy={createAgentBusy}
                     onSelectAgent={handleFleetSelectAgent}
+                    channelsByAgent={channelsByAgent}
                   />
                 </ErrorBoundary>
               </div>

@@ -598,7 +598,9 @@
     "thinkingXHigh": "Très élevé",
     "permissions": "Permissions",
     "performanceTitle": "Performance",
-    "performanceDescription": "Métriques d'exécution pour cet agent."
+    "performanceDescription": "Métriques d'exécution pour cet agent.",
+    "connectedChannels": "Canaux connectés",
+    "viaRule": "Via règle : {rule}"
   },
   "webhookEvents": {
     "agentStarted": "Agent démarré",

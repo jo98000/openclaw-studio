@@ -598,7 +598,9 @@
     "thinkingXHigh": "XHigh",
     "permissions": "Permissions",
     "performanceTitle": "Performance",
-    "performanceDescription": "Runtime metrics for this agent."
+    "performanceDescription": "Runtime metrics for this agent.",
+    "connectedChannels": "Connected channels",
+    "viaRule": "Via rule: {rule}"
   },
   "webhookEvents": {
     "agentStarted": "Agent started",

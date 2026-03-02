@@ -57,6 +57,7 @@ import {
   parsePersonalityFiles,
   serializePersonalityFiles,
 } from "@/lib/agents/personalityBuilder";
+import type { AgentChannelLink } from "@/features/routing/agentChannelResolver";
 
 const AgentInspectHeader = ({
   label,
@@ -185,9 +186,9 @@ type AgentSettingsPanelProps = {
     value: string,
   ) => Promise<void> | void;
   onSaveSkillApiKey?: (skillKey: string) => Promise<void> | void;
+  connectedChannels?: AgentChannelLink[];
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const formatCronStateLine = (
   job: CronJobSummary,
   t: (key: string, values?: any) => string,
@@ -421,6 +422,7 @@ export const AgentSettingsPanel = ({
   onRemoveSkill = () => {},
   onSkillApiKeyChange = () => {},
   onSaveSkillApiKey = () => {},
+  connectedChannels = [],
 }: AgentSettingsPanelProps) => {
   const t = useTranslations("inspect");
   const initialPermissionsDraft =
@@ -920,6 +922,34 @@ export const AgentSettingsPanel = ({
                 </div>
               ) : null}
             </section>
+            {connectedChannels.length > 0 ? (
+              <section
+                className="sidebar-section mt-6"
+                data-testid="agent-settings-channels"
+              >
+                <h3 className="sidebar-section-title">
+                  {t("connectedChannels")}
+                </h3>
+                <div className="mt-2 flex flex-col gap-2">
+                  {connectedChannels.map((link) => (
+                    <div
+                      key={`${link.channelId}-${link.ruleName}`}
+                      className="ui-settings-row flex items-center gap-3 rounded-md px-4 py-3"
+                    >
+                      <span className="text-base">{link.channelIcon}</span>
+                      <div className="flex min-w-0 flex-col">
+                        <span className="text-[11px] font-medium text-foreground/88">
+                          {link.channelName}
+                        </span>
+                        <span className="text-[10px] text-muted-foreground/70">
+                          {t("viaRule", { rule: link.ruleName })}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            ) : null}
           </>
         ) : null}
 

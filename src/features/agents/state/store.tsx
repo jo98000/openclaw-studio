@@ -38,6 +38,8 @@ export type AgentStoreSeed = {
 };
 
 export type AgentState = AgentStoreSeed & {
+  /** Optimistic name set during rename — preserved across hydration until restart completes. */
+  _pendingName?: string;
   status: AgentStatus;
   sessionCreated: boolean;
   awaitingUserInput: boolean;
@@ -72,7 +74,9 @@ export type AgentState = AgentStoreSeed & {
   lastAppliedHistoryRequestId?: string | null;
 };
 
-export const buildNewSessionAgentPatch = (agent: AgentState): Partial<AgentState> => {
+export const buildNewSessionAgentPatch = (
+  agent: AgentState,
+): Partial<AgentState> => {
   return {
     sessionKey: agent.sessionKey,
     status: "idle",
@@ -116,11 +120,20 @@ export type AgentStoreState = {
 };
 
 type Action =
-  | { type: "hydrateAgents"; agents: AgentStoreSeed[]; selectedAgentId?: string }
+  | {
+      type: "hydrateAgents";
+      agents: AgentStoreSeed[];
+      selectedAgentId?: string;
+    }
   | { type: "setError"; error: string | null }
   | { type: "setLoading"; loading: boolean }
   | { type: "updateAgent"; agentId: string; patch: Partial<AgentState> }
-  | { type: "appendOutput"; agentId: string; line: string; transcript?: TranscriptAppendMeta }
+  | {
+      type: "appendOutput";
+      agentId: string;
+      line: string;
+      transcript?: TranscriptAppendMeta;
+    }
   | { type: "enqueueQueuedMessage"; agentId: string; message: string }
   | { type: "removeQueuedMessage"; agentId: string; index: number }
   | { type: "shiftQueuedMessage"; agentId: string; expectedMessage?: string }
@@ -157,19 +170,24 @@ const ensureTranscriptEntries = (agent: AgentState): TranscriptEntry[] => {
 
 const nextTranscriptSequenceCounter = (
   currentCounter: number | undefined,
-  entries: TranscriptEntry[]
+  entries: TranscriptEntry[],
 ): number => {
-  const derived = entries.reduce((max, entry) => Math.max(max, entry.sequenceKey + 1), 0);
+  const derived = entries.reduce(
+    (max, entry) => Math.max(max, entry.sequenceKey + 1),
+    0,
+  );
   return Math.max(currentCounter ?? 0, derived);
 };
 
 const createRuntimeAgentState = (
   seed: AgentStoreSeed,
-  existing?: AgentState | null
+  existing?: AgentState | null,
 ): AgentState => {
   const sameSessionKey = existing?.sessionKey === seed.sessionKey;
   const outputLines = sameSessionKey ? (existing?.outputLines ?? []) : [];
-  const queuedMessages = sameSessionKey ? [...(existing?.queuedMessages ?? [])] : [];
+  const queuedMessages = sameSessionKey
+    ? [...(existing?.queuedMessages ?? [])]
+    : [];
   const transcriptEntries = sameSessionKey
     ? Array.isArray(existing?.transcriptEntries)
       ? existing.transcriptEntries
@@ -181,19 +199,32 @@ const createRuntimeAgentState = (
           confirmed: true,
         })
     : [];
+  // If a _pendingName is set (optimistic rename), use it instead of the seed name
+  // until the gateway restart completes and clears it.
+  const pendingName = existing?._pendingName;
+  const resolvedName = pendingName ?? seed.name;
   return {
     ...seed,
+    name: resolvedName,
+    _pendingName: pendingName,
     avatarSeed: seed.avatarSeed ?? existing?.avatarSeed ?? seed.agentId,
     avatarUrl: seed.avatarUrl ?? existing?.avatarUrl ?? null,
     model: seed.model ?? existing?.model ?? null,
     thinkingLevel: seed.thinkingLevel ?? existing?.thinkingLevel ?? "high",
     sessionExecHost: seed.sessionExecHost ?? existing?.sessionExecHost,
-    sessionExecSecurity: seed.sessionExecSecurity ?? existing?.sessionExecSecurity,
+    sessionExecSecurity:
+      seed.sessionExecSecurity ?? existing?.sessionExecSecurity,
     sessionExecAsk: seed.sessionExecAsk ?? existing?.sessionExecAsk,
     status: sameSessionKey ? (existing?.status ?? "idle") : "idle",
-    sessionCreated: sameSessionKey ? (existing?.sessionCreated ?? false) : false,
-    awaitingUserInput: sameSessionKey ? (existing?.awaitingUserInput ?? false) : false,
-    hasUnseenActivity: sameSessionKey ? (existing?.hasUnseenActivity ?? false) : false,
+    sessionCreated: sameSessionKey
+      ? (existing?.sessionCreated ?? false)
+      : false,
+    awaitingUserInput: sameSessionKey
+      ? (existing?.awaitingUserInput ?? false)
+      : false,
+    hasUnseenActivity: sameSessionKey
+      ? (existing?.hasUnseenActivity ?? false)
+      : false,
     outputLines,
     lastResult: sameSessionKey ? (existing?.lastResult ?? null) : null,
     lastDiff: sameSessionKey ? (existing?.lastDiff ?? null) : null,
@@ -202,27 +233,48 @@ const createRuntimeAgentState = (
     streamText: sameSessionKey ? (existing?.streamText ?? null) : null,
     thinkingTrace: sameSessionKey ? (existing?.thinkingTrace ?? null) : null,
     latestOverride: sameSessionKey ? (existing?.latestOverride ?? null) : null,
-    latestOverrideKind: sameSessionKey ? (existing?.latestOverrideKind ?? null) : null,
-    lastAssistantMessageAt: sameSessionKey ? (existing?.lastAssistantMessageAt ?? null) : null,
+    latestOverrideKind: sameSessionKey
+      ? (existing?.latestOverrideKind ?? null)
+      : null,
+    lastAssistantMessageAt: sameSessionKey
+      ? (existing?.lastAssistantMessageAt ?? null)
+      : null,
     lastActivityAt: sameSessionKey ? (existing?.lastActivityAt ?? null) : null,
     latestPreview: sameSessionKey ? (existing?.latestPreview ?? null) : null,
-    lastUserMessage: sameSessionKey ? (existing?.lastUserMessage ?? null) : null,
+    lastUserMessage: sameSessionKey
+      ? (existing?.lastUserMessage ?? null)
+      : null,
     draft: sameSessionKey ? (existing?.draft ?? "") : "",
     queuedMessages,
-    sessionSettingsSynced: sameSessionKey ? (existing?.sessionSettingsSynced ?? false) : false,
-    historyLoadedAt: sameSessionKey ? (existing?.historyLoadedAt ?? null) : null,
-    historyFetchLimit: sameSessionKey ? (existing?.historyFetchLimit ?? null) : null,
-    historyFetchedCount: sameSessionKey ? (existing?.historyFetchedCount ?? null) : null,
-    historyMaybeTruncated: sameSessionKey ? (existing?.historyMaybeTruncated ?? false) : false,
-    toolCallingEnabled: seed.toolCallingEnabled ?? existing?.toolCallingEnabled ?? false,
-    showThinkingTraces: seed.showThinkingTraces ?? existing?.showThinkingTraces ?? true,
+    sessionSettingsSynced: sameSessionKey
+      ? (existing?.sessionSettingsSynced ?? false)
+      : false,
+    historyLoadedAt: sameSessionKey
+      ? (existing?.historyLoadedAt ?? null)
+      : null,
+    historyFetchLimit: sameSessionKey
+      ? (existing?.historyFetchLimit ?? null)
+      : null,
+    historyFetchedCount: sameSessionKey
+      ? (existing?.historyFetchedCount ?? null)
+      : null,
+    historyMaybeTruncated: sameSessionKey
+      ? (existing?.historyMaybeTruncated ?? false)
+      : false,
+    toolCallingEnabled:
+      seed.toolCallingEnabled ?? existing?.toolCallingEnabled ?? false,
+    showThinkingTraces:
+      seed.showThinkingTraces ?? existing?.showThinkingTraces ?? true,
     transcriptEntries,
     transcriptRevision: sameSessionKey
       ? (existing?.transcriptRevision ?? outputLines.length)
       : 0,
     transcriptSequenceCounter: sameSessionKey
       ? (existing?.transcriptSequenceCounter ??
-        nextTranscriptSequenceCounter(existing?.transcriptSequenceCounter, transcriptEntries))
+        nextTranscriptSequenceCounter(
+          existing?.transcriptSequenceCounter,
+          transcriptEntries,
+        ))
       : 0,
     sessionEpoch: sameSessionKey
       ? (existing?.sessionEpoch ?? 0)
@@ -241,7 +293,7 @@ const reducer = (state: AgentStoreState, action: Action): AgentStoreState => {
     case "hydrateAgents": {
       const byId = new Map(state.agents.map((agent) => [agent.agentId, agent]));
       const agents = action.agents.map((seed) =>
-        createRuntimeAgentState(seed, byId.get(seed.agentId))
+        createRuntimeAgentState(seed, byId.get(seed.agentId)),
       );
       const requestedSelectedAgentId = action.selectedAgentId?.trim() ?? "";
       const selectedAgentId =
@@ -250,8 +302,8 @@ const reducer = (state: AgentStoreState, action: Action): AgentStoreState => {
           ? requestedSelectedAgentId
           : state.selectedAgentId &&
               agents.some((agent) => agent.agentId === state.selectedAgentId)
-          ? state.selectedAgentId
-          : agents[0]?.agentId ?? null;
+            ? state.selectedAgentId
+            : (agents[0]?.agentId ?? null);
       return {
         ...state,
         agents,
@@ -272,9 +324,12 @@ const reducer = (state: AgentStoreState, action: Action): AgentStoreState => {
           const patch = action.patch;
           const nextSessionKey = (patch.sessionKey ?? agent.sessionKey).trim();
           const sessionKeyChanged = nextSessionKey !== agent.sessionKey.trim();
-          const patchHasTranscriptEntries = Array.isArray(patch.transcriptEntries);
+          const patchHasTranscriptEntries = Array.isArray(
+            patch.transcriptEntries,
+          );
           const patchHasOutputLines = Array.isArray(patch.outputLines);
-          const patchMutatesTranscript = patchHasTranscriptEntries || patchHasOutputLines;
+          const patchMutatesTranscript =
+            patchHasTranscriptEntries || patchHasOutputLines;
 
           const existingEntries = ensureTranscriptEntries(agent);
           const base: AgentState = { ...agent, ...patch };
@@ -289,11 +344,15 @@ const reducer = (state: AgentStoreState, action: Action): AgentStoreState => {
           let transcriptMutated = false;
 
           if (patchHasTranscriptEntries) {
-            const patchedTranscriptEntries = patch.transcriptEntries as TranscriptEntry[];
+            const patchedTranscriptEntries =
+              patch.transcriptEntries as TranscriptEntry[];
             const normalized = TRANSCRIPT_V2_ENABLED
               ? sortTranscriptEntries(patchedTranscriptEntries)
               : [...patchedTranscriptEntries];
-            transcriptMutated = !areTranscriptEntriesEqual(existingEntries, normalized);
+            transcriptMutated = !areTranscriptEntriesEqual(
+              existingEntries,
+              normalized,
+            );
             nextEntries = normalized;
             nextOutputLines = buildOutputLinesFromTranscriptEntries(normalized);
           } else if (patchHasOutputLines) {
@@ -305,8 +364,13 @@ const reducer = (state: AgentStoreState, action: Action): AgentStoreState => {
               startSequence: 0,
               confirmed: true,
             });
-            const normalized = TRANSCRIPT_V2_ENABLED ? sortTranscriptEntries(rebuilt) : rebuilt;
-            transcriptMutated = !areStringArraysEqual(agent.outputLines, patchedOutputLines);
+            const normalized = TRANSCRIPT_V2_ENABLED
+              ? sortTranscriptEntries(rebuilt)
+              : rebuilt;
+            transcriptMutated = !areStringArraysEqual(
+              agent.outputLines,
+              patchedOutputLines,
+            );
             nextEntries = normalized;
             nextOutputLines = TRANSCRIPT_V2_ENABLED
               ? buildOutputLinesFromTranscriptEntries(normalized)
@@ -317,8 +381,13 @@ const reducer = (state: AgentStoreState, action: Action): AgentStoreState => {
             ? (agent.transcriptRevision ?? 0) + 1
             : (patch.transcriptRevision ?? agent.transcriptRevision ?? 0);
           const nextCounter = patchMutatesTranscript
-            ? nextTranscriptSequenceCounter(base.transcriptSequenceCounter, nextEntries)
-            : (base.transcriptSequenceCounter ?? agent.transcriptSequenceCounter ?? 0);
+            ? nextTranscriptSequenceCounter(
+                base.transcriptSequenceCounter,
+                nextEntries,
+              )
+            : (base.transcriptSequenceCounter ??
+              agent.transcriptSequenceCounter ??
+              0);
 
           return {
             ...base,
@@ -343,7 +412,7 @@ const reducer = (state: AgentStoreState, action: Action): AgentStoreState => {
           const existingEntries = ensureTranscriptEntries(agent);
           const nextSequence = nextTranscriptSequenceCounter(
             agent.transcriptSequenceCounter,
-            existingEntries
+            existingEntries,
           );
           const nextEntry = createTranscriptEntryFromLine({
             line: action.line,
@@ -359,37 +428,49 @@ const reducer = (state: AgentStoreState, action: Action): AgentStoreState => {
             sequenceKey: nextSequence,
           });
           if (!nextEntry) {
-            return { ...agent, outputLines: [...agent.outputLines, action.line] };
+            return {
+              ...agent,
+              outputLines: [...agent.outputLines, action.line],
+            };
           }
           const nextEntryId = nextEntry.entryId.trim();
           const existingIndex =
             nextEntryId.length > 0
-              ? existingEntries.findIndex((entry) => entry.entryId === nextEntryId)
+              ? existingEntries.findIndex(
+                  (entry) => entry.entryId === nextEntryId,
+                )
               : -1;
           const hasReplacement = existingIndex >= 0;
 
           let nextEntries: TranscriptEntry[];
           if (hasReplacement) {
             let replacedOne = false;
-            const replaced = existingEntries.reduce<TranscriptEntry[]>((acc, entry) => {
-              if (entry.entryId !== nextEntryId) {
-                acc.push(entry);
+            const replaced = existingEntries.reduce<TranscriptEntry[]>(
+              (acc, entry) => {
+                if (entry.entryId !== nextEntryId) {
+                  acc.push(entry);
+                  return acc;
+                }
+                if (replacedOne) {
+                  return acc;
+                }
+                replacedOne = true;
+                acc.push({
+                  ...nextEntry,
+                  sequenceKey: entry.sequenceKey,
+                });
                 return acc;
-              }
-              if (replacedOne) {
-                return acc;
-              }
-              replacedOne = true;
-              acc.push({
-                ...nextEntry,
-                sequenceKey: entry.sequenceKey,
-              });
-              return acc;
-            }, []);
-            nextEntries = TRANSCRIPT_V2_ENABLED ? sortTranscriptEntries(replaced) : replaced;
+              },
+              [],
+            );
+            nextEntries = TRANSCRIPT_V2_ENABLED
+              ? sortTranscriptEntries(replaced)
+              : replaced;
           } else {
             const appended = [...existingEntries, nextEntry];
-            nextEntries = TRANSCRIPT_V2_ENABLED ? sortTranscriptEntries(appended) : appended;
+            nextEntries = TRANSCRIPT_V2_ENABLED
+              ? sortTranscriptEntries(appended)
+              : appended;
           }
 
           return {
@@ -402,7 +483,7 @@ const reducer = (state: AgentStoreState, action: Action): AgentStoreState => {
             transcriptRevision: (agent.transcriptRevision ?? 0) + 1,
             transcriptSequenceCounter: Math.max(
               agent.transcriptSequenceCounter ?? 0,
-              nextEntry.sequenceKey + 1
+              nextEntry.sequenceKey + 1,
             ),
           };
         }),
@@ -428,7 +509,9 @@ const reducer = (state: AgentStoreState, action: Action): AgentStoreState => {
           if (action.index >= queuedMessages.length) return agent;
           return {
             ...agent,
-            queuedMessages: queuedMessages.filter((_, index) => index !== action.index),
+            queuedMessages: queuedMessages.filter(
+              (_, index) => index !== action.index,
+            ),
           };
         }),
       };
@@ -468,7 +551,9 @@ const reducer = (state: AgentStoreState, action: Action): AgentStoreState => {
         if (action.agentId === null) {
           return state;
         }
-        const selected = state.agents.find((agent) => agent.agentId === action.agentId) ?? null;
+        const selected =
+          state.agents.find((agent) => agent.agentId === action.agentId) ??
+          null;
         if (!selected || !selected.hasUnseenActivity) {
           return state;
         }
@@ -482,7 +567,7 @@ const reducer = (state: AgentStoreState, action: Action): AgentStoreState => {
             : state.agents.map((agent) =>
                 agent.agentId === action.agentId
                   ? { ...agent, hasUnseenActivity: false }
-                  : agent
+                  : agent,
               ),
       };
     }
@@ -511,26 +596,28 @@ export const AgentStoreProvider = ({ children }: { children: ReactNode }) => {
     (agents: AgentStoreSeed[], selectedAgentId?: string) => {
       dispatch({ type: "hydrateAgents", agents, selectedAgentId });
     },
-    [dispatch]
+    [dispatch],
   );
 
   const setLoading = useCallback(
     (loading: boolean) => dispatch({ type: "setLoading", loading }),
-    [dispatch]
+    [dispatch],
   );
 
   const setError = useCallback(
     (error: string | null) => dispatch({ type: "setError", error }),
-    [dispatch]
+    [dispatch],
   );
 
   const value = useMemo(
     () => ({ state, dispatch, hydrateAgents, setLoading, setError }),
-    [dispatch, hydrateAgents, setError, setLoading, state]
+    [dispatch, hydrateAgents, setError, setLoading, state],
   );
 
   return (
-    <AgentStoreContext.Provider value={value}>{children}</AgentStoreContext.Provider>
+    <AgentStoreContext.Provider value={value}>
+      {children}
+    </AgentStoreContext.Provider>
   );
 };
 
@@ -544,27 +631,39 @@ export const useAgentStore = () => {
 
 export const getSelectedAgent = (state: AgentStoreState): AgentState | null => {
   if (!state.selectedAgentId) return null;
-  return state.agents.find((agent) => agent.agentId === state.selectedAgentId) ?? null;
+  return (
+    state.agents.find((agent) => agent.agentId === state.selectedAgentId) ??
+    null
+  );
 };
 
-export const getFilteredAgents = (state: AgentStoreState, filter: FocusFilter): AgentState[] => {
+export const getFilteredAgents = (
+  state: AgentStoreState,
+  filter: FocusFilter,
+): AgentState[] => {
   const statusPriority: Record<AgentStatus, number> = {
     running: 0,
     idle: 1,
     error: 2,
   };
   const getActivityTimestamp = (agent: AgentState) =>
-    Math.max(agent.lastActivityAt ?? 0, agent.runStartedAt ?? 0, agent.lastAssistantMessageAt ?? 0);
+    Math.max(
+      agent.lastActivityAt ?? 0,
+      agent.runStartedAt ?? 0,
+      agent.lastAssistantMessageAt ?? 0,
+    );
   const sortAgents = (agents: AgentState[], prioritizeStatus: boolean) =>
     agents
       .map((agent, index) => ({ agent, index }))
       .sort((left, right) => {
         if (prioritizeStatus) {
           const statusDelta =
-            statusPriority[left.agent.status] - statusPriority[right.agent.status];
+            statusPriority[left.agent.status] -
+            statusPriority[right.agent.status];
           if (statusDelta !== 0) return statusDelta;
         }
-        const timeDelta = getActivityTimestamp(right.agent) - getActivityTimestamp(left.agent);
+        const timeDelta =
+          getActivityTimestamp(right.agent) - getActivityTimestamp(left.agent);
         if (timeDelta !== 0) return timeDelta;
         return left.index - right.index;
       })
@@ -573,9 +672,15 @@ export const getFilteredAgents = (state: AgentStoreState, filter: FocusFilter): 
     case "all":
       return sortAgents(state.agents, true);
     case "running":
-      return sortAgents(state.agents.filter((agent) => agent.status === "running"), false);
+      return sortAgents(
+        state.agents.filter((agent) => agent.status === "running"),
+        false,
+      );
     case "approvals":
-      return sortAgents(state.agents.filter((agent) => agent.awaitingUserInput), false);
+      return sortAgents(
+        state.agents.filter((agent) => agent.awaitingUserInput),
+        false,
+      );
     default: {
       const _exhaustive: never = filter;
       void _exhaustive;

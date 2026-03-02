@@ -9,6 +9,7 @@ import {
   resolveAgentStatusLabel,
 } from "./colorSemantics";
 import { EmptyStatePanel } from "./EmptyStatePanel";
+import type { AgentChannelLink } from "@/features/routing/agentChannelResolver";
 
 type FleetSidebarProps = {
   agents: AgentState[];
@@ -19,6 +20,7 @@ type FleetSidebarProps = {
   onCreateAgent: () => void;
   createDisabled?: boolean;
   createBusy?: boolean;
+  channelsByAgent?: Map<string, AgentChannelLink[]>;
 };
 
 const FILTER_KEYS = ["all", "running", "approvals"] as const;
@@ -41,6 +43,7 @@ export const FleetSidebar = ({
   onCreateAgent,
   createDisabled = false,
   createBusy = false,
+  channelsByAgent,
 }: FleetSidebarProps) => {
   const t = useTranslations("fleet");
   const ts = useTranslations("status");
@@ -213,6 +216,22 @@ export const FleetSidebar = ({
                           {t("needsApproval")}
                         </span>
                       ) : null}
+                      {(channelsByAgent?.get(agent.agentId) ?? []).map(
+                        (link) => (
+                          <span
+                            key={link.channelId}
+                            className="ui-badge flex items-center gap-1 bg-surface-2/60 text-foreground/70"
+                            title={link.ruleName}
+                          >
+                            <span className="text-[9px]">
+                              {link.channelIcon}
+                            </span>
+                            <span className="text-[9px]">
+                              {link.channelName}
+                            </span>
+                          </span>
+                        ),
+                      )}
                     </div>
                     <div className="mt-1 flex items-center gap-3 text-[10px] text-muted-foreground">
                       <span className="flex items-center gap-0.5">
