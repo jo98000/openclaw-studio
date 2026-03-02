@@ -16,6 +16,7 @@ import { CreationModeSelector } from "@/features/agents/components/creation/Crea
 import { StepPersona } from "@/features/agents/components/creation/StepPersona";
 import { ConversationalBuilder } from "@/features/agents/components/creation/ConversationalBuilder";
 import type { PersonaBuilderResult } from "@/features/agents/creation/personaBuilderSchema";
+import { PersonaPreview } from "@/features/agents/components/creation/PersonaPreview";
 
 type AgentCreateModalProps = {
   open: boolean;
@@ -484,6 +485,31 @@ const AgentCreateModalContent = ({
                     />
                   </button>
                 </div>
+
+                {/* Persona Preview (expandable) */}
+                {state.mission || state.coreTruths ? (
+                  <details className="rounded-lg border border-border/40">
+                    <summary className="cursor-pointer px-4 py-3 text-xs font-medium text-foreground">
+                      {t("previewTitle")}
+                    </summary>
+                    <div className="border-t border-border/40 px-4 py-4">
+                      <PersonaPreview
+                        persona={{
+                          name: state.name,
+                          vibe: state.vibe,
+                          coreTruths: state.coreTruths,
+                          boundaries: state.boundaries,
+                          traits: state.traits,
+                        }}
+                        directives={{
+                          mission: state.mission,
+                          rules: state.rules,
+                          outputFormat: state.outputFormat,
+                        }}
+                      />
+                    </div>
+                  </details>
+                ) : null}
 
                 {submitError ? (
                   <div className="ui-alert-danger rounded-md px-3 py-2 text-xs">

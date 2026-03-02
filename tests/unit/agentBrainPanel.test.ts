@@ -11,6 +11,7 @@ import {
 import type { AgentState } from "@/features/agents/state/store";
 import { AgentBrainPanel } from "@/features/agents/components/AgentInspectPanels";
 import type { GatewayClient } from "@/lib/gateway/GatewayClient";
+import { withIntl } from "./helpers/intlWrapper";
 
 const createAgent = (
   agentId: string,
@@ -109,12 +110,17 @@ const createMockClient = () => {
   return { client, calls, filesByAgent };
 };
 
+/** Switch to expert (markdown) mode by clicking the Expert toggle button. */
+const switchToExpertMode = () => {
+  fireEvent.click(screen.getByText("Expert"));
+};
+
 describe("AgentBrainPanel", () => {
   afterEach(() => {
     cleanup();
   });
 
-  it("renders_behavior_sections_and_loads_agent_files", async () => {
+  it("renders structured/expert toggle and structured view by default", async () => {
     const { client } = createMockClient();
     const agents = [
       createAgent("agent-1", "Alpha", "session-1"),
@@ -122,33 +128,25 @@ describe("AgentBrainPanel", () => {
     ];
 
     render(
-      createElement(AgentBrainPanel, {
-        client,
-        agents,
-        selectedAgentId: "agent-1",
-      }),
+      withIntl(
+        createElement(AgentBrainPanel, {
+          client,
+          agents,
+          selectedAgentId: "agent-1",
+        }),
+      ),
     );
 
     await waitFor(() => {
-      expect(
-        screen.getByRole("heading", { name: "Persona" }),
-      ).toBeInTheDocument();
+      expect(screen.getByText("Structured")).toBeInTheDocument();
     });
 
-    expect(
-      screen.getByRole("heading", { name: "Directives" }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", { name: "Context" }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", { name: "Identity" }),
-    ).toBeInTheDocument();
-    expect(screen.getByLabelText("Directives")).toHaveValue("alpha agents");
-    expect(screen.getByLabelText("Persona")).toHaveValue(
-      "# PERSONA.md\n\n- Name: Alpha\n- Creature: droid\n- Vibe: calm\n- Emoji: 🤖\n- Avatar: \n\n## Core Truths\n\nBe useful.",
+    expect(screen.getByText("Expert")).toBeInTheDocument();
+    // Structured mode is active by default
+    expect(screen.getByText("Structured").closest("button")).toHaveAttribute(
+      "aria-pressed",
+      "true",
     );
-    expect(screen.getByLabelText("Name")).toHaveValue("Alpha");
   });
 
   it("shows_actionable_message_when_session_key_missing", async () => {
@@ -156,11 +154,13 @@ describe("AgentBrainPanel", () => {
     const agents = [createAgent("", "Alpha", "session-1")];
 
     render(
-      createElement(AgentBrainPanel, {
-        client,
-        agents,
-        selectedAgentId: "",
-      }),
+      withIntl(
+        createElement(AgentBrainPanel, {
+          client,
+          agents,
+          selectedAgentId: "",
+        }),
+      ),
     );
 
     await waitFor(() => {
@@ -170,23 +170,67 @@ describe("AgentBrainPanel", () => {
     });
   });
 
-  it("saves_updated_behavior_files", async () => {
+  it("switches to expert mode and shows markdown editors", async () => {
+    const { client } = createMockClient();
+    const agents = [createAgent("agent-1", "Alpha", "session-1")];
+
+    render(
+      withIntl(
+        createElement(AgentBrainPanel, {
+          client,
+          agents,
+          selectedAgentId: "agent-1",
+        }),
+      ),
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("Expert")).toBeInTheDocument();
+    });
+
+    switchToExpertMode();
+
+    // Expert mode shows markdown file labels
+    await waitFor(() => {
+      expect(screen.getByText("PERSONA.md")).toBeInTheDocument();
+    });
+    expect(screen.getByText("DIRECTIVES.md")).toBeInTheDocument();
+    expect(screen.getByText("USER.md")).toBeInTheDocument();
+  });
+
+  it("saves_updated_behavior_files_in_expert_mode", async () => {
     const { client, calls, filesByAgent } = createMockClient();
     const agents = [createAgent("agent-1", "Alpha", "session-1")];
 
     render(
-      createElement(AgentBrainPanel, {
-        client,
-        agents,
-        selectedAgentId: "agent-1",
-      }),
+      withIntl(
+        createElement(AgentBrainPanel, {
+          client,
+          agents,
+          selectedAgentId: "agent-1",
+        }),
+      ),
     );
 
     await waitFor(() => {
-      expect(screen.getByLabelText("Directives")).toBeInTheDocument();
+      expect(screen.getByText("Expert")).toBeInTheDocument();
     });
 
-    fireEvent.change(screen.getByLabelText("Directives"), {
+    switchToExpertMode();
+
+    await waitFor(() => {
+      expect(screen.getByText("DIRECTIVES.md")).toBeInTheDocument();
+    });
+
+    // The expert mode shows textareas — find the directives one by its placeholder
+    const textareas = screen.getAllByRole("textbox");
+    // Find the textarea that contains "alpha agents"
+    const directivesTextarea = textareas.find(
+      (ta) => (ta as HTMLTextAreaElement).value === "alpha agents",
+    );
+    expect(directivesTextarea).toBeDefined();
+
+    fireEvent.change(directivesTextarea!, {
       target: { value: "alpha directives updated" },
     });
 
@@ -209,49 +253,47 @@ describe("AgentBrainPanel", () => {
     const agents = [createAgent("agent-1", "Alpha", "session-1")];
 
     render(
-      createElement(AgentBrainPanel, {
-        client,
-        agents,
-        selectedAgentId: "agent-1",
-      }),
+      withIntl(
+        createElement(AgentBrainPanel, {
+          client,
+          agents,
+          selectedAgentId: "agent-1",
+        }),
+      ),
     );
 
     await waitFor(() => {
-      expect(screen.getByLabelText("Name")).toBeInTheDocument();
+      expect(screen.getByText("Expert")).toBeInTheDocument();
     });
 
-    fireEvent.change(screen.getByLabelText("Name"), {
-      target: { value: "Alpha Prime" },
+    switchToExpertMode();
+
+    await waitFor(() => {
+      expect(screen.getByText("PERSONA.md")).toBeInTheDocument();
     });
-    expect(screen.getByLabelText("Name")).toHaveValue("Alpha Prime");
+
+    const textareas = screen.getAllByRole("textbox");
+    const personaTextarea = textareas.find((ta) =>
+      (ta as HTMLTextAreaElement).value.includes("# PERSONA.md"),
+    );
+    expect(personaTextarea).toBeDefined();
+
+    fireEvent.change(personaTextarea!, {
+      target: { value: "completely rewritten" },
+    });
 
     fireEvent.click(screen.getByRole("button", { name: "Discard" }));
-    expect(screen.getByLabelText("Name")).toHaveValue("Alpha");
+
+    await waitFor(() => {
+      const updatedTextareas = screen.getAllByRole("textbox");
+      const restored = updatedTextareas.find((ta) =>
+        (ta as HTMLTextAreaElement).value.includes("# PERSONA.md"),
+      );
+      expect(restored).toBeDefined();
+    });
+
     expect(calls.some((entry) => entry.method === "agents.files.set")).toBe(
       false,
     );
-  });
-
-  it("does_not_render_name_editor_in_personality_panel", async () => {
-    const { client } = createMockClient();
-    const agents = [createAgent("agent-1", "Alpha", "session-1")];
-
-    render(
-      createElement(AgentBrainPanel, {
-        client,
-        agents,
-        selectedAgentId: "agent-1",
-      }),
-    );
-
-    await waitFor(() => {
-      expect(
-        screen.getByRole("heading", { name: "Persona" }),
-      ).toBeInTheDocument();
-    });
-    expect(screen.queryByLabelText("Agent name")).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole("button", { name: "Update Name" }),
-    ).not.toBeInTheDocument();
   });
 });

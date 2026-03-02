@@ -4,7 +4,8 @@
 > Objectif : studio ultra-performant, flow qui glisse, agents cohérents dès la création.
 > Créée le 2026-03-02.
 
-> **Status: En cours — Phases 0-5 terminées, Phase 6 en cours.**
+> **Status: 141/170 tâches (83%) — Phases 0-5 complètes, Phase 6 en cours.**
+> Reste : i18n templates FR (6.1.6), audit strings (6.1.7), test migration (6.2.4), a11y avancée (6.3.3-5), perf (6.4.x), E2E (6.5.x), docs (6.6.x), cleanup legacy (6.7.1).
 > Dernière mise à jour : 2026-03-02.
 
 ---
@@ -291,47 +292,47 @@ APRÈS (5 étapes, 5 fichiers, persona au centre, preview live, builder IA)
   - Mission : "Traiter et analyser des contenus texte, image et audio avec fluidité"
   - Vibe : adaptable, visuel, descriptif
 
-- [ ] **1.2.6** Template `support` — Support Client
+- [x] **1.2.6** Template `support` — Support Client
   - Traits : formality=60, verbosity=50, creativity=20, proactivity=70, warmth=90
   - Mission : "Résoudre les problèmes des utilisateurs avec empathie, rapidité et précision"
   - Vibe : patient, empathique, orienté solution, jamais condescendant
 
-- [ ] **1.2.7** Template `analyst` — Analyste Data
+- [x] **1.2.7** Template `analyst` — Analyste Data
   - Traits : formality=70, verbosity=60, creativity=30, proactivity=60, warmth=30
   - Mission : "Analyser les données, identifier les tendances et produire des insights actionnables"
   - Vibe : rigoureux, factuel, structuré, toujours appuyé par les données
 
-- [ ] **1.2.8** Template `devops` — DevOps / Infra
+- [x] **1.2.8** Template `devops` — DevOps / Infra
   - Traits : formality=40, verbosity=30, creativity=30, proactivity=90, warmth=20
   - Mission : "Maintenir, automatiser et sécuriser l'infrastructure avec fiabilité"
   - Vibe : pragmatique, sécurité d'abord, automatise tout, alertes claires
 
-- [ ] **1.2.9** Template `social` — Social Media Manager
+- [x] **1.2.9** Template `social` — Social Media Manager
   - Traits : formality=20, verbosity=40, creativity=90, proactivity=80, warmth=80
   - Mission : "Créer du contenu social engageant, gérer la présence en ligne et analyser les métriques"
   - Vibe : tendance, punchy, connaît les codes de chaque plateforme
 
-- [ ] **1.2.10** Template `strategist` — Stratège
+- [x] **1.2.10** Template `strategist` — Stratège
   - Traits : formality=70, verbosity=70, creativity=60, proactivity=50, warmth=40
   - Mission : "Élaborer des stratégies business basées sur l'analyse de marché et la vision long terme"
   - Vibe : visionnaire, structuré, pose les bonnes questions avant de répondre
 
-- [ ] **1.2.11** Template `sales` — Commercial
+- [x] **1.2.11** Template `sales` — Commercial
   - Traits : formality=50, verbosity=50, creativity=60, proactivity=90, warmth=80
   - Mission : "Accompagner le processus de vente de la prospection au closing avec persuasion et éthique"
   - Vibe : persuasif, orienté valeur, jamais agressif, écoute d'abord
 
-- [ ] **1.2.12** Template `assistant` — Assistant Personnel
+- [x] **1.2.12** Template `assistant` — Assistant Personnel
   - Traits : formality=30, verbosity=40, creativity=40, proactivity=90, warmth=80
   - Mission : "Organiser, planifier et rappeler pour maximiser la productivité au quotidien"
   - Vibe : proactif, organisé, anticipe les besoins, ton familier
 
-- [ ] **1.2.13** Template `translator` — Traducteur
+- [x] **1.2.13** Template `translator` — Traducteur
   - Traits : formality=60, verbosity=40, creativity=50, proactivity=30, warmth=40
   - Mission : "Traduire avec fidélité au sens, au ton et aux nuances culturelles"
   - Vibe : précis, culturellement sensible, préserve le registre
 
-- [ ] **1.2.14** Template `custom` — Custom (pas de personnalité par défaut)
+- [x] **1.2.14** Template `custom` — Custom (pas de personnalité par défaut)
   - Traits : tous à 50 (neutre)
   - Mission : vide (l'utilisateur remplit)
   - Vibe : "À configurer selon vos besoins"
@@ -786,26 +787,26 @@ APRÈS (5 étapes, 5 fichiers, persona au centre, preview live, builder IA)
 
 ### 6.1 — Internationalisation (i18n)
 
-- [ ] **6.1.1** Ajouter les clés i18n pour l'étape 0 (mode selector)
+- [x] **6.1.1** Ajouter les clés i18n pour l'étape 0 (mode selector)
   - `messages/en.json` : section `createAgent.mode.*`
   - `messages/fr.json` : traductions françaises
   - Clés : `modeTitle`, `modeTemplate`, `modeTemplateDesc`, `modeConversational`, `modeConversationalDesc`, `modeBlank`, `modeBlankDesc`
 
-- [ ] **6.1.2** Ajouter les clés i18n pour l'étape 2 (persona)
+- [x] **6.1.2** Ajouter les clés i18n pour l'étape 2 (persona)
   - Section `createAgent.persona.*`
   - Clés : `sectionPersonality`, `sectionMission`, `sectionBoundaries`, `sectionContext`
   - Labels des sliders : `traitFormality`, `traitVerbosity`, `traitCreativity`, `traitProactivity`, `traitWarmth`
   - Labels des valeurs de slider : `traitVeryLow`, `traitLow`, `traitMedium`, `traitHigh`, `traitVeryHigh`
 
-- [ ] **6.1.3** Ajouter les clés i18n pour le constructeur conversationnel
+- [x] **6.1.3** Ajouter les clés i18n pour le constructeur conversationnel
   - Section `createAgent.conversational.*`
   - Clés : `placeholder`, `generate`, `generating`, `result`, `refine`, `seeDetail`, `continue`
 
-- [ ] **6.1.4** Ajouter les clés i18n pour le panneau Brain repensé
+- [x] **6.1.4** Ajouter les clés i18n pour le panneau Brain repensé
   - Section `inspect.brain.*`
   - Clés : `structured`, `expert`, `validate`, `validating`, `noIssues`, `issuesFound`
 
-- [ ] **6.1.5** Ajouter les clés i18n pour la preview et les tests
+- [x] **6.1.5** Ajouter les clés i18n pour la preview et les tests
   - Section `createAgent.preview.*` et `inspect.tests.*`
 
 - [ ] **6.1.6** Traduire les personnalités des 14 templates en FR
@@ -818,7 +819,7 @@ APRÈS (5 étapes, 5 fichiers, persona au centre, preview live, builder IA)
 
 ### 6.2 — Migration des agents existants
 
-- [ ] **6.2.1** Script de migration automatique
+- [x] **6.2.1** Script de migration automatique
   - Quand un agent avec l'ancien format (7 fichiers) est ouvert :
     1. Lire SOUL.md + IDENTITY.md → fusionner en PERSONA.md
     2. Lire AGENTS.md + TOOLS.md → fusionner en DIRECTIVES.md
@@ -826,13 +827,13 @@ APRÈS (5 étapes, 5 fichiers, persona au centre, preview live, builder IA)
     4. (Optionnel) Supprimer les anciens fichiers
   - Fichier : `src/lib/agents/migrateLegacyFiles.ts` (nouveau)
 
-- [ ] **6.2.2** Trigger de migration transparent
+- [x] **6.2.2** Trigger de migration transparent
   - La migration se déclenche quand `useAgentFilesEditor` détecte l'ancien format
   - Silencieuse, pas de modal ou d'interruption pour l'utilisateur
   - Log de la migration dans la console pour debug
   - Fichier : `src/features/agents/hooks/useAgentBrainEditor.ts`
 
-- [ ] **6.2.3** Backward compatibility pendant la période de transition
+- [x] **6.2.3** Backward compatibility pendant la période de transition
   - Supporter la lecture des deux formats pendant N semaines
   - Le parseur détecte automatiquement quel format est utilisé
   - Fichier : `src/lib/agents/personalityBuilder.ts`
@@ -844,12 +845,12 @@ APRÈS (5 étapes, 5 fichiers, persona au centre, preview live, builder IA)
 
 ### 6.3 — Accessibilité (a11y)
 
-- [ ] **6.3.1** ARIA labels pour les sliders de traits
+- [x] **6.3.1** ARIA labels pour les sliders de traits
   - `aria-label`, `aria-valuemin`, `aria-valuemax`, `aria-valuenow`, `aria-valuetext`
   - Navigation clavier (flèches gauche/droite)
   - Fichier : tous les composants de slider
 
-- [ ] **6.3.2** ARIA labels pour le radar de personnalité
+- [x] **6.3.2** ARIA labels pour le radar de personnalité
   - Texte alternatif décrivant les traits
   - `role="img"` avec `aria-label` descriptif
 
@@ -915,11 +916,11 @@ APRÈS (5 étapes, 5 fichiers, persona au centre, preview live, builder IA)
   - Anciens sérialiseurs
   - Anciens types si plus utilisés
 
-- [ ] **6.7.2** Supprimer le fichier `AgentInspectPanels.tsx.bak` (dans git status)
+- [x] **6.7.2** Supprimer le fichier `AgentInspectPanels.tsx.bak` (dans git status)
 
-- [ ] **6.7.3** Vérifier qu'aucun import mort ne traîne
+- [x] **6.7.3** Vérifier qu'aucun import mort ne traîne
 
-- [ ] **6.7.4** Linter + formatter sur tous les fichiers modifiés
+- [x] **6.7.4** Linter + formatter sur tous les fichiers modifiés
 
 ---
 

@@ -147,7 +147,7 @@ export const PersonalityRadar = ({
       onPointerUp={interactive ? handlePointerUp : undefined}
       onPointerLeave={interactive ? handlePointerUp : undefined}
       role="img"
-      aria-label="Personality radar chart"
+      aria-label={`Personality radar: ${TRAIT_DIMENSIONS.map((d) => `${d} ${traits[d]}`).join(", ")}`}
     >
       {/* Background grid rings */}
       {rings.map((fraction) => (
