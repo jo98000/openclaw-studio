@@ -7,7 +7,14 @@ import type { GatewayClient } from "@/lib/gateway/GatewayClient";
 import {
   planCreateAgentBootstrapCommands,
   type CreateBootstrapCommand,
+  type PersonaFilesPayload,
 } from "@/features/agents/operations/createAgentBootstrapWorkflow";
+import { writeGatewayAgentFiles } from "@/lib/gateway/agentFiles";
+import {
+  createEmptyDraft,
+  serializePersonalityFiles,
+} from "@/lib/agents/personalityBuilder";
+import { DEFAULT_TRAITS } from "@/lib/agents/personalityTraits";
 
 type CreateCompletion = {
   agentId: string;
@@ -50,8 +57,12 @@ export async function runCreateAgentBootstrapOperation(params: {
   focusedAgentId: string | null;
   loadAgents: () => Promise<void>;
   findAgentById: (agentId: string) => CreatedAgent | null;
-  applyDefaultPermissions: (input: { agentId: string; sessionKey: string }) => Promise<void>;
+  applyDefaultPermissions: (input: {
+    agentId: string;
+    sessionKey: string;
+  }) => Promise<void>;
   refreshGatewayConfigSnapshot: () => Promise<unknown>;
+  personaPayload?: PersonaFilesPayload;
   planCommands?: typeof planCreateAgentBootstrapCommands;
 }): Promise<CreateBootstrapCommand[]> {
   const plan = params.planCommands ?? planCreateAgentBootstrapCommands;
@@ -81,11 +92,51 @@ export async function runCreateAgentBootstrapOperation(params: {
     createdAgent,
     bootstrapErrorMessage,
     focusedAgentId: params.focusedAgentId,
+    personaPayload: params.personaPayload,
   });
+}
+
+function buildPersonaFilesFromPayload(
+  agentName: string,
+  payload: PersonaFilesPayload,
+): Record<string, string> {
+  const draft = createEmptyDraft();
+  draft.persona.name = agentName;
+  if (payload.persona) {
+    if (payload.persona.traits) {
+      draft.persona.traits = { ...DEFAULT_TRAITS, ...payload.persona.traits };
+    }
+    if (payload.persona.coreTruths)
+      draft.persona.coreTruths = payload.persona.coreTruths;
+    if (payload.persona.boundaries)
+      draft.persona.boundaries = payload.persona.boundaries;
+    if (payload.persona.vibe) draft.persona.vibe = payload.persona.vibe;
+  }
+  if (payload.directives) {
+    if (payload.directives.mission)
+      draft.directives.mission = payload.directives.mission;
+    if (payload.directives.rules)
+      draft.directives.rules = payload.directives.rules;
+    if (payload.directives.priorities)
+      draft.directives.priorities = payload.directives.priorities;
+    if (payload.directives.outputFormat)
+      draft.directives.outputFormat = payload.directives.outputFormat;
+  }
+  if (payload.userContext) {
+    if (payload.userContext.name) draft.user.name = payload.userContext.name;
+    if (payload.userContext.pronouns)
+      draft.user.pronouns = payload.userContext.pronouns;
+    if (payload.userContext.timezone)
+      draft.user.timezone = payload.userContext.timezone;
+    if (payload.userContext.notes) draft.user.notes = payload.userContext.notes;
+  }
+  return serializePersonalityFiles(draft);
 }
 
 export function executeCreateAgentBootstrapCommands(params: {
   commands: CreateBootstrapCommand[];
+  client: GatewayClient;
+  agentName: string;
   setCreateAgentModalError: (message: string | null) => void;
   setGlobalError: (message: string) => void;
   setCreateAgentBlock: (value: null) => void;
@@ -122,6 +173,20 @@ export function executeCreateAgentBootstrapCommands(params: {
     }
     if (command.kind === "set-inspect-sidebar") {
       params.setInspectSidebarCapabilities(command.agentId);
+      continue;
+    }
+    if (command.kind === "write-persona-files") {
+      const files = buildPersonaFilesFromPayload(
+        params.agentName,
+        command.payload,
+      );
+      writeGatewayAgentFiles({
+        client: params.client,
+        agentId: command.agentId,
+        files,
+      }).catch((err) => {
+        console.error("[bootstrap] Failed to write persona files:", err);
+      });
       continue;
     }
     params.setMobilePaneChat();

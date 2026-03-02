@@ -1,12 +1,22 @@
 import { createElement } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 
 import type { AgentState } from "@/features/agents/state/store";
 import { AgentBrainPanel } from "@/features/agents/components/AgentInspectPanels";
 import type { GatewayClient } from "@/lib/gateway/GatewayClient";
 
-const createAgent = (agentId: string, name: string, sessionKey: string): AgentState => ({
+const createAgent = (
+  agentId: string,
+  name: string,
+  sessionKey: string,
+): AgentState => ({
   agentId,
   name,
   sessionKey,
@@ -44,16 +54,16 @@ const createAgent = (agentId: string, name: string, sessionKey: string): AgentSt
 const createMockClient = () => {
   const filesByAgent: Record<string, Record<string, string>> = {
     "agent-1": {
-      "AGENTS.md": "alpha agents",
-      "SOUL.md": "# SOUL.md - Who You Are\n\n## Core Truths\n\nBe useful.",
-      "IDENTITY.md": "# IDENTITY.md - Who Am I?\n\n- Name: Alpha\n- Creature: droid\n- Vibe: calm\n- Emoji: 🤖\n",
-      "USER.md": "# USER.md - About Your Human\n\n- Name: George\n- What to call them: GP\n\n## Context\n\nBuilding OpenClaw Studio.",
-      "TOOLS.md": "tool notes",
+      "DIRECTIVES.md": "alpha agents",
+      "PERSONA.md":
+        "# PERSONA.md\n\n- Name: Alpha\n- Creature: droid\n- Vibe: calm\n- Emoji: 🤖\n- Avatar: \n\n## Core Truths\n\nBe useful.",
+      "USER.md":
+        "# USER.md - About Your Human\n\n- Name: George\n- What to call them: GP\n- Pronouns: \n- Timezone: \n- Notes: \n\n## Context\n\nBuilding OpenClaw Studio.",
       "HEARTBEAT.md": "heartbeat notes",
       "MEMORY.md": "durable memory",
     },
     "agent-2": {
-      "AGENTS.md": "beta agents",
+      "DIRECTIVES.md": "beta agents",
     },
   };
 
@@ -63,8 +73,12 @@ const createMockClient = () => {
     call: vi.fn(async (method: string, params: unknown) => {
       calls.push({ method, params });
       if (method === "agents.files.get") {
-        const record = params && typeof params === "object" ? (params as Record<string, unknown>) : {};
-        const agentId = typeof record.agentId === "string" ? record.agentId : "";
+        const record =
+          params && typeof params === "object"
+            ? (params as Record<string, unknown>)
+            : {};
+        const agentId =
+          typeof record.agentId === "string" ? record.agentId : "";
         const name = typeof record.name === "string" ? record.name : "";
         const content = filesByAgent[agentId]?.[name];
         if (typeof content !== "string") {
@@ -73,10 +87,15 @@ const createMockClient = () => {
         return { file: { name, missing: false, content } };
       }
       if (method === "agents.files.set") {
-        const record = params && typeof params === "object" ? (params as Record<string, unknown>) : {};
-        const agentId = typeof record.agentId === "string" ? record.agentId : "";
+        const record =
+          params && typeof params === "object"
+            ? (params as Record<string, unknown>)
+            : {};
+        const agentId =
+          typeof record.agentId === "string" ? record.agentId : "";
         const name = typeof record.name === "string" ? record.name : "";
-        const content = typeof record.content === "string" ? record.content : "";
+        const content =
+          typeof record.content === "string" ? record.content : "";
         if (!filesByAgent[agentId]) {
           filesByAgent[agentId] = {};
         }
@@ -107,19 +126,27 @@ describe("AgentBrainPanel", () => {
         client,
         agents,
         selectedAgentId: "agent-1",
-      })
+      }),
     );
 
     await waitFor(() => {
-      expect(screen.getByRole("heading", { name: "Persona" })).toBeInTheDocument();
+      expect(
+        screen.getByRole("heading", { name: "Persona" }),
+      ).toBeInTheDocument();
     });
 
-    expect(screen.getByRole("heading", { name: "Directives" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Context" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Identity" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Directives" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Context" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Identity" }),
+    ).toBeInTheDocument();
     expect(screen.getByLabelText("Directives")).toHaveValue("alpha agents");
     expect(screen.getByLabelText("Persona")).toHaveValue(
-      "# SOUL.md - Who You Are\n\n## Core Truths\n\nBe useful."
+      "# PERSONA.md\n\n- Name: Alpha\n- Creature: droid\n- Vibe: calm\n- Emoji: 🤖\n- Avatar: \n\n## Core Truths\n\nBe useful.",
     );
     expect(screen.getByLabelText("Name")).toHaveValue("Alpha");
   });
@@ -133,11 +160,13 @@ describe("AgentBrainPanel", () => {
         client,
         agents,
         selectedAgentId: "",
-      })
+      }),
     );
 
     await waitFor(() => {
-      expect(screen.getByText("Agent ID is missing for this agent.")).toBeInTheDocument();
+      expect(
+        screen.getByText("Agent ID is missing for this agent."),
+      ).toBeInTheDocument();
     });
   });
 
@@ -150,7 +179,7 @@ describe("AgentBrainPanel", () => {
         client,
         agents,
         selectedAgentId: "agent-1",
-      })
+      }),
     );
 
     await waitFor(() => {
@@ -166,9 +195,13 @@ describe("AgentBrainPanel", () => {
     fireEvent.click(saveButton);
 
     await waitFor(() => {
-      expect(calls.some((entry) => entry.method === "agents.files.set")).toBe(true);
+      expect(calls.some((entry) => entry.method === "agents.files.set")).toBe(
+        true,
+      );
     });
-    expect(filesByAgent["agent-1"]["AGENTS.md"]).toBe("alpha directives updated");
+    expect(filesByAgent["agent-1"]["DIRECTIVES.md"]).toBe(
+      "alpha directives updated",
+    );
   });
 
   it("discards_unsaved_changes_without_writing_files", async () => {
@@ -180,7 +213,7 @@ describe("AgentBrainPanel", () => {
         client,
         agents,
         selectedAgentId: "agent-1",
-      })
+      }),
     );
 
     await waitFor(() => {
@@ -194,7 +227,9 @@ describe("AgentBrainPanel", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Discard" }));
     expect(screen.getByLabelText("Name")).toHaveValue("Alpha");
-    expect(calls.some((entry) => entry.method === "agents.files.set")).toBe(false);
+    expect(calls.some((entry) => entry.method === "agents.files.set")).toBe(
+      false,
+    );
   });
 
   it("does_not_render_name_editor_in_personality_panel", async () => {
@@ -206,13 +241,17 @@ describe("AgentBrainPanel", () => {
         client,
         agents,
         selectedAgentId: "agent-1",
-      })
+      }),
     );
 
     await waitFor(() => {
-      expect(screen.getByRole("heading", { name: "Persona" })).toBeInTheDocument();
+      expect(
+        screen.getByRole("heading", { name: "Persona" }),
+      ).toBeInTheDocument();
     });
     expect(screen.queryByLabelText("Agent name")).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Update Name" })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Update Name" }),
+    ).not.toBeInTheDocument();
   });
 });

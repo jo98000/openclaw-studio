@@ -1098,6 +1098,14 @@ const AgentStudioPage = () => {
             });
           },
           onCompletion: async (completion) => {
+            const personaPayload =
+              payload.persona || payload.directives || payload.userContext
+                ? {
+                    persona: payload.persona,
+                    directives: payload.directives,
+                    userContext: payload.userContext,
+                  }
+                : undefined;
             const commands = await runCreateAgentBootstrapOperation({
               completion,
               focusedAgentId: focusedAgent?.agentId ?? null,
@@ -1116,9 +1124,12 @@ const AgentStudioPage = () => {
                 });
               },
               refreshGatewayConfigSnapshot,
+              personaPayload,
             });
             executeCreateAgentBootstrapCommands({
               commands,
+              client,
+              agentName: completion.agentName,
               setCreateAgentModalError,
               setGlobalError: setError,
               setCreateAgentBlock: (value) => {

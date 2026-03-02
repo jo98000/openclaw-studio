@@ -3,6 +3,28 @@ export type CreateBootstrapFacts = {
   createdAgent: { agentId: string; sessionKey: string } | null;
   bootstrapErrorMessage: string | null;
   focusedAgentId: string | null;
+  personaPayload?: PersonaFilesPayload;
+};
+
+export type PersonaFilesPayload = {
+  persona?: {
+    traits?: Record<string, number>;
+    coreTruths?: string;
+    boundaries?: string;
+    vibe?: string;
+  };
+  directives?: {
+    mission?: string;
+    rules?: string;
+    priorities?: string;
+    outputFormat?: string;
+  };
+  userContext?: {
+    name?: string;
+    pronouns?: string;
+    timezone?: string;
+    notes?: string;
+  };
 };
 
 export type CreateBootstrapCommand =
@@ -13,7 +35,12 @@ export type CreateBootstrapCommand =
   | { kind: "flush-pending-draft"; agentId: string | null }
   | { kind: "select-agent"; agentId: string }
   | { kind: "set-inspect-sidebar"; agentId: string; tab: "capabilities" }
-  | { kind: "set-mobile-pane"; pane: "chat" };
+  | { kind: "set-mobile-pane"; pane: "chat" }
+  | {
+      kind: "write-persona-files";
+      agentId: string;
+      payload: PersonaFilesPayload;
+    };
 
 const buildMissingCreatedAgentMessage = (agentName: string): string =>
   `Agent "${agentName}" was created, but Studio could not load it yet.`;
@@ -25,7 +52,7 @@ const buildBootstrapModalErrorMessage = (errorMessage: string): string =>
   `Default permissions failed: ${errorMessage}`;
 
 export function planCreateAgentBootstrapCommands(
-  facts: CreateBootstrapFacts
+  facts: CreateBootstrapFacts,
 ): CreateBootstrapCommand[] {
   if (!facts.createdAgent) {
     const message = buildMissingCreatedAgentMessage(facts.completion.agentName);
@@ -42,6 +69,13 @@ export function planCreateAgentBootstrapCommands(
     commands.push({
       kind: "set-global-error",
       message: buildBootstrapGlobalErrorMessage(facts.bootstrapErrorMessage),
+    });
+  }
+  if (facts.personaPayload) {
+    commands.push({
+      kind: "write-persona-files",
+      agentId: facts.completion.agentId,
+      payload: facts.personaPayload,
     });
   }
   commands.push({ kind: "flush-pending-draft", agentId: facts.focusedAgentId });

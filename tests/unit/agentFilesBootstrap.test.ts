@@ -12,19 +12,19 @@ describe("writeGatewayAgentFiles", () => {
       client,
       agentId: "agent-1",
       files: {
-        "AGENTS.md": "# mission",
-        "SOUL.md": "# tone",
+        "DIRECTIVES.md": "# mission",
+        "PERSONA.md": "# tone",
       },
     });
 
     expect(client.call).toHaveBeenCalledTimes(2);
     expect((client.call as ReturnType<typeof vi.fn>).mock.calls[0]).toEqual([
       "agents.files.set",
-      { agentId: "agent-1", name: "AGENTS.md", content: "# mission" },
+      { agentId: "agent-1", name: "DIRECTIVES.md", content: "# mission" },
     ]);
     expect((client.call as ReturnType<typeof vi.fn>).mock.calls[1]).toEqual([
       "agents.files.set",
-      { agentId: "agent-1", name: "SOUL.md", content: "# tone" },
+      { agentId: "agent-1", name: "PERSONA.md", content: "# tone" },
     ]);
   });
 
@@ -37,8 +37,8 @@ describe("writeGatewayAgentFiles", () => {
       writeGatewayAgentFiles({
         client,
         agentId: "   ",
-        files: { "AGENTS.md": "# mission" },
-      })
+        files: { "DIRECTIVES.md": "# mission" },
+      }),
     ).rejects.toThrow("agentId is required.");
     expect(client.call).not.toHaveBeenCalled();
   });

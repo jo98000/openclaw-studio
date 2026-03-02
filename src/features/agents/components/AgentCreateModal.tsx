@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { Shuffle, ChevronRight, ChevronLeft } from "lucide-react";
 import type { AgentCreateModalSubmitPayload } from "@/features/agents/creation/types";
@@ -11,6 +11,11 @@ import {
   AGENT_TEMPLATES,
   type AgentTemplate,
 } from "@/features/agents/templates/agentTemplates";
+import { useCreateAgentWizard } from "@/features/agents/hooks/useCreateAgentWizard";
+import { CreationModeSelector } from "@/features/agents/components/creation/CreationModeSelector";
+import { StepPersona } from "@/features/agents/components/creation/StepPersona";
+import { ConversationalBuilder } from "@/features/agents/components/creation/ConversationalBuilder";
+import type { PersonaBuilderResult } from "@/features/agents/creation/personaBuilderSchema";
 
 type AgentCreateModalProps = {
   open: boolean;
@@ -27,19 +32,11 @@ const fieldClassName =
 const labelClassName =
   "font-mono text-[11px] font-semibold tracking-[0.05em] text-muted-foreground";
 
-type WizardStep = 0 | 1 | 2;
-
-const resolveInitialName = (suggestedName: string): string => {
-  const trimmed = suggestedName.trim();
-  if (!trimmed) return "Nouvel Agent";
-  return trimmed;
-};
-
 const StepIndicator = ({
   current,
   labels,
 }: {
-  current: WizardStep;
+  current: number;
   labels: string[];
 }) => (
   <div className="flex items-center gap-2 px-6 py-3 border-b border-border/30">
@@ -112,40 +109,48 @@ const AgentCreateModalContent = ({
   const t = useTranslations("createAgent");
   const tc = useTranslations("common");
   const tt = useTranslations("templates");
-  const [step, setStep] = useState<WizardStep>(0);
-  const [name, setName] = useState(() => resolveInitialName(suggestedName));
-  const [avatarSeed, setAvatarSeed] = useState(() => randomUUID());
-  const [description, setDescription] = useState("");
-  const [templateId, setTemplateId] = useState<string | null>(null);
-  const [modelKey, setModelKey] = useState("");
-  const [commandMode, setCommandMode] = useState<"off" | "ask" | "auto">("ask");
-  const [webAccess, setWebAccess] = useState(false);
-  const [fileTools, setFileTools] = useState(false);
+  const wizard = useCreateAgentWizard(suggestedName);
+  const {
+    step,
+    state,
+    set,
+    applyTemplate,
+    goNext,
+    goPrev,
+    canProceedFromStep,
+    buildPayload,
+  } = wizard;
 
-  const canSubmit = name.trim().length > 0;
+  const canProceed = canProceedFromStep(step);
 
-  const handleTemplateSelect = (template: AgentTemplate) => {
-    setTemplateId(template.id);
-    if (template.defaultModel) setModelKey(template.defaultModel);
-    setCommandMode(template.capabilities.commandMode);
-    setWebAccess(template.capabilities.webAccess);
-    setFileTools(template.capabilities.fileTools);
-  };
+  const handleTemplateSelect = useCallback(
+    (template: AgentTemplate) => {
+      applyTemplate(template);
+    },
+    [applyTemplate],
+  );
+
+  const handleConversationalResult = useCallback(
+    (result: PersonaBuilderResult) => {
+      set("name", result.name || state.name);
+      set("traits", result.persona.traits);
+      set("vibe", result.persona.vibe);
+      set("coreTruths", result.persona.coreTruths);
+      set("boundaries", result.persona.boundaries);
+      set("mission", result.directives.mission);
+      set("rules", result.directives.rules);
+      set("priorities", result.directives.priorities);
+      set("outputFormat", result.directives.outputFormat);
+      if (result.suggestedModel) set("modelKey", result.suggestedModel);
+      goNext();
+    },
+    [set, state.name, goNext],
+  );
 
   const handleSubmit = () => {
-    if (!canSubmit || busy) return;
-    void onSubmit({
-      name: name.trim(),
-      avatarSeed,
-      templateId: templateId ?? undefined,
-      modelKey: modelKey || undefined,
-      description: description.trim() || undefined,
-      capabilities: { commandMode, webAccess, fileTools },
-    });
+    if (!state.name.trim() || busy) return;
+    void onSubmit(buildPayload());
   };
-
-  const goNext = () => setStep((s) => Math.min(s + 1, 2) as WizardStep);
-  const goPrev = () => setStep((s) => Math.max(s - 1, 0) as WizardStep);
 
   const groupedModels = models.reduce<Record<string, GatewayModelChoice[]>>(
     (acc, m) => {
@@ -177,6 +182,16 @@ const AgentCreateModalContent = ({
     huggingface: "Hugging Face",
     custom: "Custom",
   };
+
+  const stepLabels = [
+    t("stepMode"),
+    t("stepIdentity"),
+    t("stepPersona"),
+    t("stepModel"),
+    t("stepCapabilities"),
+  ];
+
+  const isLastStep = step === 4;
 
   return (
     <div
@@ -212,10 +227,7 @@ const AgentCreateModalContent = ({
             </button>
           </div>
 
-          <StepIndicator
-            current={step}
-            labels={[t("stepIdentity"), t("stepModel"), t("stepCapabilities")]}
-          />
+          <StepIndicator current={step} labels={stepLabels} />
 
           <div
             className="px-6 py-5"
@@ -225,24 +237,44 @@ const AgentCreateModalContent = ({
               WebkitOverflowScrolling: "touch",
             }}
           >
-            {/* Step 1: Identity */}
+            {/* Step 0: Creation Mode */}
             {step === 0 ? (
+              <CreationModeSelector
+                selected={state.creationMode}
+                onSelect={(mode) => set("creationMode", mode)}
+              />
+            ) : null}
+
+            {/* Step 1: Identity */}
+            {step === 1 ? (
               <div className="grid gap-4">
-                <label className={labelClassName}>{t("templateLabel")}</label>
-                <TemplateSelector
-                  selected={templateId}
-                  onSelect={handleTemplateSelect}
-                  t={tt}
-                />
+                {state.creationMode === "template" ? (
+                  <>
+                    <label className={labelClassName}>
+                      {t("templateLabel")}
+                    </label>
+                    <TemplateSelector
+                      selected={state.templateId}
+                      onSelect={handleTemplateSelect}
+                      t={tt}
+                    />
+                  </>
+                ) : null}
+
+                {state.creationMode === "conversational" ? (
+                  <ConversationalBuilder
+                    onResult={handleConversationalResult}
+                  />
+                ) : null}
 
                 <label className={labelClassName}>
                   {t("nameLabel")}
                   <input
                     aria-label={t("nameLabel")}
-                    value={name}
-                    onChange={(event) => setName(event.target.value)}
+                    value={state.name}
+                    onChange={(event) => set("name", event.target.value)}
                     onKeyDown={(e) => {
-                      if (e.key === "Enter" && canSubmit) {
+                      if (e.key === "Enter" && canProceed) {
                         e.preventDefault();
                         goNext();
                       }
@@ -257,8 +289,8 @@ const AgentCreateModalContent = ({
                   {t("descriptionLabel")}
                   <input
                     aria-label={t("descriptionLabel")}
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
+                    value={state.description}
+                    onChange={(e) => set("description", e.target.value)}
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {
                         e.preventDefault();
@@ -273,8 +305,8 @@ const AgentCreateModalContent = ({
                 <div className="grid justify-items-center gap-2 border-t border-border/40 pt-3">
                   <div className={labelClassName}>{t("avatarLabel")}</div>
                   <AgentAvatar
-                    seed={avatarSeed}
-                    name={name.trim() || "Nouvel Agent"}
+                    seed={state.avatarSeed}
+                    name={state.name.trim() || "Nouvel Agent"}
                     size={52}
                     isSelected
                   />
@@ -282,7 +314,7 @@ const AgentCreateModalContent = ({
                     type="button"
                     aria-label={t("shuffleAvatarLabel")}
                     className="ui-btn-secondary inline-flex items-center gap-2 px-3 py-1.5 text-[11px] text-muted-foreground"
-                    onClick={() => setAvatarSeed(randomUUID())}
+                    onClick={() => set("avatarSeed", randomUUID())}
                     disabled={busy}
                   >
                     <Shuffle className="h-3 w-3" />
@@ -292,16 +324,46 @@ const AgentCreateModalContent = ({
               </div>
             ) : null}
 
-            {/* Step 2: AI & Model */}
-            {step === 1 ? (
+            {/* Step 2: Persona & Directives */}
+            {step === 2 ? (
+              <StepPersona
+                traits={state.traits}
+                onTraitsChange={(traits) => set("traits", traits)}
+                coreTruths={state.coreTruths}
+                onCoreTruthsChange={(v) => set("coreTruths", v)}
+                boundaries={state.boundaries}
+                onBoundariesChange={(v) => set("boundaries", v)}
+                vibe={state.vibe}
+                onVibeChange={(v) => set("vibe", v)}
+                mission={state.mission}
+                onMissionChange={(v) => set("mission", v)}
+                rules={state.rules}
+                onRulesChange={(v) => set("rules", v)}
+                priorities={state.priorities}
+                onPrioritiesChange={(v) => set("priorities", v)}
+                outputFormat={state.outputFormat}
+                onOutputFormatChange={(v) => set("outputFormat", v)}
+                userName={state.userName}
+                onUserNameChange={(v) => set("userName", v)}
+                userPronouns={state.userPronouns}
+                onUserPronounsChange={(v) => set("userPronouns", v)}
+                userTimezone={state.userTimezone}
+                onUserTimezoneChange={(v) => set("userTimezone", v)}
+                userNotes={state.userNotes}
+                onUserNotesChange={(v) => set("userNotes", v)}
+              />
+            ) : null}
+
+            {/* Step 3: AI & Model */}
+            {step === 3 ? (
               <div className="grid gap-4">
                 <label className={labelClassName}>
                   {t("modelLabel")}
                   <select
                     className={`mt-1 ${fieldClassName}`}
                     aria-label={t("modelLabel")}
-                    value={modelKey}
-                    onChange={(e) => setModelKey(e.target.value)}
+                    value={state.modelKey}
+                    onChange={(e) => set("modelKey", e.target.value)}
                   >
                     <option value="">{t("modelDefault")}</option>
                     {Object.entries(groupedModels).map(
@@ -334,8 +396,8 @@ const AgentCreateModalContent = ({
                 <div className="rounded-lg border border-border/40 bg-surface-2/30 px-4 py-3">
                   <p className="text-[11px] text-muted-foreground">
                     {t("modelHint", {
-                      templateName: templateId
-                        ? ` ("${tt(`${templateId}.name`)}")`
+                      templateName: state.templateId
+                        ? ` ("${tt(`${state.templateId}.name`)}")`
                         : "",
                     })}
                   </p>
@@ -343,8 +405,8 @@ const AgentCreateModalContent = ({
               </div>
             ) : null}
 
-            {/* Step 3: Capabilities */}
-            {step === 2 ? (
+            {/* Step 4: Capabilities */}
+            {step === 4 ? (
               <div className="grid gap-4">
                 <div>
                   <div className={labelClassName}>{t("capRunCommands")}</div>
@@ -359,9 +421,11 @@ const AgentCreateModalContent = ({
                         <button
                           key={mode}
                           type="button"
-                          data-active={commandMode === mode ? "true" : "false"}
+                          data-active={
+                            state.commandMode === mode ? "true" : "false"
+                          }
                           className="ui-segment-item px-3 py-1.5 text-[11px] font-medium"
-                          onClick={() => setCommandMode(mode)}
+                          onClick={() => set("commandMode", mode)}
                         >
                           {modeLabels[mode]}
                         </button>
@@ -369,9 +433,9 @@ const AgentCreateModalContent = ({
                     })}
                   </div>
                   <p className="mt-1 text-[10px] text-muted-foreground">
-                    {commandMode === "off"
+                    {state.commandMode === "off"
                       ? t("capCommandOff")
-                      : commandMode === "ask"
+                      : state.commandMode === "ask"
                         ? t("capCommandAsk")
                         : t("capCommandAuto")}
                   </p>
@@ -389,12 +453,12 @@ const AgentCreateModalContent = ({
                   <button
                     type="button"
                     role="switch"
-                    aria-checked={webAccess}
-                    className={`h-5 w-9 rounded-full transition-colors ${webAccess ? "bg-primary" : "bg-surface-3"}`}
-                    onClick={() => setWebAccess(!webAccess)}
+                    aria-checked={state.webAccess}
+                    className={`h-5 w-9 rounded-full transition-colors ${state.webAccess ? "bg-primary" : "bg-surface-3"}`}
+                    onClick={() => set("webAccess", !state.webAccess)}
                   >
                     <span
-                      className={`block h-4 w-4 rounded-full bg-white shadow transition-transform ${webAccess ? "translate-x-4" : "translate-x-0.5"}`}
+                      className={`block h-4 w-4 rounded-full bg-white shadow transition-transform ${state.webAccess ? "translate-x-4" : "translate-x-0.5"}`}
                     />
                   </button>
                 </div>
@@ -411,12 +475,12 @@ const AgentCreateModalContent = ({
                   <button
                     type="button"
                     role="switch"
-                    aria-checked={fileTools}
-                    className={`h-5 w-9 rounded-full transition-colors ${fileTools ? "bg-primary" : "bg-surface-3"}`}
-                    onClick={() => setFileTools(!fileTools)}
+                    aria-checked={state.fileTools}
+                    className={`h-5 w-9 rounded-full transition-colors ${state.fileTools ? "bg-primary" : "bg-surface-3"}`}
+                    onClick={() => set("fileTools", !state.fileTools)}
                   >
                     <span
-                      className={`block h-4 w-4 rounded-full bg-white shadow transition-transform ${fileTools ? "translate-x-4" : "translate-x-0.5"}`}
+                      className={`block h-4 w-4 rounded-full bg-white shadow transition-transform ${state.fileTools ? "translate-x-4" : "translate-x-0.5"}`}
                     />
                   </button>
                 </div>
@@ -444,17 +508,17 @@ const AgentCreateModalContent = ({
                 </button>
               ) : (
                 <span className="text-[10px] text-muted-foreground">
-                  {t("stepOf", { current: step + 1, total: 3 })}
+                  {t("stepOf", { current: step + 1, total: 5 })}
                 </span>
               )}
             </div>
             <div className="flex items-center gap-2">
-              {step < 2 ? (
+              {!isLastStep ? (
                 <button
                   type="button"
                   className="ui-btn-primary inline-flex items-center gap-1 px-4 py-1.5 font-mono text-[11px] font-semibold tracking-[0.06em]"
                   onClick={goNext}
-                  disabled={step === 0 && !canSubmit}
+                  disabled={!canProceed}
                 >
                   {tc("next")}
                   <ChevronRight className="h-3 w-3" aria-hidden="true" />
@@ -463,7 +527,7 @@ const AgentCreateModalContent = ({
                 <button
                   type="button"
                   className="ui-btn-primary px-4 py-1.5 font-mono text-[11px] font-semibold tracking-[0.06em] disabled:cursor-not-allowed disabled:border-border disabled:bg-muted disabled:text-muted-foreground"
-                  disabled={!canSubmit || busy}
+                  disabled={!state.name.trim() || busy}
                   onClick={handleSubmit}
                 >
                   {busy ? t("launching") : t("launchAgent")}

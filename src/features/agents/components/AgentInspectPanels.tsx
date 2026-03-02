@@ -1735,15 +1735,15 @@ export const AgentBrainPanel = ({
   } = useAgentFilesEditor({ client, agentId: selectedAgent?.agentId ?? null });
   const draft = useMemo(() => parsePersonalityFiles(agentFiles), [agentFiles]);
 
-  const setIdentityField = useCallback(
+  const setPersonaField = useCallback(
     (
       field: "name" | "creature" | "vibe" | "emoji" | "avatar",
       value: string,
     ) => {
       const nextDraft = parsePersonalityFiles(agentFiles);
-      nextDraft.identity[field] = value;
+      nextDraft.persona[field] = value;
       const serialized = serializePersonalityFiles(nextDraft);
-      setAgentFileContent("IDENTITY.md", serialized["IDENTITY.md"]);
+      setAgentFileContent("PERSONA.md", serialized["PERSONA.md"]);
     },
     [agentFiles, setAgentFileContent],
   );
@@ -1836,10 +1836,10 @@ export const AgentBrainPanel = ({
               <textarea
                 aria-label="Persona"
                 className="h-56 w-full resize-y rounded-md border border-border/80 bg-background px-4 py-3 font-mono text-sm leading-6 text-foreground outline-none"
-                value={agentFiles["SOUL.md"].content}
+                value={agentFiles["PERSONA.md"].content}
                 disabled={agentFilesLoading || agentFilesSaving}
                 onChange={(event) => {
-                  setAgentFileContent("SOUL.md", event.target.value);
+                  setAgentFileContent("PERSONA.md", event.target.value);
                 }}
               />
             </AgentBrainPanelSection>
@@ -1848,10 +1848,10 @@ export const AgentBrainPanel = ({
               <textarea
                 aria-label="Directives"
                 className="h-56 w-full resize-y rounded-md border border-border/80 bg-background px-4 py-3 font-mono text-sm leading-6 text-foreground outline-none"
-                value={agentFiles["AGENTS.md"].content}
+                value={agentFiles["DIRECTIVES.md"].content}
                 disabled={agentFilesLoading || agentFilesSaving}
                 onChange={(event) => {
-                  setAgentFileContent("AGENTS.md", event.target.value);
+                  setAgentFileContent("DIRECTIVES.md", event.target.value);
                 }}
               />
             </AgentBrainPanelSection>
@@ -1877,10 +1877,10 @@ export const AgentBrainPanel = ({
                   {t("identityName")}
                   <input
                     className="h-10 rounded-md border border-border/80 bg-background px-3 text-sm text-foreground outline-none"
-                    value={draft.identity.name}
+                    value={draft.persona.name}
                     disabled={agentFilesLoading || agentFilesSaving}
                     onChange={(event) => {
-                      setIdentityField("name", event.target.value);
+                      setPersonaField("name", event.target.value);
                     }}
                   />
                 </label>
@@ -1888,10 +1888,10 @@ export const AgentBrainPanel = ({
                   {t("creature")}
                   <input
                     className="h-10 rounded-md border border-border/80 bg-background px-3 text-sm text-foreground outline-none"
-                    value={draft.identity.creature}
+                    value={draft.persona.creature}
                     disabled={agentFilesLoading || agentFilesSaving}
                     onChange={(event) => {
-                      setIdentityField("creature", event.target.value);
+                      setPersonaField("creature", event.target.value);
                     }}
                   />
                 </label>
@@ -1899,10 +1899,10 @@ export const AgentBrainPanel = ({
                   {t("vibe")}
                   <input
                     className="h-10 rounded-md border border-border/80 bg-background px-3 text-sm text-foreground outline-none"
-                    value={draft.identity.vibe}
+                    value={draft.persona.vibe}
                     disabled={agentFilesLoading || agentFilesSaving}
                     onChange={(event) => {
-                      setIdentityField("vibe", event.target.value);
+                      setPersonaField("vibe", event.target.value);
                     }}
                   />
                 </label>
@@ -1910,10 +1910,10 @@ export const AgentBrainPanel = ({
                   Emoji
                   <input
                     className="h-10 rounded-md border border-border/80 bg-background px-3 text-sm text-foreground outline-none"
-                    value={draft.identity.emoji}
+                    value={draft.persona.emoji}
                     disabled={agentFilesLoading || agentFilesSaving}
                     onChange={(event) => {
-                      setIdentityField("emoji", event.target.value);
+                      setPersonaField("emoji", event.target.value);
                     }}
                   />
                 </label>
@@ -1922,10 +1922,10 @@ export const AgentBrainPanel = ({
                 Avatar
                 <input
                   className="h-10 rounded-md border border-border/80 bg-background px-3 text-sm text-foreground outline-none"
-                  value={draft.identity.avatar}
+                  value={draft.persona.avatar}
                   disabled={agentFilesLoading || agentFilesSaving}
                   onChange={(event) => {
-                    setIdentityField("avatar", event.target.value);
+                    setPersonaField("avatar", event.target.value);
                   }}
                 />
               </label>

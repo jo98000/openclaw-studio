@@ -10,21 +10,25 @@ import {
 const createFiles = () => createAgentFilesState();
 
 describe("personalityBuilder", () => {
-  it("parseIdentityMarkdown_extracts_fields_from_template_style_list", () => {
+  it("parsePersonaMarkdown_extracts_fields_from_template_style_list", () => {
     const files = createFiles();
-    files["IDENTITY.md"] = {
+    files["PERSONA.md"] = {
       exists: true,
-      content: `# IDENTITY.md - Who Am I?\n\n- **Name:** Nova\n- **Creature:** fox spirit\n- **Vibe:** calm + direct\n- **Emoji:** 🦊\n- **Avatar:** avatars/nova.png\n`,
+      content: `# PERSONA.md\n\n- Name: Nova\n- Creature: fox spirit\n- Vibe: calm + direct\n- Emoji: 🦊\n- Avatar: avatars/nova.png\n`,
     };
 
     const draft = parsePersonalityFiles(files);
 
-    expect(draft.identity).toEqual({
+    expect(draft.persona).toEqual({
       name: "Nova",
       creature: "fox spirit",
       vibe: "calm + direct",
       emoji: "🦊",
       avatar: "avatars/nova.png",
+      coreTruths: "",
+      boundaries: "",
+      continuity: "",
+      traits: draft.persona.traits,
     });
   });
 
@@ -43,67 +47,80 @@ describe("personalityBuilder", () => {
       pronouns: "he/him",
       timezone: "America/Chicago",
       notes: "Building OpenClaw Studio.",
-      context: "Wants concise technical answers.\nPrefers implementation over discussion.",
+      context:
+        "Wants concise technical answers.\nPrefers implementation over discussion.",
     });
   });
 
-  it("parseSoulMarkdown_extracts_core_sections", () => {
+  it("parsePersonaMarkdown_extracts_soul_sections", () => {
     const files = createFiles();
-    files["SOUL.md"] = {
+    files["PERSONA.md"] = {
       exists: true,
-      content: `# SOUL.md - Who You Are\n\n## Core Truths\n\nBe direct.\nAvoid filler.\n\n## Boundaries\n\n- Keep user data private.\n\n## Vibe\n\nPragmatic and calm.\n\n## Continuity\n\nUpdate files when behavior changes.\n`,
+      content: `# PERSONA.md\n\n- Name: Nova\n- Creature: fox\n- Vibe: calm\n- Emoji: 🦊\n- Avatar: avatar.png\n\n## Core Truths\n\nBe direct.\nAvoid filler.\n\n## Boundaries\n\n- Keep user data private.\n\n## Continuity\n\nUpdate files when behavior changes.\n`,
     };
 
     const draft = parsePersonalityFiles(files);
 
-    expect(draft.soul).toEqual({
-      coreTruths: "Be direct.\nAvoid filler.",
-      boundaries: "- Keep user data private.",
-      vibe: "Pragmatic and calm.",
-      continuity: "Update files when behavior changes.",
-    });
+    expect(draft.persona.coreTruths).toBe("Be direct.\nAvoid filler.");
+    expect(draft.persona.boundaries).toBe("- Keep user data private.");
+    expect(draft.persona.continuity).toBe(
+      "Update files when behavior changes.",
+    );
   });
 
-  it("ignores_template_placeholders_for_identity_and_user", () => {
+  it("ignores_template_placeholders_for_persona_and_user", () => {
     const files = createFiles();
-    files["IDENTITY.md"] = {
+    files["PERSONA.md"] = {
       exists: true,
       content:
-        "# IDENTITY.md - Who Am I?\n\n- **Name:** _(pick something you like)_\n- **Creature:** _(AI? robot? familiar? ghost in the machine? something weirder?)_\n- **Vibe:** _(how do you come across? sharp? warm? chaotic? calm?)_\n- **Emoji:** _(your signature — pick one that feels right)_\n- **Avatar:** _(workspace-relative path, http(s) URL, or data URI)_\n",
+        "# PERSONA.md\n\n- Name: (pick something you like)\n- Creature: (AI? robot? familiar? ghost in the machine? something weirder?)\n- Vibe: (how do you come across? sharp? warm? chaotic? calm?)\n- Emoji: (your signature — pick one that feels right)\n- Avatar: (workspace-relative path, http(s) URL, or data URI)\n",
     };
     files["USER.md"] = {
       exists: true,
       content:
-        "# USER.md - About Your Human\n\n- **Name:**\n- **What to call them:**\n- **Pronouns:** _(optional)_\n- **Timezone:**\n- **Notes:**\n\n## Context\n\n_(What do they care about? What projects are they working on? What annoys them? What makes them laugh? Build this over time.)_\n",
+        "# USER.md - About Your Human\n\n- Name:\n- What to call them:\n- Pronouns: (optional)\n- Timezone:\n- Notes:\n\n## Context\n\n(What do they care about? What projects are they working on? What annoys them? What makes them laugh? Build this over time.)\n",
     };
 
     const draft = parsePersonalityFiles(files);
 
-    expect(draft.identity).toEqual({
-      name: "",
-      creature: "",
-      vibe: "",
-      emoji: "",
-      avatar: "",
-    });
-    expect(draft.user).toEqual({
-      name: "",
-      callThem: "",
-      pronouns: "",
-      timezone: "",
-      notes: "",
-      context: "",
-    });
+    expect(draft.persona.name).toBe("");
+    expect(draft.persona.creature).toBe("");
+    expect(draft.persona.vibe).toBe("");
+    expect(draft.persona.emoji).toBe("");
+    expect(draft.persona.avatar).toBe("");
+    expect(draft.user.name).toBe("");
+    expect(draft.user.callThem).toBe("");
+    expect(draft.user.pronouns).toBe("");
+    expect(draft.user.timezone).toBe("");
+    expect(draft.user.notes).toBe("");
+    expect(draft.user.context).toBe("");
   });
 
-  it("serializePersonalityFiles_emits_stable_markdown_for_identity_user_soul", () => {
+  it("serializePersonalityFiles_emits_stable_markdown_for_persona_directives_user", () => {
     const draft: PersonalityBuilderDraft = {
-      identity: {
+      persona: {
         name: "Nova",
         creature: "fox spirit",
         vibe: "calm + direct",
         emoji: "🦊",
         avatar: "avatars/nova.png",
+        coreTruths: "Be direct.\nAvoid filler.",
+        boundaries: "- Keep user data private.",
+        continuity: "Update files when behavior changes.",
+        traits: {
+          formality: 70,
+          verbosity: 50,
+          creativity: 60,
+          proactivity: 40,
+          warmth: 80,
+        },
+      },
+      directives: {
+        mission: "Top-level mission.",
+        rules: "Operating rules.",
+        priorities: "Priority guidelines.",
+        outputFormat: "Output format specs.",
+        toolNotes: "Tool conventions.",
       },
       user: {
         name: "George",
@@ -111,34 +128,29 @@ describe("personalityBuilder", () => {
         pronouns: "he/him",
         timezone: "America/Chicago",
         notes: "Building OpenClaw Studio.",
-        context: "Wants concise technical answers.\nPrefers implementation over discussion.",
+        context:
+          "Wants concise technical answers.\nPrefers implementation over discussion.",
       },
-      soul: {
-        coreTruths: "Be direct.\nAvoid filler.",
-        boundaries: "- Keep user data private.",
-        vibe: "Pragmatic and calm.",
-        continuity: "Update files when behavior changes.",
-      },
-      agents: "Top-level operating rules.",
-      tools: "Tool conventions.",
       heartbeat: "Heartbeat notes.",
       memory: "Durable memory.",
     };
 
     const files = serializePersonalityFiles(draft);
 
-    expect(files["IDENTITY.md"]).toBe(
-      [
-        "# IDENTITY.md - Who Am I?",
-        "",
-        "- Name: Nova",
-        "- Creature: fox spirit",
-        "- Vibe: calm + direct",
-        "- Emoji: 🦊",
-        "- Avatar: avatars/nova.png",
-        "",
-      ].join("\n")
-    );
+    expect(files["PERSONA.md"]).toContain("# PERSONA.md");
+    expect(files["PERSONA.md"]).toContain("- Name: Nova");
+    expect(files["PERSONA.md"]).toContain("- Creature: fox spirit");
+    expect(files["PERSONA.md"]).toContain("## Core Truths");
+    expect(files["PERSONA.md"]).toContain("Be direct.");
+    expect(files["PERSONA.md"]).toContain("## Boundaries");
+    expect(files["PERSONA.md"]).toContain("## Continuity");
+
+    expect(files["DIRECTIVES.md"]).toContain("# DIRECTIVES.md");
+    expect(files["DIRECTIVES.md"]).toContain("## Mission");
+    expect(files["DIRECTIVES.md"]).toContain("## Rules");
+    expect(files["DIRECTIVES.md"]).toContain("## Priorities");
+    expect(files["DIRECTIVES.md"]).toContain("## Output Format");
+    expect(files["DIRECTIVES.md"]).toContain("## Tool Notes");
 
     expect(files["USER.md"]).toBe(
       [
@@ -155,35 +167,9 @@ describe("personalityBuilder", () => {
         "Wants concise technical answers.",
         "Prefers implementation over discussion.",
         "",
-      ].join("\n")
+      ].join("\n"),
     );
 
-    expect(files["SOUL.md"]).toBe(
-      [
-        "# SOUL.md - Who You Are",
-        "",
-        "## Core Truths",
-        "",
-        "Be direct.",
-        "Avoid filler.",
-        "",
-        "## Boundaries",
-        "",
-        "- Keep user data private.",
-        "",
-        "## Vibe",
-        "",
-        "Pragmatic and calm.",
-        "",
-        "## Continuity",
-        "",
-        "Update files when behavior changes.",
-        "",
-      ].join("\n")
-    );
-
-    expect(files["AGENTS.md"]).toBe("Top-level operating rules.");
-    expect(files["TOOLS.md"]).toBe("Tool conventions.");
     expect(files["HEARTBEAT.md"]).toBe("Heartbeat notes.");
     expect(files["MEMORY.md"]).toBe("Durable memory.");
   });

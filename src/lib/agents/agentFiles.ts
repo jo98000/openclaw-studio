@@ -1,9 +1,12 @@
+// ---------------------------------------------------------------------------
+// Agent file names — new 5-file format (PERSONA.md, DIRECTIVES.md, USER.md,
+// HEARTBEAT.md, MEMORY.md). Replaces the former 7-file layout.
+// ---------------------------------------------------------------------------
+
 export const AGENT_FILE_NAMES = [
-  "AGENTS.md",
-  "SOUL.md",
-  "IDENTITY.md",
+  "PERSONA.md",
+  "DIRECTIVES.md",
   "USER.md",
-  "TOOLS.md",
   "HEARTBEAT.md",
   "MEMORY.md",
 ] as const;
@@ -11,44 +14,37 @@ export const AGENT_FILE_NAMES = [
 export type AgentFileName = (typeof AGENT_FILE_NAMES)[number];
 
 export const PERSONALITY_FILE_NAMES = [
-  "SOUL.md",
-  "AGENTS.md",
+  "PERSONA.md",
+  "DIRECTIVES.md",
   "USER.md",
-  "IDENTITY.md",
 ] as const satisfies readonly AgentFileName[];
 
 export type PersonalityFileName = (typeof PERSONALITY_FILE_NAMES)[number];
 
 export const PERSONALITY_FILE_LABELS: Record<PersonalityFileName, string> = {
-  "SOUL.md": "Persona",
-  "AGENTS.md": "Directives",
+  "PERSONA.md": "Persona",
+  "DIRECTIVES.md": "Directives",
   "USER.md": "Context",
-  "IDENTITY.md": "Identity",
 };
 
 export const isAgentFileName = (value: string): value is AgentFileName =>
   AGENT_FILE_NAMES.includes(value as AgentFileName);
 
-export const AGENT_FILE_META: Record<AgentFileName, { title: string; hint: string }> = {
-  "AGENTS.md": {
-    title: "AGENTS.md",
-    hint: "Operating instructions, priorities, and rules.",
+export const AGENT_FILE_META: Record<
+  AgentFileName,
+  { title: string; hint: string }
+> = {
+  "PERSONA.md": {
+    title: "PERSONA.md",
+    hint: "Identity, personality, tone, and boundaries.",
   },
-  "SOUL.md": {
-    title: "SOUL.md",
-    hint: "Persona, tone, and boundaries.",
-  },
-  "IDENTITY.md": {
-    title: "IDENTITY.md",
-    hint: "Name, vibe, and emoji.",
+  "DIRECTIVES.md": {
+    title: "DIRECTIVES.md",
+    hint: "Operating instructions, priorities, rules, and tool conventions.",
   },
   "USER.md": {
     title: "USER.md",
     hint: "User profile and preferences.",
-  },
-  "TOOLS.md": {
-    title: "TOOLS.md",
-    hint: "Local tool notes and conventions.",
   },
   "HEARTBEAT.md": {
     title: "HEARTBEAT.md",
@@ -61,16 +57,37 @@ export const AGENT_FILE_META: Record<AgentFileName, { title: string; hint: strin
 };
 
 export const AGENT_FILE_PLACEHOLDERS: Record<AgentFileName, string> = {
-  "AGENTS.md": "How should this agent work? Priorities, rules, and habits.",
-  "SOUL.md": "Tone, personality, boundaries, and how it should sound.",
-  "IDENTITY.md": "Name, vibe, emoji, and a one-line identity.",
+  "PERSONA.md":
+    "Name, creature, vibe, personality traits, core truths, and boundaries.",
+  "DIRECTIVES.md":
+    "Mission, operating rules, priorities, output format, and tool notes.",
   "USER.md": "How should it address you? Preferences and context.",
-  "TOOLS.md": "Local tool notes, conventions, and shortcuts.",
   "HEARTBEAT.md": "A tiny checklist for periodic runs.",
   "MEMORY.md": "Durable facts, decisions, and preferences to remember.",
 };
 
 export const createAgentFilesState = () =>
   Object.fromEntries(
-    AGENT_FILE_NAMES.map((name) => [name, { content: "", exists: false }])
+    AGENT_FILE_NAMES.map((name) => [name, { content: "", exists: false }]),
   ) as Record<AgentFileName, { content: string; exists: boolean }>;
+
+// ---------------------------------------------------------------------------
+// Legacy file names (7-file format) — kept for migration detection.
+// ---------------------------------------------------------------------------
+
+export const LEGACY_FILE_NAMES = [
+  "AGENTS.md",
+  "SOUL.md",
+  "IDENTITY.md",
+  "USER.md",
+  "TOOLS.md",
+  "HEARTBEAT.md",
+  "MEMORY.md",
+] as const;
+
+export type LegacyAgentFileName = (typeof LEGACY_FILE_NAMES)[number];
+
+export const isLegacyAgentFileName = (
+  value: string,
+): value is LegacyAgentFileName =>
+  LEGACY_FILE_NAMES.includes(value as LegacyAgentFileName);

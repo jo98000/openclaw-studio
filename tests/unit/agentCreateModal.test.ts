@@ -25,8 +25,19 @@ const openModal = (overrides?: {
   return { onClose, onSubmit };
 };
 
-/** Navigate from step 0 (Identity) to step 2 (Capabilities) by clicking Next twice. */
+/** Select "blank" mode on step 0 and advance to step 1 (Identity). */
+const selectBlankModeAndProceed = () => {
+  // Step 0: select a creation mode (blank canvas)
+  fireEvent.click(screen.getByText("Blank canvas"));
+  // Advance to step 1 (Identity)
+  fireEvent.click(screen.getByRole("button", { name: /Next/i }));
+};
+
+/** Navigate from step 0 (Mode) to step 4 (Capabilities) by selecting mode then clicking Next. */
 const goToLastStep = () => {
+  selectBlankModeAndProceed();
+  // Step 1 (Identity) → Step 2 (Persona) → Step 3 (Model) → Step 4 (Capabilities)
+  fireEvent.click(screen.getByRole("button", { name: /Next/i }));
   fireEvent.click(screen.getByRole("button", { name: /Next/i }));
   fireEvent.click(screen.getByRole("button", { name: /Next/i }));
 };
@@ -40,10 +51,14 @@ describe("AgentCreateModal", () => {
     const onSubmit = vi.fn();
     openModal({ onSubmit });
 
+    selectBlankModeAndProceed();
     fireEvent.change(screen.getByLabelText("Name"), {
       target: { value: "Execution Operator" },
     });
-    goToLastStep();
+    // Navigate Identity → Persona → Model → Capabilities
+    fireEvent.click(screen.getByRole("button", { name: /Next/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Next/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Next/i }));
     fireEvent.click(screen.getByRole("button", { name: "Launch agent" }));
 
     expect(onSubmit).toHaveBeenCalledWith(
@@ -58,13 +73,15 @@ describe("AgentCreateModal", () => {
     const onSubmit = vi.fn();
     openModal({ onSubmit });
 
+    selectBlankModeAndProceed();
     const nameInput = screen.getByLabelText("Name");
     fireEvent.change(nameInput, {
       target: { value: "Keyboard Agent" },
     });
-    // Enter on name input advances to step 2 (Model)
+    // Enter on name input advances to step 2 (Persona)
     fireEvent.keyDown(nameInput, { key: "Enter" });
-    // Click Next to advance to step 3 (Capabilities)
+    // Click Next twice to go through Persona → Model → Capabilities
+    fireEvent.click(screen.getByRole("button", { name: /Next/i }));
     fireEvent.click(screen.getByRole("button", { name: /Next/i }));
     // Click Launch to submit
     fireEvent.click(screen.getByRole("button", { name: "Launch agent" }));
@@ -76,17 +93,15 @@ describe("AgentCreateModal", () => {
     );
   });
 
-  it("renders 3-step wizard starting on Identity step", () => {
+  it("renders 5-step wizard starting on Mode step", () => {
     openModal();
 
     // Step 0 has Next button, not Launch agent
     expect(screen.getByRole("button", { name: /Next/i })).toBeInTheDocument();
-    expect(screen.getByLabelText("Name")).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: "Shuffle avatar selection" }),
-    ).toBeInTheDocument();
-    // Step indicator shows Identity, AI & Model, Capabilities
+    // Step indicator shows all 5 steps
+    expect(screen.getByText("Mode")).toBeInTheDocument();
     expect(screen.getByText("Identity")).toBeInTheDocument();
+    expect(screen.getByText("Persona")).toBeInTheDocument();
     expect(screen.getByText("AI & Model")).toBeInTheDocument();
     expect(screen.getByText("Capabilities")).toBeInTheDocument();
     // Launch agent only appears on the last step
@@ -95,14 +110,10 @@ describe("AgentCreateModal", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("disables launch when the name is blank", () => {
-    const onSubmit = vi.fn();
-    openModal({ onSubmit });
+  it("disables Next when no mode is selected on step 0", () => {
+    openModal();
 
-    fireEvent.change(screen.getByLabelText("Name"), {
-      target: { value: "   " },
-    });
-    // Next button should be disabled when name is blank
+    // Next button should be disabled when no mode is selected
     const nextButton = screen.getByRole("button", { name: /Next/i });
     expect(nextButton).toBeDisabled();
   });
@@ -138,6 +149,9 @@ describe("AgentCreateModal", () => {
         }),
       ),
     );
+
+    // Go to step 1 (Identity) first to see the name field
+    selectBlankModeAndProceed();
 
     fireEvent.change(screen.getByLabelText("Name"), {
       target: { value: "My Draft Name" },
