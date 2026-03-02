@@ -1,13 +1,21 @@
 import { useTranslations } from "next-intl";
 import { Check, KeyRound, Settings, Shield, Globe } from "lucide-react";
 import type { ProviderWithStatus } from "../types";
+import { ServiceLogo } from "@/components/ServiceLogo";
+
+type HealthStatus = "idle" | "testing" | "healthy" | "unhealthy";
 
 type ProviderCardProps = {
   provider: ProviderWithStatus;
   onConfigure: (providerId: string) => void;
+  healthStatus?: HealthStatus;
 };
 
-export const ProviderCard = ({ provider, onConfigure }: ProviderCardProps) => {
+export const ProviderCard = ({
+  provider,
+  onConfigure,
+  healthStatus = "idle",
+}: ProviderCardProps) => {
   const t = useTranslations("providers");
   const tc = useTranslations("common");
   const isConfigured = provider.status === "configured";
@@ -26,13 +34,12 @@ export const ProviderCard = ({ provider, onConfigure }: ProviderCardProps) => {
     >
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-2.5">
-          <div
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-xs font-bold text-white"
-            style={{ backgroundColor: provider.iconColor }}
-            aria-hidden="true"
-          >
-            {provider.name.slice(0, 2).toUpperCase()}
-          </div>
+          <ServiceLogo
+            serviceId={provider.id}
+            name={provider.name}
+            fallbackColor={provider.iconColor}
+            size={32}
+          />
           <div>
             <div className="flex items-center gap-1.5">
               <h3 className="text-sm font-semibold text-foreground">
@@ -51,10 +58,28 @@ export const ProviderCard = ({ provider, onConfigure }: ProviderCardProps) => {
           </div>
         </div>
         {isConfigured ? (
-          <span className="flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
-            <Check className="h-3 w-3" aria-hidden="true" />
-            {t("active")}
-          </span>
+          <div className="flex items-center gap-1.5">
+            {healthStatus === "testing" ? (
+              <span
+                className="h-2 w-2 animate-pulse rounded-full bg-yellow-400"
+                title="Testing..."
+              />
+            ) : healthStatus === "healthy" ? (
+              <span
+                className="h-2 w-2 rounded-full bg-green-500"
+                title="Healthy"
+              />
+            ) : healthStatus === "unhealthy" ? (
+              <span
+                className="h-2 w-2 rounded-full bg-red-500"
+                title="Unhealthy"
+              />
+            ) : null}
+            <span className="flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
+              <Check className="h-3 w-3" aria-hidden="true" />
+              {t("active")}
+            </span>
+          </div>
         ) : null}
       </div>
 

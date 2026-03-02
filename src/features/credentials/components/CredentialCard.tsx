@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { Settings, Trash2, KeyRound } from "lucide-react";
 import type { CredentialEntry } from "../types";
 import { getTemplateByServiceType } from "../credentialTemplates";
+import { ServiceLogo } from "@/components/ServiceLogo";
 
 type CredentialCardProps = {
   entry: CredentialEntry;
@@ -17,8 +18,11 @@ const maskValue = (value: string): string => {
   return `${value.slice(0, 4)}${"•".repeat(8)}`;
 };
 
-export const CredentialCard = ({ entry, onEdit, onDelete }: CredentialCardProps) => {
-  const t = useTranslations("credentials");
+export const CredentialCard = ({
+  entry,
+  onEdit,
+  onDelete,
+}: CredentialCardProps) => {
   const tc = useTranslations("common");
   const template = getTemplateByServiceType(entry.serviceType);
   const iconColor = template?.iconColor ?? "#6B7280";
@@ -32,15 +36,16 @@ export const CredentialCard = ({ entry, onEdit, onDelete }: CredentialCardProps)
     >
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-2.5">
-          <div
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-xs font-bold text-white"
-            style={{ backgroundColor: iconColor }}
-            aria-hidden="true"
-          >
-            {serviceName.slice(0, 2).toUpperCase()}
-          </div>
+          <ServiceLogo
+            serviceId={entry.serviceType}
+            name={serviceName}
+            fallbackColor={iconColor}
+            size={32}
+          />
           <div>
-            <h3 className="text-sm font-semibold text-foreground">{entry.label}</h3>
+            <h3 className="text-sm font-semibold text-foreground">
+              {entry.label}
+            </h3>
             <p className="text-[11px] text-muted-foreground">{serviceName}</p>
           </div>
         </div>

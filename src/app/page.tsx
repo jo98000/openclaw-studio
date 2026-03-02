@@ -1984,6 +1984,7 @@ const AgentStudioPage = () => {
                         <div className="mx-auto w-full max-w-[920px]">
                           <AgentSettingsPanel
                             key={`${inspectSidebarAgent.agentId}:${effectiveSettingsTab}`}
+                            gatewayClient={client}
                             mode={
                               effectiveSettingsTab === "automations"
                                 ? "automations"

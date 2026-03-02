@@ -2,13 +2,15 @@
 
 import { useState, useCallback, useMemo } from "react";
 import { useTranslations } from "next-intl";
-import { Layers, Search, Check } from "lucide-react";
+import { Layers, Search, Check, Upload, Loader2, Activity } from "lucide-react";
 import { toast } from "sonner";
 import type { ProviderId, ProviderConfig } from "../types";
 import { PROVIDER_REGISTRY } from "../providerRegistry";
 import { useProviderStore } from "../providerStore";
+import type { EnvImportResult } from "@/features/credentials/envImportApi";
 import { ProviderCard } from "./ProviderCard";
 import { ApiKeyModal } from "./ApiKeyModal";
+import { EnvImportModal } from "./EnvImportModal";
 
 type ProviderCategory =
   | "all"
@@ -57,6 +59,11 @@ export const ProvidersPanel = () => {
   );
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState<ProviderCategory>("all");
+  const [showEnvImport, setShowEnvImport] = useState(false);
+  const [healthMap, setHealthMap] = useState<
+    Record<string, "idle" | "testing" | "healthy" | "unhealthy">
+  >({});
+  const [testingAll, setTestingAll] = useState(false);
 
   const allProviders = useMemo(
     () => getProvidersWithStatus(),
@@ -116,6 +123,73 @@ export const ProvidersPanel = () => {
     toast.success("Provider removed");
   }, [editingProviderId, removeProvider]);
 
+  const handleEnvImportProviders = useCallback(
+    (providers: EnvImportResult["providers"]) => {
+      let imported = 0;
+      for (const p of providers) {
+        const reg = PROVIDER_REGISTRY.find((r) => r.id === p.serviceType);
+        if (!reg) continue;
+        saveProvider({
+          id: p.serviceType as ProviderId,
+          apiKey: p.apiKey,
+          authType: "apiKey",
+          enabled: true,
+        });
+        imported++;
+      }
+      if (imported > 0) {
+        toast.success(`${imported} provider(s) imported from .env`);
+      }
+    },
+    [saveProvider],
+  );
+
+  const handleTestAll = useCallback(async () => {
+    const configured = configuredProviders.filter((p) => p.config);
+    if (configured.length === 0) return;
+
+    setTestingAll(true);
+    const initial: Record<string, "testing"> = {};
+    for (const p of configured) initial[p.id] = "testing";
+    setHealthMap(initial);
+
+    try {
+      const body = configured.map((p) => ({
+        providerId: p.id,
+        apiKey: p.config?.apiKey,
+        accessToken: p.config?.accessToken,
+        baseUrl: p.config?.baseUrl,
+      }));
+      const res = await fetch("/api/providers/validate-batch", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ providers: body }),
+      });
+      const data = (await res.json()) as {
+        results: Array<{
+          providerId: string;
+          valid: boolean;
+          error?: string | null;
+        }>;
+      };
+      const next: Record<string, "healthy" | "unhealthy"> = {};
+      let healthy = 0;
+      for (const r of data.results) {
+        next[r.providerId] = r.valid ? "healthy" : "unhealthy";
+        if (r.valid) healthy++;
+      }
+      setHealthMap(next);
+      toast.success(`${healthy}/${data.results.length} providers healthy`);
+    } catch {
+      const fail: Record<string, "unhealthy"> = {};
+      for (const p of configured) fail[p.id] = "unhealthy";
+      setHealthMap(fail);
+      toast.error("Batch validation failed");
+    } finally {
+      setTestingAll(false);
+    }
+  }, [configuredProviders]);
+
   return (
     <div className="flex min-h-0 flex-1 flex-col" data-testid="providers-panel">
       <div className="flex items-center justify-between border-b border-border px-5 py-3">
@@ -127,6 +201,31 @@ export const ProvidersPanel = () => {
           <span className="rounded-full bg-surface-2 px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
             {configuredProviders.length}/{allProviders.length}
           </span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          {configuredProviders.length > 0 ? (
+            <button
+              type="button"
+              className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-[11px] font-medium text-foreground transition-colors hover:bg-surface-2 disabled:opacity-50"
+              onClick={handleTestAll}
+              disabled={testingAll}
+            >
+              {testingAll ? (
+                <Loader2 className="h-3 w-3 animate-spin" aria-hidden="true" />
+              ) : (
+                <Activity className="h-3 w-3" aria-hidden="true" />
+              )}
+              {testingAll ? t("testingAll") : t("testAll")}
+            </button>
+          ) : null}
+          <button
+            type="button"
+            className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-[11px] font-medium text-foreground transition-colors hover:bg-surface-2"
+            onClick={() => setShowEnvImport(true)}
+          >
+            <Upload className="h-3 w-3" aria-hidden="true" />
+            {t("importEnv")}
+          </button>
         </div>
       </div>
 
@@ -162,6 +261,7 @@ export const ProvidersPanel = () => {
                   key={provider.id}
                   provider={provider}
                   onConfigure={(id) => setEditingProviderId(id as ProviderId)}
+                  healthStatus={healthMap[provider.id] ?? "idle"}
                 />
               ))}
             </div>
@@ -223,6 +323,13 @@ export const ProvidersPanel = () => {
           onSave={handleSave}
           onRemove={configs[editingProviderId!] ? handleRemove : undefined}
           onClose={() => setEditingProviderId(null)}
+        />
+      ) : null}
+
+      {showEnvImport ? (
+        <EnvImportModal
+          onImportProviders={handleEnvImportProviders}
+          onClose={() => setShowEnvImport(false)}
         />
       ) : null}
     </div>

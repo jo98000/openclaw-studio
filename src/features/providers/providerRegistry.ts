@@ -9,6 +9,12 @@ export const PROVIDER_REGISTRY: ProviderDefinition[] = [
     iconColor: "#D97757",
     supportsCustomEndpoint: false,
     supportsAccessToken: false,
+    signupUrl: "https://console.anthropic.com",
+    guideSteps: [
+      "Go to console.anthropic.com and create an account",
+      "Go to API Keys and click 'Create Key'",
+      "Copy the generated API key (sk-ant-...)",
+    ],
     models: [
       {
         id: "claude-opus-4-6-20260301",
@@ -60,6 +66,12 @@ export const PROVIDER_REGISTRY: ProviderDefinition[] = [
     iconColor: "#10A37F",
     supportsCustomEndpoint: true,
     supportsAccessToken: true,
+    signupUrl: "https://platform.openai.com/api-keys",
+    guideSteps: [
+      "Go to platform.openai.com/api-keys",
+      "Click 'Create new secret key'",
+      "Copy the generated key (sk-...)",
+    ],
     models: [
       {
         id: "gpt-4.1",
@@ -111,6 +123,12 @@ export const PROVIDER_REGISTRY: ProviderDefinition[] = [
     iconColor: "#20808D",
     supportsCustomEndpoint: false,
     supportsAccessToken: false,
+    signupUrl: "https://www.perplexity.ai/settings/api",
+    guideSteps: [
+      "Go to perplexity.ai/settings/api",
+      "Generate a new API key",
+      "Copy the key (pplx-...)",
+    ],
     models: [
       {
         id: "sonar-pro",
@@ -138,6 +156,12 @@ export const PROVIDER_REGISTRY: ProviderDefinition[] = [
     iconColor: "#4285F4",
     supportsCustomEndpoint: false,
     supportsAccessToken: true,
+    signupUrl: "https://aistudio.google.com/app/apikey",
+    guideSteps: [
+      "Go to aistudio.google.com/app/apikey",
+      "Click 'Create API key'",
+      "Copy the generated key",
+    ],
     models: [
       {
         id: "gemini-2.5-pro",
@@ -173,6 +197,12 @@ export const PROVIDER_REGISTRY: ProviderDefinition[] = [
     iconColor: "#FF7000",
     supportsCustomEndpoint: false,
     supportsAccessToken: false,
+    signupUrl: "https://console.mistral.ai/api-keys",
+    guideSteps: [
+      "Go to console.mistral.ai/api-keys",
+      "Click 'Create new key'",
+      "Copy the generated API key",
+    ],
     models: [
       {
         id: "mistral-large-latest",
@@ -216,6 +246,12 @@ export const PROVIDER_REGISTRY: ProviderDefinition[] = [
     iconColor: "#F55036",
     supportsCustomEndpoint: false,
     supportsAccessToken: false,
+    signupUrl: "https://console.groq.com/keys",
+    guideSteps: [
+      "Go to console.groq.com/keys",
+      "Click 'Create API Key'",
+      "Copy the generated key (gsk_...)",
+    ],
     models: [
       {
         id: "llama-3.3-70b-versatile",
@@ -251,6 +287,12 @@ export const PROVIDER_REGISTRY: ProviderDefinition[] = [
     iconColor: "#6366F1",
     supportsCustomEndpoint: false,
     supportsAccessToken: true,
+    signupUrl: "https://openrouter.ai/keys",
+    guideSteps: [
+      "Go to openrouter.ai/keys",
+      "Click 'Create Key'",
+      "Copy the generated API key (sk-or-...)",
+    ],
     models: [
       {
         id: "openrouter/auto",
@@ -270,6 +312,12 @@ export const PROVIDER_REGISTRY: ProviderDefinition[] = [
     iconColor: "#1A1A1A",
     supportsCustomEndpoint: true,
     supportsAccessToken: false,
+    signupUrl: "https://ollama.com/download",
+    guideSteps: [
+      "Download and install Ollama from ollama.com/download",
+      "Run 'ollama pull llama3.3' in your terminal",
+      "Ollama serves at http://localhost:11434 by default",
+    ],
     models: [
       {
         id: "llama3.3",
@@ -305,6 +353,12 @@ export const PROVIDER_REGISTRY: ProviderDefinition[] = [
     iconColor: "#4D6BFE",
     supportsCustomEndpoint: false,
     supportsAccessToken: false,
+    signupUrl: "https://platform.deepseek.com/api_keys",
+    guideSteps: [
+      "Go to platform.deepseek.com/api_keys",
+      "Create a new API key",
+      "Copy the generated key",
+    ],
     models: [
       {
         id: "deepseek-chat",
@@ -332,6 +386,12 @@ export const PROVIDER_REGISTRY: ProviderDefinition[] = [
     iconColor: "#0EA5E9",
     supportsCustomEndpoint: false,
     supportsAccessToken: false,
+    signupUrl: "https://api.together.ai/settings/api-keys",
+    guideSteps: [
+      "Go to api.together.ai/settings/api-keys",
+      "Create a new API key",
+      "Copy the generated key",
+    ],
     models: [
       {
         id: "meta-llama/Llama-3.3-70B-Instruct-Turbo",
@@ -359,6 +419,12 @@ export const PROVIDER_REGISTRY: ProviderDefinition[] = [
     iconColor: "#FF6B2B",
     supportsCustomEndpoint: false,
     supportsAccessToken: false,
+    signupUrl: "https://fireworks.ai/account/api-keys",
+    guideSteps: [
+      "Go to fireworks.ai/account/api-keys",
+      "Create a new API key",
+      "Copy the generated key",
+    ],
     models: [
       {
         id: "accounts/fireworks/models/llama-v3p3-70b-instruct",
@@ -378,6 +444,12 @@ export const PROVIDER_REGISTRY: ProviderDefinition[] = [
     iconColor: "#39594D",
     supportsCustomEndpoint: false,
     supportsAccessToken: false,
+    signupUrl: "https://dashboard.cohere.com/api-keys",
+    guideSteps: [
+      "Go to dashboard.cohere.com/api-keys",
+      "Create a new API key (trial or production)",
+      "Copy the generated key",
+    ],
     models: [
       {
         id: "command-r-plus",
@@ -405,6 +477,12 @@ export const PROVIDER_REGISTRY: ProviderDefinition[] = [
     iconColor: "#FF9900",
     supportsCustomEndpoint: true,
     supportsAccessToken: true,
+    signupUrl: "https://console.aws.amazon.com/bedrock",
+    guideSteps: [
+      "Go to AWS Console > Amazon Bedrock",
+      "Enable model access for the models you want",
+      "Use your AWS access key or set up cross-account access",
+    ],
     models: [
       {
         id: "anthropic.claude-sonnet-4-5-20250414-v1:0",
@@ -432,6 +510,12 @@ export const PROVIDER_REGISTRY: ProviderDefinition[] = [
     iconColor: "#0078D4",
     supportsCustomEndpoint: true,
     supportsAccessToken: true,
+    signupUrl: "https://portal.azure.com",
+    guideSteps: [
+      "Go to Azure Portal > Create a resource > Azure OpenAI",
+      "Deploy the models you need",
+      "Go to Keys and Endpoint to get your API key and endpoint URL",
+    ],
     models: [
       {
         id: "gpt-4o",
@@ -451,6 +535,12 @@ export const PROVIDER_REGISTRY: ProviderDefinition[] = [
     iconColor: "#F48120",
     supportsCustomEndpoint: true,
     supportsAccessToken: true,
+    signupUrl: "https://dash.cloudflare.com",
+    guideSteps: [
+      "Go to Cloudflare Dashboard > Workers & Pages > Workers AI",
+      "Create an API token with Workers AI permissions",
+      "Enter your Account ID as the base URL parameter",
+    ],
     models: [
       {
         id: "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
@@ -470,6 +560,12 @@ export const PROVIDER_REGISTRY: ProviderDefinition[] = [
     iconColor: "#76B900",
     supportsCustomEndpoint: true,
     supportsAccessToken: false,
+    signupUrl: "https://build.nvidia.com",
+    guideSteps: [
+      "Go to build.nvidia.com",
+      "Create an NVIDIA account and get an API key",
+      "Select the model and endpoint to use",
+    ],
     models: [
       {
         id: "meta/llama-3.1-405b-instruct",
@@ -489,6 +585,12 @@ export const PROVIDER_REGISTRY: ProviderDefinition[] = [
     iconColor: "#FFD21E",
     supportsCustomEndpoint: true,
     supportsAccessToken: true,
+    signupUrl: "https://huggingface.co/settings/tokens",
+    guideSteps: [
+      "Go to huggingface.co/settings/tokens",
+      "Create a new access token with 'read' permissions",
+      "Copy the generated token (hf_...)",
+    ],
     models: [
       {
         id: "meta-llama/Llama-3.3-70B-Instruct",
@@ -508,6 +610,12 @@ export const PROVIDER_REGISTRY: ProviderDefinition[] = [
     iconColor: "#000000",
     supportsCustomEndpoint: false,
     supportsAccessToken: false,
+    signupUrl: "https://console.x.ai",
+    guideSteps: [
+      "Go to console.x.ai",
+      "Create an account and generate an API key",
+      "Copy the generated key",
+    ],
     models: [
       {
         id: "grok-3",

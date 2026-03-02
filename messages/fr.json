@@ -101,7 +101,22 @@
     "connectionValid": "Connexion réussie",
     "connectionFailed": "Connexion échouée : {error}",
     "showSecret": "Afficher le secret",
-    "hideSecret": "Masquer le secret"
+    "hideSecret": "Masquer le secret",
+    "setupGuide": "Guide de configuration",
+    "getApiKey": "Obtenir la clé API",
+    "importEnv": "Importer depuis .env",
+    "envImportTitle": "Importer depuis .env",
+    "envImportDescription": "Collez le contenu de votre fichier .env ou importez un fichier pour détecter automatiquement les clés API et identifiants.",
+    "envImportUpload": "Importer un fichier .env",
+    "envImportPlaceholder": "OPENAI_API_KEY=sk-...\nANTHROPIC_API_KEY=sk-ant-...",
+    "envImportScan": "Scanner les clés",
+    "envImportProviders": "Fournisseurs",
+    "envImportCredentials": "Identifiants",
+    "envImportNoResults": "Aucune clé API ou identifiant reconnu dans ce contenu.",
+    "envImportUnmatched": "Clés non reconnues",
+    "envImportButton": "Importer la sélection",
+    "testAll": "Tout tester",
+    "testingAll": "Test en cours..."
   },
   "credentials": {
     "title": "Identifiants",
@@ -119,7 +134,17 @@
     "addField": "Ajouter un champ",
     "removeField": "Retirer",
     "showValue": "Afficher la valeur",
-    "hideValue": "Masquer la valeur"
+    "hideValue": "Masquer la valeur",
+    "setupGuide": "Guide de configuration",
+    "signUp": "S'inscrire",
+    "getApiKey": "Obtenir la clé API",
+    "importFromCli": "Détecter depuis les CLI",
+    "importFromEnv": "Importer depuis .env",
+    "cliDetecting": "Détection...",
+    "cliDetected": "{count} identifiant(s) détecté(s)",
+    "cliNoneDetected": "Aucun identifiant CLI détecté sur ce système.",
+    "cliImportFrom": "depuis {source}",
+    "cliImportButton": "Importer"
   },
   "channels": {
     "title": "Canaux",
@@ -129,7 +154,10 @@
     "close": "Fermer",
     "cancel": "Annuler",
     "save": "Enregistrer",
-    "remove": "Retirer"
+    "remove": "Retirer",
+    "setupGuide": "Guide de configuration",
+    "signUp": "S'inscrire",
+    "getCredentials": "Obtenir les identifiants"
   },
   "routing": {
     "title": "Routage",

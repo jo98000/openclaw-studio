@@ -46,4 +46,8 @@ export type CredentialTemplate = {
   description: string;
   iconColor: string;
   defaultFields: Omit<CredentialField, "value">[];
+  signupUrl?: string;
+  getKeyUrl?: string;
+  guideSteps?: string[];
+  mcpServerHint?: string;
 };

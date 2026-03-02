@@ -1,6 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { useTranslations } from "next-intl";
 import {
   AlertTriangle,
@@ -17,12 +24,22 @@ import {
 
 import type { AgentState } from "@/features/agents/state/store";
 import { AgentCredentialsPanel } from "@/features/credentials/components/AgentCredentialsPanel";
-import type { CronCreateDraft, CronCreateTemplateId } from "@/lib/cron/createPayloadBuilder";
-import { formatCronPayload, formatCronSchedule, type CronJobSummary } from "@/lib/cron/types";
+import type {
+  CronCreateDraft,
+  CronCreateTemplateId,
+} from "@/lib/cron/createPayloadBuilder";
+import {
+  formatCronPayload,
+  formatCronSchedule,
+  type CronJobSummary,
+} from "@/lib/cron/types";
 import type { GatewayClient } from "@/lib/gateway/GatewayClient";
 import type { SkillStatusReport } from "@/lib/skills/types";
 import type { GatewayModelChoice } from "@/lib/gateway/models";
-import { readGatewayAgentFile, writeGatewayAgentFile } from "@/lib/gateway/agentFiles";
+import {
+  readGatewayAgentFile,
+  writeGatewayAgentFile,
+} from "@/lib/gateway/agentFiles";
 import {
   resolveExecutionRoleFromAgent,
   resolvePresetDefaultsForRole,
@@ -36,7 +53,10 @@ import {
   createAgentFilesState,
   isAgentFileName,
 } from "@/lib/agents/agentFiles";
-import { parsePersonalityFiles, serializePersonalityFiles } from "@/lib/agents/personalityBuilder";
+import {
+  parsePersonalityFiles,
+  serializePersonalityFiles,
+} from "@/lib/agents/personalityBuilder";
 
 const AgentInspectHeader = ({
   label,
@@ -95,15 +115,24 @@ const AgentInspectHeader = ({
 
 type AgentSettingsPanelProps = {
   agent: AgentState;
-  mode?: "capabilities" | "skills" | "system" | "automations" | "credentials" | "advanced";
+  mode?:
+    | "capabilities"
+    | "skills"
+    | "system"
+    | "automations"
+    | "credentials"
+    | "advanced";
   showHeader?: boolean;
   onClose: () => void;
+  gatewayClient?: GatewayClient | null;
   models?: GatewayModelChoice[];
   onModelChange?: (value: string | null) => void;
   onThinkingChange?: (value: string | null) => void;
   onRename?: (name: string) => Promise<boolean> | boolean;
   permissionsDraft?: AgentPermissionsDraft;
-  onUpdateAgentPermissions?: (draft: AgentPermissionsDraft) => Promise<void> | void;
+  onUpdateAgentPermissions?: (
+    draft: AgentPermissionsDraft,
+  ) => Promise<void> | void;
   onDelete: () => void;
   canDelete?: boolean;
   onToolCallingToggle: (enabled: boolean) => void;
@@ -123,34 +152,69 @@ type AgentSettingsPanelProps = {
   skillsError?: string | null;
   skillsBusy?: boolean;
   skillsBusyKey?: string | null;
-  skillMessages?: Record<string, { kind: "success" | "error"; message: string }>;
+  skillMessages?: Record<
+    string,
+    { kind: "success" | "error"; message: string }
+  >;
   skillApiKeyDrafts?: Record<string, string>;
   defaultAgentScopeWarning?: string | null;
   systemInitialSkillKey?: string | null;
   onSystemInitialSkillHandled?: () => void;
   skillsAllowlist?: string[] | undefined;
-  onSetSkillEnabled?: (skillName: string, enabled: boolean) => Promise<void> | void;
-  onOpenSystemSetup?: (skillKey?: string) => void;
-  onSetSkillGlobalEnabled?: (skillKey: string, enabled: boolean) => Promise<void> | void;
-  onInstallSkill?: (skillKey: string, name: string, installId: string) => Promise<void> | void;
-  onRemoveSkill?: (
-    skill: { skillKey: string; source: string; baseDir: string }
+  onSetSkillEnabled?: (
+    skillName: string,
+    enabled: boolean,
   ) => Promise<void> | void;
-  onSkillApiKeyChange?: (skillKey: string, value: string) => Promise<void> | void;
+  onOpenSystemSetup?: (skillKey?: string) => void;
+  onSetSkillGlobalEnabled?: (
+    skillKey: string,
+    enabled: boolean,
+  ) => Promise<void> | void;
+  onInstallSkill?: (
+    skillKey: string,
+    name: string,
+    installId: string,
+  ) => Promise<void> | void;
+  onRemoveSkill?: (skill: {
+    skillKey: string;
+    source: string;
+    baseDir: string;
+  }) => Promise<void> | void;
+  onSkillApiKeyChange?: (
+    skillKey: string,
+    value: string,
+  ) => Promise<void> | void;
   onSaveSkillApiKey?: (skillKey: string) => Promise<void> | void;
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const formatCronStateLine = (job: CronJobSummary, t: (key: string, values?: any) => string): string | null => {
-  if (typeof job.state.runningAtMs === "number" && Number.isFinite(job.state.runningAtMs)) {
+const formatCronStateLine = (
+  job: CronJobSummary,
+  t: (key: string, values?: any) => string,
+): string | null => {
+  if (
+    typeof job.state.runningAtMs === "number" &&
+    Number.isFinite(job.state.runningAtMs)
+  ) {
     return t("runningNow");
   }
-  if (typeof job.state.nextRunAtMs === "number" && Number.isFinite(job.state.nextRunAtMs)) {
-    return t("nextRun", { date: new Date(job.state.nextRunAtMs).toLocaleString() });
+  if (
+    typeof job.state.nextRunAtMs === "number" &&
+    Number.isFinite(job.state.nextRunAtMs)
+  ) {
+    return t("nextRun", {
+      date: new Date(job.state.nextRunAtMs).toLocaleString(),
+    });
   }
-  if (typeof job.state.lastRunAtMs === "number" && Number.isFinite(job.state.lastRunAtMs)) {
+  if (
+    typeof job.state.lastRunAtMs === "number" &&
+    Number.isFinite(job.state.lastRunAtMs)
+  ) {
     const status = job.state.lastStatus ? `${job.state.lastStatus} ` : "";
-    return t("lastRun", { statusDate: `${status}${new Date(job.state.lastRunAtMs).toLocaleString()}`.trim() });
+    return t("lastRun", {
+      statusDate:
+        `${status}${new Date(job.state.lastRunAtMs).toLocaleString()}`.trim(),
+    });
   }
   return null;
 };
@@ -206,14 +270,18 @@ const CRON_TEMPLATE_OPTIONS: CronTemplateOption[] = [
   },
 ];
 
-const TIMED_AUTOMATION_STEP_META: Array<{ titleKey: string; indicatorKey: string }> = [
+const TIMED_AUTOMATION_STEP_META: Array<{
+  titleKey: string;
+  indicatorKey: string;
+}> = [
   { titleKey: "stepChooseType", indicatorKey: "stepIndicatorType" },
   { titleKey: "stepDefineFunction", indicatorKey: "stepIndicatorFunction" },
   { titleKey: "stepSetTiming", indicatorKey: "stepIndicatorTiming" },
   { titleKey: "stepReview", indicatorKey: "stepIndicatorReview" },
 ];
 
-const resolveLocalTimeZone = () => Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+const resolveLocalTimeZone = () =>
+  Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
 
 const createInitialCronDraft = (): CronCreateDraft => ({
   templateId: "morning-brief",
@@ -228,13 +296,21 @@ const createInitialCronDraft = (): CronCreateDraft => ({
   deliveryChannel: "last",
 });
 
-const arePermissionsDraftEqual = (a: AgentPermissionsDraft, b: AgentPermissionsDraft): boolean =>
+const arePermissionsDraftEqual = (
+  a: AgentPermissionsDraft,
+  b: AgentPermissionsDraft,
+): boolean =>
   a.commandMode === b.commandMode &&
   a.webAccess === b.webAccess &&
   a.fileTools === b.fileTools;
 
-const applyTemplateDefaults = (templateId: CronCreateTemplateId, current: CronCreateDraft, t: (key: string) => string): CronCreateDraft => {
-  const nextTimeZone = (current.everyTimeZone ?? "").trim() || resolveLocalTimeZone();
+const applyTemplateDefaults = (
+  templateId: CronCreateTemplateId,
+  current: CronCreateDraft,
+  t: (key: string) => string,
+): CronCreateDraft => {
+  const nextTimeZone =
+    (current.everyTimeZone ?? "").trim() || resolveLocalTimeZone();
   const base = {
     ...createInitialCronDraft(),
     deliveryMode: current.deliveryMode ?? "none",
@@ -306,6 +382,7 @@ export const AgentSettingsPanel = ({
   mode = "capabilities",
   showHeader = true,
   onClose,
+  gatewayClient = null,
   models = [],
   onModelChange,
   onThinkingChange,
@@ -347,7 +424,8 @@ export const AgentSettingsPanel = ({
 }: AgentSettingsPanelProps) => {
   const t = useTranslations("inspect");
   const initialPermissionsDraft =
-    permissionsDraft ?? resolvePresetDefaultsForRole(resolveExecutionRoleFromAgent(agent));
+    permissionsDraft ??
+    resolvePresetDefaultsForRole(resolveExecutionRoleFromAgent(agent));
   const [permissionsBaselineValue, setPermissionsBaselineValue] =
     useState<AgentPermissionsDraft>(initialPermissionsDraft);
   const [permissionsDraftValue, setPermissionsDraftValue] =
@@ -356,23 +434,37 @@ export const AgentSettingsPanel = ({
   const [permissionsSaveState, setPermissionsSaveState] = useState<
     "idle" | "saving" | "saved" | "error"
   >("idle");
-  const [permissionsSaveError, setPermissionsSaveError] = useState<string | null>(null);
+  const [permissionsSaveError, setPermissionsSaveError] = useState<
+    string | null
+  >(null);
   const permissionsSaveTimerRef = useRef<number | null>(null);
   const permissionsDraftAgentIdRef = useRef(agent.agentId);
-  const [expandedCronJobIds, setExpandedCronJobIds] = useState<Set<string>>(() => new Set());
+  const [expandedCronJobIds, setExpandedCronJobIds] = useState<Set<string>>(
+    () => new Set(),
+  );
   const [cronCreateOpen, setCronCreateOpen] = useState(false);
   const [cronCreateStep, setCronCreateStep] = useState(0);
   const [cronCreateError, setCronCreateError] = useState<string | null>(null);
-  const [cronDraft, setCronDraft] = useState<CronCreateDraft>(createInitialCronDraft);
+  const [cronDraft, setCronDraft] = useState<CronCreateDraft>(
+    createInitialCronDraft,
+  );
 
-  const resolvedExecutionRole = useMemo(() => resolveExecutionRoleFromAgent(agent), [agent]);
+  const resolvedExecutionRole = useMemo(
+    () => resolveExecutionRoleFromAgent(agent),
+    [agent],
+  );
   const resolvedPermissionsDraft = useMemo(
-    () => permissionsDraft ?? resolvePresetDefaultsForRole(resolvedExecutionRole),
-    [permissionsDraft, resolvedExecutionRole]
+    () =>
+      permissionsDraft ?? resolvePresetDefaultsForRole(resolvedExecutionRole),
+    [permissionsDraft, resolvedExecutionRole],
   );
   const permissionsDirty = useMemo(
-    () => !arePermissionsDraftEqual(permissionsDraftValue, permissionsBaselineValue),
-    [permissionsBaselineValue, permissionsDraftValue]
+    () =>
+      !arePermissionsDraftEqual(
+        permissionsDraftValue,
+        permissionsBaselineValue,
+      ),
+    [permissionsBaselineValue, permissionsDraftValue],
   );
 
   useEffect(() => {
@@ -386,24 +478,33 @@ export const AgentSettingsPanel = ({
     setPermissionsSaveState("idle");
     setPermissionsSaveError(null);
     setPermissionsSaving(false);
-  }, [agent.agentId, permissionsDirty, permissionsSaving, resolvedPermissionsDraft]);
+  }, [
+    agent.agentId,
+    permissionsDirty,
+    permissionsSaving,
+    resolvedPermissionsDraft,
+  ]);
 
-  const runPermissionsSave = useCallback(async (draft: AgentPermissionsDraft) => {
-    if (permissionsSaving) return;
-    setPermissionsSaving(true);
-    setPermissionsSaveState("saving");
-    setPermissionsSaveError(null);
-    try {
-      await onUpdateAgentPermissions(draft);
-      setPermissionsSaveState("saved");
-    } catch (err) {
-      const message = err instanceof Error ? err.message : t("failedToSavePermissions");
-      setPermissionsSaveState("error");
-      setPermissionsSaveError(message);
-    } finally {
-      setPermissionsSaving(false);
-    }
-  }, [onUpdateAgentPermissions, permissionsSaving]);
+  const runPermissionsSave = useCallback(
+    async (draft: AgentPermissionsDraft) => {
+      if (permissionsSaving) return;
+      setPermissionsSaving(true);
+      setPermissionsSaveState("saving");
+      setPermissionsSaveError(null);
+      try {
+        await onUpdateAgentPermissions(draft);
+        setPermissionsSaveState("saved");
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : t("failedToSavePermissions");
+        setPermissionsSaveState("error");
+        setPermissionsSaveError(message);
+      } finally {
+        setPermissionsSaving(false);
+      }
+    },
+    [onUpdateAgentPermissions, permissionsSaving],
+  );
 
   useEffect(() => {
     return () => {
@@ -430,7 +531,12 @@ export const AgentSettingsPanel = ({
         permissionsSaveTimerRef.current = null;
       }
     };
-  }, [permissionsDirty, permissionsDraftValue, permissionsSaving, runPermissionsSave]);
+  }, [
+    permissionsDirty,
+    permissionsDraftValue,
+    permissionsSaving,
+    runPermissionsSave,
+  ]);
 
   const openCronCreate = () => {
     setCronCreateOpen(true);
@@ -454,7 +560,8 @@ export const AgentSettingsPanel = ({
     setCronDraft((prev) => applyTemplateDefaults(templateId, prev, t));
   };
 
-  const canMoveToScheduleStep = cronDraft.name.trim().length > 0 && cronDraft.taskText.trim().length > 0;
+  const canMoveToScheduleStep =
+    cronDraft.name.trim().length > 0 && cronDraft.taskText.trim().length > 0;
   const canMoveToReviewStep =
     cronDraft.scheduleKind === "every"
       ? Number.isFinite(cronDraft.everyAmount) &&
@@ -475,7 +582,9 @@ export const AgentSettingsPanel = ({
       name: cronDraft.name.trim(),
       taskText: cronDraft.taskText.trim(),
       scheduleKind: cronDraft.scheduleKind,
-      ...(typeof cronDraft.everyAmount === "number" ? { everyAmount: cronDraft.everyAmount } : {}),
+      ...(typeof cronDraft.everyAmount === "number"
+        ? { everyAmount: cronDraft.everyAmount }
+        : {}),
       ...(cronDraft.everyUnit ? { everyUnit: cronDraft.everyUnit } : {}),
       ...(cronDraft.everyUnit === "days" && cronDraft.everyAtTime
         ? { everyAtTime: cronDraft.everyAtTime }
@@ -484,19 +593,27 @@ export const AgentSettingsPanel = ({
         ? { everyTimeZone: cronDraft.everyTimeZone }
         : {}),
       ...(cronDraft.scheduleAt ? { scheduleAt: cronDraft.scheduleAt } : {}),
-      ...(cronDraft.deliveryMode ? { deliveryMode: cronDraft.deliveryMode } : {}),
-      ...(cronDraft.deliveryChannel ? { deliveryChannel: cronDraft.deliveryChannel } : {}),
+      ...(cronDraft.deliveryMode
+        ? { deliveryMode: cronDraft.deliveryMode }
+        : {}),
+      ...(cronDraft.deliveryChannel
+        ? { deliveryChannel: cronDraft.deliveryChannel }
+        : {}),
       ...(cronDraft.deliveryTo ? { deliveryTo: cronDraft.deliveryTo } : {}),
       ...(cronDraft.advancedSessionTarget
         ? { advancedSessionTarget: cronDraft.advancedSessionTarget }
         : {}),
-      ...(cronDraft.advancedWakeMode ? { advancedWakeMode: cronDraft.advancedWakeMode } : {}),
+      ...(cronDraft.advancedWakeMode
+        ? { advancedWakeMode: cronDraft.advancedWakeMode }
+        : {}),
     };
     try {
       await onCreateCronJob(payload);
       closeCronCreate();
     } catch (err) {
-      setCronCreateError(err instanceof Error ? err.message : t("failedToCreate"));
+      setCronCreateError(
+        err instanceof Error ? err.message : t("failedToCreate"),
+      );
     }
   };
 
@@ -528,7 +645,8 @@ export const AgentSettingsPanel = ({
           : mode === "credentials"
             ? t("credentialsLabel")
             : "";
-  const canOpenControlUi = typeof controlUiUrl === "string" && controlUiUrl.trim().length > 0;
+  const canOpenControlUi =
+    typeof controlUiUrl === "string" && controlUiUrl.trim().length > 0;
   const timedAutomationStepMeta =
     TIMED_AUTOMATION_STEP_META[cronCreateStep] ??
     TIMED_AUTOMATION_STEP_META[TIMED_AUTOMATION_STEP_META.length - 1];
@@ -537,7 +655,13 @@ export const AgentSettingsPanel = ({
     <div
       className="agent-inspect-panel"
       data-testid="agent-settings-panel"
-      style={{ position: "relative", left: "auto", top: "auto", width: "100%", height: "100%" }}
+      style={{
+        position: "relative",
+        left: "auto",
+        top: "auto",
+        width: "100%",
+        height: "100%",
+      }}
     >
       {showHeader ? (
         <AgentInspectHeader
@@ -551,13 +675,18 @@ export const AgentSettingsPanel = ({
       <div className="flex flex-col gap-0 px-5 pb-5">
         {mode === "capabilities" ? (
           <>
-            <section className="sidebar-section" data-testid="agent-settings-identity">
+            <section
+              className="sidebar-section"
+              data-testid="agent-settings-identity"
+            >
               <h3 className="sidebar-section-title">{t("agentIdentity")}</h3>
               <div className="mt-3 flex flex-col gap-4">
                 {onRename ? (
                   <div className="px-1">
                     <label className="sidebar-copy flex flex-col gap-1 text-[11px] text-muted-foreground">
-                      <span className="font-medium text-foreground/88">{t("agentName")}</span>
+                      <span className="font-medium text-foreground/88">
+                        {t("agentName")}
+                      </span>
                       <input
                         className="ui-input mt-1 w-full rounded-md px-3 py-2 text-xs text-foreground"
                         data-testid="agent-settings-name-input"
@@ -580,7 +709,9 @@ export const AgentSettingsPanel = ({
                 ) : null}
                 <div className="px-1">
                   <label className="sidebar-copy flex flex-col gap-1 text-[11px] text-muted-foreground">
-                    <span className="font-medium text-foreground/88">{t("modelLabel")}</span>
+                    <span className="font-medium text-foreground/88">
+                      {t("modelLabel")}
+                    </span>
                     <select
                       className="ui-input mt-1 w-full rounded-md px-3 py-2 text-xs text-foreground"
                       data-testid="agent-settings-model-select"
@@ -595,7 +726,8 @@ export const AgentSettingsPanel = ({
                         const key = `${m.provider}/${m.id}`;
                         return (
                           <option key={key} value={key}>
-                            {m.name || key}{m.reasoning ? ` (${t("reasoning")})` : ""}
+                            {m.name || key}
+                            {m.reasoning ? ` (${t("reasoning")})` : ""}
                           </option>
                         );
                       })}
@@ -604,7 +736,9 @@ export const AgentSettingsPanel = ({
                 </div>
                 <div className="px-1">
                   <label className="sidebar-copy flex flex-col gap-1 text-[11px] text-muted-foreground">
-                    <span className="font-medium text-foreground/88">{t("thinkingLabel")}</span>
+                    <span className="font-medium text-foreground/88">
+                      {t("thinkingLabel")}
+                    </span>
                     <select
                       className="ui-input mt-1 w-full rounded-md px-3 py-2 text-xs text-foreground"
                       data-testid="agent-settings-thinking-select"
@@ -634,7 +768,9 @@ export const AgentSettingsPanel = ({
               <div className="mt-2 flex flex-col gap-8">
                 <div className="px-1 py-1">
                   <div className="sidebar-copy flex flex-col gap-1 text-[11px] text-muted-foreground">
-                    <span className="font-medium text-foreground/88">{t("runCommands")}</span>
+                    <span className="font-medium text-foreground/88">
+                      {t("runCommands")}
+                    </span>
                     <div
                       className="ui-segment ui-segment-command-mode mt-2 grid-cols-3"
                       role="group"
@@ -647,7 +783,8 @@ export const AgentSettingsPanel = ({
                           { id: "auto", label: t("auto") },
                         ] as const
                       ).map((option) => {
-                        const selected = permissionsDraftValue.commandMode === option.id;
+                        const selected =
+                          permissionsDraftValue.commandMode === option.id;
                         return (
                           <button
                             key={option.id}
@@ -688,13 +825,18 @@ export const AgentSettingsPanel = ({
                       <span className="ui-switch-thumb" />
                     </button>
                     <div className="sidebar-copy flex flex-col">
-                      <span className="text-[11px] font-medium text-foreground/88">{t("webAccess")}</span>
+                      <span className="text-[11px] font-medium text-foreground/88">
+                        {t("webAccess")}
+                      </span>
                       <span className="text-[10px] text-muted-foreground/70">
                         {t("webAccessDesc")}
                       </span>
                     </div>
                   </div>
-                  <ChevronRight className="h-4 w-4 text-muted-foreground/55" aria-hidden="true" />
+                  <ChevronRight
+                    className="h-4 w-4 text-muted-foreground/55"
+                    aria-hidden="true"
+                  />
                 </div>
                 <div className="ui-settings-row flex min-h-[68px] items-center justify-between gap-6 px-4 py-3">
                   <div className="flex items-center gap-3">
@@ -714,13 +856,18 @@ export const AgentSettingsPanel = ({
                       <span className="ui-switch-thumb" />
                     </button>
                     <div className="sidebar-copy flex flex-col">
-                      <span className="text-[11px] font-medium text-foreground/88">{t("fileTools")}</span>
+                      <span className="text-[11px] font-medium text-foreground/88">
+                        {t("fileTools")}
+                      </span>
                       <span className="text-[10px] text-muted-foreground/70">
                         {t("fileToolsDesc")}
                       </span>
                     </div>
                   </div>
-                  <ChevronRight className="h-4 w-4 text-muted-foreground/55" aria-hidden="true" />
+                  <ChevronRight
+                    className="h-4 w-4 text-muted-foreground/55"
+                    aria-hidden="true"
+                  />
                 </div>
                 <div className="ui-settings-row flex min-h-[68px] items-center justify-between gap-6 px-4 py-3">
                   <div className="flex items-center gap-3">
@@ -735,11 +882,18 @@ export const AgentSettingsPanel = ({
                       <span className="ui-switch-thumb" />
                     </button>
                     <div className="sidebar-copy flex flex-col">
-                      <span className="text-[11px] font-medium text-foreground/88">{t("browserAutomation")}</span>
-                      <span className="text-[10px] text-muted-foreground/70">{t("comingSoon")}</span>
+                      <span className="text-[11px] font-medium text-foreground/88">
+                        {t("browserAutomation")}
+                      </span>
+                      <span className="text-[10px] text-muted-foreground/70">
+                        {t("comingSoon")}
+                      </span>
                     </div>
                   </div>
-                  <ChevronRight className="h-4 w-4 text-muted-foreground/55" aria-hidden="true" />
+                  <ChevronRight
+                    className="h-4 w-4 text-muted-foreground/55"
+                    aria-hidden="true"
+                  />
                 </div>
               </div>
               <div className="sidebar-copy mt-3 text-[11px] text-muted-foreground">
@@ -807,166 +961,188 @@ export const AgentSettingsPanel = ({
             className="sidebar-section"
             data-testid="agent-settings-cron"
           >
-          <div className="flex items-center justify-between gap-2">
-            <h3 className="sidebar-section-title">{t("timedAutomations")}</h3>
-            {!cronLoading && !cronError && cronJobs.length > 0 ? (
-              <button
-                className="sidebar-btn-ghost px-2.5 py-1.5 font-mono text-[10px] font-semibold tracking-[0.06em] disabled:cursor-not-allowed disabled:opacity-60"
-                type="button"
-                onClick={openCronCreate}
-              >
-                {t("create")}
-              </button>
-            ) : null}
-          </div>
-          {cronLoading ? (
-            <div className="mt-3 text-[11px] text-muted-foreground">{t("loadingAutomations")}</div>
-          ) : null}
-          {!cronLoading && cronError ? (
-            <div className="ui-alert-danger mt-3 rounded-md px-3 py-2 text-xs">
-              {cronError}
+            <div className="flex items-center justify-between gap-2">
+              <h3 className="sidebar-section-title">{t("timedAutomations")}</h3>
+              {!cronLoading && !cronError && cronJobs.length > 0 ? (
+                <button
+                  className="sidebar-btn-ghost px-2.5 py-1.5 font-mono text-[10px] font-semibold tracking-[0.06em] disabled:cursor-not-allowed disabled:opacity-60"
+                  type="button"
+                  onClick={openCronCreate}
+                >
+                  {t("create")}
+                </button>
+              ) : null}
             </div>
-          ) : null}
-          {!cronLoading && !cronError && cronJobs.length === 0 ? (
-            <div className="sidebar-card mt-3 flex flex-col items-center justify-center gap-4 px-5 py-6 text-center">
-              <CalendarDays
-                className="h-4 w-4 text-muted-foreground/70"
-                aria-hidden="true"
-                data-testid="cron-empty-icon"
-              />
-              <div className="sidebar-copy text-[11px] text-muted-foreground/82">
-                {t("noAutomations")}
+            {cronLoading ? (
+              <div className="mt-3 text-[11px] text-muted-foreground">
+                {t("loadingAutomations")}
               </div>
-              <button
-                className="sidebar-btn-primary mt-2 w-auto min-w-[116px] self-center px-4 py-2 font-mono text-[10px] font-semibold tracking-[0.06em] disabled:cursor-not-allowed disabled:opacity-60"
-                type="button"
-                onClick={openCronCreate}
-              >
-                {t("create")}
-              </button>
-            </div>
-          ) : null}
-          {!cronLoading && !cronError && cronJobs.length > 0 ? (
-          <div className="mt-3 flex flex-col gap-3">
-              {cronJobs.map((job) => {
-                const runBusy = cronRunBusyJobId === job.id;
-                const deleteBusy = cronDeleteBusyJobId === job.id;
-                const busy = runBusy || deleteBusy;
-                const scheduleText = formatCronSchedule(job.schedule);
-                const payloadText = formatCronPayload(job.payload).trim();
-                const payloadPreview = getFirstLinePreview(payloadText, 160);
-                const payloadExpandable =
-                  payloadText.length > payloadPreview.length || payloadText.split("\n").length > 1;
-                const expanded = expandedCronJobIds.has(job.id);
-                const stateLine = formatCronStateLine(job, t);
-                return (
-                  <div key={job.id} className="group/cron ui-card flex items-start justify-between gap-2 px-4 py-3">
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                        <div className="min-w-0 flex-1 truncate font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-foreground">
-                          {job.name}
+            ) : null}
+            {!cronLoading && cronError ? (
+              <div className="ui-alert-danger mt-3 rounded-md px-3 py-2 text-xs">
+                {cronError}
+              </div>
+            ) : null}
+            {!cronLoading && !cronError && cronJobs.length === 0 ? (
+              <div className="sidebar-card mt-3 flex flex-col items-center justify-center gap-4 px-5 py-6 text-center">
+                <CalendarDays
+                  className="h-4 w-4 text-muted-foreground/70"
+                  aria-hidden="true"
+                  data-testid="cron-empty-icon"
+                />
+                <div className="sidebar-copy text-[11px] text-muted-foreground/82">
+                  {t("noAutomations")}
+                </div>
+                <button
+                  className="sidebar-btn-primary mt-2 w-auto min-w-[116px] self-center px-4 py-2 font-mono text-[10px] font-semibold tracking-[0.06em] disabled:cursor-not-allowed disabled:opacity-60"
+                  type="button"
+                  onClick={openCronCreate}
+                >
+                  {t("create")}
+                </button>
+              </div>
+            ) : null}
+            {!cronLoading && !cronError && cronJobs.length > 0 ? (
+              <div className="mt-3 flex flex-col gap-3">
+                {cronJobs.map((job) => {
+                  const runBusy = cronRunBusyJobId === job.id;
+                  const deleteBusy = cronDeleteBusyJobId === job.id;
+                  const busy = runBusy || deleteBusy;
+                  const scheduleText = formatCronSchedule(job.schedule);
+                  const payloadText = formatCronPayload(job.payload).trim();
+                  const payloadPreview = getFirstLinePreview(payloadText, 160);
+                  const payloadExpandable =
+                    payloadText.length > payloadPreview.length ||
+                    payloadText.split("\n").length > 1;
+                  const expanded = expandedCronJobIds.has(job.id);
+                  const stateLine = formatCronStateLine(job, t);
+                  return (
+                    <div
+                      key={job.id}
+                      className="group/cron ui-card flex items-start justify-between gap-2 px-4 py-3"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                          <div className="min-w-0 flex-1 truncate font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-foreground">
+                            {job.name}
+                          </div>
+                          {!job.enabled ? (
+                            <div className="shrink-0 rounded-md bg-muted/50 px-2 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-[0.12em] text-muted-foreground shadow-2xs">
+                              {t("disabled")}
+                            </div>
+                          ) : null}
                         </div>
-                        {!job.enabled ? (
-                          <div className="shrink-0 rounded-md bg-muted/50 px-2 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-[0.12em] text-muted-foreground shadow-2xs">
-                            {t("disabled")}
+                        <div className="mt-1 text-[11px] text-muted-foreground">
+                          <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                            {t("frequency")}
+                          </span>
+                          <div className="break-words">{scheduleText}</div>
+                        </div>
+                        {stateLine ? (
+                          <div className="mt-1 break-words text-[11px] text-muted-foreground">
+                            {stateLine}
+                          </div>
+                        ) : null}
+                        {payloadText ? (
+                          <div className="mt-1 text-[11px] text-muted-foreground">
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                                {t("task")}
+                              </span>
+                              {payloadExpandable ? (
+                                <button
+                                  className="ui-btn-secondary shrink-0 min-h-0 px-2 py-0.5 font-mono text-[9px] font-semibold tracking-[0.06em] text-muted-foreground"
+                                  type="button"
+                                  onClick={() => {
+                                    setExpandedCronJobIds((prev) => {
+                                      const next = new Set(prev);
+                                      if (next.has(job.id)) {
+                                        next.delete(job.id);
+                                      } else {
+                                        next.add(job.id);
+                                      }
+                                      return next;
+                                    });
+                                  }}
+                                >
+                                  {expanded ? t("less") : t("more")}
+                                </button>
+                              ) : null}
+                            </div>
+                            <div
+                              className="mt-0.5 whitespace-pre-wrap break-words"
+                              title={payloadText}
+                            >
+                              {expanded
+                                ? payloadText
+                                : payloadPreview || payloadText}
+                            </div>
                           </div>
                         ) : null}
                       </div>
-                      <div className="mt-1 text-[11px] text-muted-foreground">
-                        <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-                      {t("frequency")}
-                        </span>
-                        <div className="break-words">{scheduleText}</div>
+                      <div className="flex items-center gap-1 opacity-0 transition group-focus-within/cron:opacity-100 group-hover/cron:opacity-100">
+                        <button
+                          className="ui-btn-icon h-7 w-7 disabled:cursor-not-allowed disabled:opacity-60"
+                          type="button"
+                          aria-label={t("runNow", { name: job.name })}
+                          onClick={() => {
+                            void onRunCronJob(job.id);
+                          }}
+                          disabled={busy}
+                        >
+                          <Play className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          className="ui-btn-icon ui-btn-icon-danger h-7 w-7 bg-transparent disabled:cursor-not-allowed disabled:opacity-60"
+                          type="button"
+                          aria-label={t("deleteAutomation", { name: job.name })}
+                          onClick={() => {
+                            void onDeleteCronJob(job.id);
+                          }}
+                          disabled={busy}
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
                       </div>
-                      {stateLine ? (
-                        <div className="mt-1 break-words text-[11px] text-muted-foreground">
-                          {stateLine}
-                        </div>
-                      ) : null}
-                      {payloadText ? (
-                        <div className="mt-1 text-[11px] text-muted-foreground">
-                          <div className="flex items-center justify-between gap-2">
-                            <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-                              {t("task")}
-                            </span>
-                            {payloadExpandable ? (
-                              <button
-                                className="ui-btn-secondary shrink-0 min-h-0 px-2 py-0.5 font-mono text-[9px] font-semibold tracking-[0.06em] text-muted-foreground"
-                                type="button"
-                                onClick={() => {
-                                  setExpandedCronJobIds((prev) => {
-                                    const next = new Set(prev);
-                                    if (next.has(job.id)) {
-                                      next.delete(job.id);
-                                    } else {
-                                      next.add(job.id);
-                                    }
-                                    return next;
-                                  });
-                                }}
-                              >
-                                {expanded ? t("less") : t("more")}
-                              </button>
-                            ) : null}
-                          </div>
-                          <div className="mt-0.5 whitespace-pre-wrap break-words" title={payloadText}>
-                            {expanded ? payloadText : payloadPreview || payloadText}
-                          </div>
-                        </div>
-                      ) : null}
                     </div>
-                    <div className="flex items-center gap-1 opacity-0 transition group-focus-within/cron:opacity-100 group-hover/cron:opacity-100">
-                      <button
-                        className="ui-btn-icon h-7 w-7 disabled:cursor-not-allowed disabled:opacity-60"
-                        type="button"
-                        aria-label={t("runNow", { name: job.name })}
-                        onClick={() => {
-                          void onRunCronJob(job.id);
-                        }}
-                        disabled={busy}
-                      >
-                        <Play className="h-3.5 w-3.5" />
-                      </button>
-                      <button
-                        className="ui-btn-icon ui-btn-icon-danger h-7 w-7 bg-transparent disabled:cursor-not-allowed disabled:opacity-60"
-                        type="button"
-                        aria-label={t("deleteAutomation", { name: job.name })}
-                        onClick={() => {
-                          void onDeleteCronJob(job.id);
-                        }}
-                        disabled={busy}
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          ) : null}
-          <section
-            className="sidebar-section"
-            data-testid="agent-settings-heartbeat-coming-soon"
-          >
-            <h3 className="sidebar-section-title">{t("heartbeats")}</h3>
-            <div className="mt-3 text-[11px] text-muted-foreground">
-              {t("heartbeatsComingSoon")}
-            </div>
-          </section>
+                  );
+                })}
+              </div>
+            ) : null}
+            <section
+              className="sidebar-section"
+              data-testid="agent-settings-heartbeat-coming-soon"
+            >
+              <h3 className="sidebar-section-title">{t("heartbeats")}</h3>
+              <div className="mt-3 text-[11px] text-muted-foreground">
+                {t("heartbeatsComingSoon")}
+              </div>
+            </section>
           </section>
         ) : null}
 
         {mode === "credentials" ? (
-          <AgentCredentialsPanel agentId={agent.agentId} />
+          <AgentCredentialsPanel
+            agentId={agent.agentId}
+            gatewayClient={gatewayClient}
+          />
         ) : null}
 
         {mode === "advanced" ? (
           <>
-            <section className="sidebar-section mt-8" data-testid="agent-settings-control-ui">
-              <h3 className="sidebar-section-title ui-text-danger">{t("dangerZone")}</h3>
+            <section
+              className="sidebar-section mt-8"
+              data-testid="agent-settings-control-ui"
+            >
+              <h3 className="sidebar-section-title ui-text-danger">
+                {t("dangerZone")}
+              </h3>
               <div className="ui-alert-danger mt-3 rounded-md px-3 py-3 text-[11px]">
                 <div className="flex items-start gap-2">
-                  <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                  <AlertTriangle
+                    className="mt-0.5 h-3.5 w-3.5 shrink-0"
+                    aria-hidden="true"
+                  />
                   <div className="space-y-1">
                     <div className="font-medium">{t("advancedUsersOnly")}</div>
                     <div>{t("openControlUiDesc")}</div>
@@ -1041,7 +1217,9 @@ export const AgentSettingsPanel = ({
                 <div className="text-[11px] font-medium tracking-[0.01em] text-muted-foreground/80">
                   {t("composerLabel")}
                 </div>
-                <div className="mt-1 text-base font-semibold text-foreground">{t(timedAutomationStepMeta.titleKey)}</div>
+                <div className="mt-1 text-base font-semibold text-foreground">
+                  {t(timedAutomationStepMeta.titleKey)}
+                </div>
               </div>
               <button
                 type="button"
@@ -1084,7 +1262,9 @@ export const AgentSettingsPanel = ({
                               {t(option.titleKey)}
                             </div>
                           </div>
-                          <div className="mt-1 text-[11px] text-muted-foreground">{t(option.descKey)}</div>
+                          <div className="mt-1 text-[11px] text-muted-foreground">
+                            {t(option.descKey)}
+                          </div>
                         </button>
                       );
                     })}
@@ -1104,7 +1284,9 @@ export const AgentSettingsPanel = ({
                       aria-label={t("automationName")}
                       className="h-10 rounded-md border border-border bg-surface-3 px-3 text-sm text-foreground outline-none"
                       value={cronDraft.name}
-                      onChange={(event) => updateCronDraft({ name: event.target.value })}
+                      onChange={(event) =>
+                        updateCronDraft({ name: event.target.value })
+                      }
                     />
                   </label>
                   <label className="flex flex-col gap-1 text-[11px] text-muted-foreground">
@@ -1115,14 +1297,18 @@ export const AgentSettingsPanel = ({
                       aria-label={t("task")}
                       className="min-h-28 rounded-md border border-border bg-surface-3 px-3 py-2 text-sm text-foreground outline-none"
                       value={cronDraft.taskText}
-                      onChange={(event) => updateCronDraft({ taskText: event.target.value })}
+                      onChange={(event) =>
+                        updateCronDraft({ taskText: event.target.value })
+                      }
                     />
                   </label>
                 </div>
               ) : null}
               {cronCreateStep === 2 ? (
                 <div className="space-y-3">
-                  <div className="text-sm text-muted-foreground">{t("chooseWhen")}</div>
+                  <div className="text-sm text-muted-foreground">
+                    {t("chooseWhen")}
+                  </div>
                   <label className="flex flex-col gap-1 text-[11px] text-muted-foreground">
                     <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.12em]">
                       {t("scheduleType")}
@@ -1131,7 +1317,10 @@ export const AgentSettingsPanel = ({
                       className="h-10 rounded-md border border-border bg-surface-3 px-3 text-sm text-foreground outline-none"
                       value={cronDraft.scheduleKind}
                       onChange={(event) =>
-                        updateCronDraft({ scheduleKind: event.target.value as CronCreateDraft["scheduleKind"] })
+                        updateCronDraft({
+                          scheduleKind: event.target
+                            .value as CronCreateDraft["scheduleKind"],
+                        })
                       }
                     >
                       <option value="every">{t("every")}</option>
@@ -1152,7 +1341,8 @@ export const AgentSettingsPanel = ({
                           value={String(cronDraft.everyAmount ?? 30)}
                           onChange={(event) =>
                             updateCronDraft({
-                              everyAmount: Number.parseInt(event.target.value, 10) || 0,
+                              everyAmount:
+                                Number.parseInt(event.target.value, 10) || 0,
                             })
                           }
                         />
@@ -1166,7 +1356,8 @@ export const AgentSettingsPanel = ({
                           value={cronDraft.everyUnit ?? "minutes"}
                           onChange={(event) =>
                             updateCronDraft({
-                              everyUnit: event.target.value as CronCreateDraft["everyUnit"],
+                              everyUnit: event.target
+                                .value as CronCreateDraft["everyUnit"],
                             })
                           }
                         >
@@ -1185,7 +1376,11 @@ export const AgentSettingsPanel = ({
                               type="time"
                               className="h-10 rounded-md border border-border bg-surface-3 px-3 text-sm text-foreground outline-none"
                               value={cronDraft.everyAtTime ?? "09:00"}
-                              onChange={(event) => updateCronDraft({ everyAtTime: event.target.value })}
+                              onChange={(event) =>
+                                updateCronDraft({
+                                  everyAtTime: event.target.value,
+                                })
+                              }
                             />
                           </label>
                           <label className="flex flex-col gap-1 text-[11px] text-muted-foreground">
@@ -1194,8 +1389,15 @@ export const AgentSettingsPanel = ({
                             </span>
                             <input
                               className="h-10 rounded-md border border-border bg-surface-3 px-3 text-sm text-foreground outline-none"
-                              value={cronDraft.everyTimeZone ?? resolveLocalTimeZone()}
-                              onChange={(event) => updateCronDraft({ everyTimeZone: event.target.value })}
+                              value={
+                                cronDraft.everyTimeZone ??
+                                resolveLocalTimeZone()
+                              }
+                              onChange={(event) =>
+                                updateCronDraft({
+                                  everyTimeZone: event.target.value,
+                                })
+                              }
                             />
                           </label>
                         </>
@@ -1211,7 +1413,9 @@ export const AgentSettingsPanel = ({
                         type="datetime-local"
                         className="h-10 rounded-md border border-border bg-surface-3 px-3 text-sm text-foreground outline-none"
                         value={cronDraft.scheduleAt ?? ""}
-                        onChange={(event) => updateCronDraft({ scheduleAt: event.target.value })}
+                        onChange={(event) =>
+                          updateCronDraft({ scheduleAt: event.target.value })
+                        }
                       />
                     </label>
                   ) : null}
@@ -1224,7 +1428,9 @@ export const AgentSettingsPanel = ({
                     <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-foreground">
                       {cronDraft.name || t("untitledAutomation")}
                     </div>
-                    <div className="mt-1 text-[11px]">{cronDraft.taskText || t("noTaskProvided")}</div>
+                    <div className="mt-1 text-[11px]">
+                      {cronDraft.taskText || t("noTaskProvided")}
+                    </div>
                     <div className="mt-2 text-[11px]">
                       {t("schedule")} :{" "}
                       {cronDraft.scheduleKind === "every"
@@ -1241,7 +1447,10 @@ export const AgentSettingsPanel = ({
             </div>
             <div className="flex items-center justify-between gap-2 border-t border-border/50 px-5 pb-4 pt-5">
               <div className="text-[11px] text-muted-foreground">
-                {t("stepOf", { indicator: t(timedAutomationStepMeta.indicatorKey), current: cronCreateStep + 1 })}
+                {t("stepOf", {
+                  indicator: t(timedAutomationStepMeta.indicatorKey),
+                  current: cronCreateStep + 1,
+                })}
               </div>
               <div className="flex items-center gap-2">
                 <button
@@ -1313,13 +1522,16 @@ const useAgentFilesEditor = (params: {
   const [agentFilesError, setAgentFilesError] = useState<string | null>(null);
   const savedAgentFilesRef = useRef<AgentFilesState>(createAgentFilesState());
 
-  const cloneAgentFilesState = useCallback((source: AgentFilesState): AgentFilesState => {
-    const next = createAgentFilesState();
-    for (const name of AGENT_FILE_NAMES) {
-      next[name] = { ...source[name] };
-    }
-    return next;
-  }, []);
+  const cloneAgentFilesState = useCallback(
+    (source: AgentFilesState): AgentFilesState => {
+      const next = createAgentFilesState();
+      for (const name of AGENT_FILE_NAMES) {
+        next[name] = { ...source[name] };
+      }
+      return next;
+    },
+    [],
+  );
 
   const loadAgentFiles = useCallback(async () => {
     setAgentFilesLoading(true);
@@ -1340,9 +1552,13 @@ const useAgentFilesEditor = (params: {
       }
       const results = await Promise.all(
         AGENT_FILE_NAMES.map(async (name) => {
-          const file = await readGatewayAgentFile({ client, agentId: trimmedAgentId, name });
+          const file = await readGatewayAgentFile({
+            client,
+            agentId: trimmedAgentId,
+            name,
+          });
           return { name, content: file.content, exists: file.exists };
-        })
+        }),
       );
       const nextState = createAgentFilesState();
       for (const file of results) {
@@ -1356,7 +1572,8 @@ const useAgentFilesEditor = (params: {
       setAgentFiles(nextState);
       setAgentFilesDirty(false);
     } catch (err) {
-      const message = err instanceof Error ? err.message : t("failedToLoadFiles");
+      const message =
+        err instanceof Error ? err.message : t("failedToLoadFiles");
       setAgentFilesError(message);
     } finally {
       setAgentFilesLoading(false);
@@ -1384,7 +1601,7 @@ const useAgentFilesEditor = (params: {
             name,
             content: agentFiles[name].content,
           });
-        })
+        }),
       );
       const nextState = createAgentFilesState();
       for (const name of AGENT_FILE_NAMES) {
@@ -1398,7 +1615,8 @@ const useAgentFilesEditor = (params: {
       setAgentFilesDirty(false);
       return true;
     } catch (err) {
-      const message = err instanceof Error ? err.message : t("failedToSaveFiles");
+      const message =
+        err instanceof Error ? err.message : t("failedToSaveFiles");
       setAgentFilesError(message);
       return false;
     } finally {
@@ -1406,14 +1624,17 @@ const useAgentFilesEditor = (params: {
     }
   }, [agentFiles, agentId, client]);
 
-  const setAgentFileContent = useCallback((name: AgentFileName, value: string) => {
-    if (!isAgentFileName(name)) return;
-    setAgentFiles((prev) => ({
-      ...prev,
-      [name]: { ...prev[name], content: value },
-    }));
-    setAgentFilesDirty(true);
-  }, []);
+  const setAgentFileContent = useCallback(
+    (name: AgentFileName, value: string) => {
+      if (!isAgentFileName(name)) return;
+      setAgentFiles((prev) => ({
+        ...prev,
+        [name]: { ...prev[name], content: value },
+      }));
+      setAgentFilesDirty(true);
+    },
+    [],
+  );
 
   const discardAgentFileChanges = useCallback(() => {
     setAgentFiles(cloneAgentFilesState(savedAgentFilesRef.current));
@@ -1467,9 +1688,9 @@ export const AgentBrainPanel = ({
   const selectedAgent = useMemo(
     () =>
       selectedAgentId
-        ? agents.find((entry) => entry.agentId === selectedAgentId) ?? null
+        ? (agents.find((entry) => entry.agentId === selectedAgentId) ?? null)
         : null,
-    [agents, selectedAgentId]
+    [agents, selectedAgentId],
   );
 
   const {
@@ -1485,13 +1706,16 @@ export const AgentBrainPanel = ({
   const draft = useMemo(() => parsePersonalityFiles(agentFiles), [agentFiles]);
 
   const setIdentityField = useCallback(
-    (field: "name" | "creature" | "vibe" | "emoji" | "avatar", value: string) => {
+    (
+      field: "name" | "creature" | "vibe" | "emoji" | "avatar",
+      value: string,
+    ) => {
       const nextDraft = parsePersonalityFiles(agentFiles);
       nextDraft.identity[field] = value;
       const serialized = serializePersonalityFiles(nextDraft);
       setAgentFileContent("IDENTITY.md", serialized["IDENTITY.md"]);
     },
-    [agentFiles, setAgentFileContent]
+    [agentFiles, setAgentFileContent],
   );
 
   const handleSave = useCallback(async () => {
@@ -1514,7 +1738,13 @@ export const AgentBrainPanel = ({
       <div
         className="agent-inspect-panel flex min-h-0 flex-col overflow-hidden"
         data-testid="agent-personality-panel"
-        style={{ position: "relative", left: "auto", top: "auto", width: "100%", height: "100%" }}
+        style={{
+          position: "relative",
+          left: "auto",
+          top: "auto",
+          width: "100%",
+          height: "100%",
+        }}
       >
         <div className="flex min-h-0 flex-1 flex-col items-center justify-center px-6 py-6">
           <p className="text-sm text-muted-foreground">{t("agentIdMissing")}</p>
@@ -1527,10 +1757,19 @@ export const AgentBrainPanel = ({
     <div
       className="agent-inspect-panel flex min-h-0 flex-col overflow-hidden"
       data-testid="agent-personality-panel"
-      style={{ position: "relative", left: "auto", top: "auto", width: "100%", height: "100%" }}
+      style={{
+        position: "relative",
+        left: "auto",
+        top: "auto",
+        width: "100%",
+        height: "100%",
+      }}
     >
       <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-6 py-6">
-        <section className="mx-auto flex w-full max-w-[920px] min-h-0 flex-col" data-testid="agent-personality-files">
+        <section
+          className="mx-auto flex w-full max-w-[920px] min-h-0 flex-col"
+          data-testid="agent-personality-files"
+        >
           {agentFilesError ? (
             <div className="ui-alert-danger mb-4 rounded-md px-3 py-2 text-xs">
               {agentFilesError}
@@ -1541,7 +1780,9 @@ export const AgentBrainPanel = ({
             <button
               type="button"
               className="ui-btn-secondary px-3 py-1 font-mono text-[10px] font-semibold tracking-[0.06em] disabled:opacity-50"
-              disabled={agentFilesLoading || agentFilesSaving || !agentFilesDirty}
+              disabled={
+                agentFilesLoading || agentFilesSaving || !agentFilesDirty
+              }
               onClick={discardAgentFileChanges}
             >
               {t("discard")}
@@ -1549,7 +1790,9 @@ export const AgentBrainPanel = ({
             <button
               type="button"
               className="ui-btn-primary px-3 py-1 font-mono text-[10px] font-semibold tracking-[0.06em] disabled:cursor-not-allowed disabled:border-border disabled:bg-muted disabled:text-muted-foreground"
-              disabled={agentFilesLoading || agentFilesSaving || !agentFilesDirty}
+              disabled={
+                agentFilesLoading || agentFilesSaving || !agentFilesDirty
+              }
               onClick={() => {
                 void handleSave();
               }}
@@ -1596,7 +1839,9 @@ export const AgentBrainPanel = ({
             </AgentBrainPanelSection>
 
             <section className="space-y-3 border-t border-border/55 pt-8">
-              <h3 className="text-sm font-medium text-foreground">{t("identity")}</h3>
+              <h3 className="text-sm font-medium text-foreground">
+                {t("identity")}
+              </h3>
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="flex flex-col gap-2 text-xs text-muted-foreground">
                   {t("identityName")}

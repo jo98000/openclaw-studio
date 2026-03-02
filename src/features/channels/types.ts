@@ -12,7 +12,11 @@ export type ChannelId =
   | "webchat"
   | "mattermost";
 
-export type ChannelStatus = "connected" | "disconnected" | "error" | "configuring";
+export type ChannelStatus =
+  | "connected"
+  | "disconnected"
+  | "error"
+  | "configuring";
 
 export type ChannelConfig = {
   id: ChannelId;
@@ -28,6 +32,9 @@ export type ChannelDefinition = {
   iconColor: string;
   icon: string;
   configFields: ChannelConfigField[];
+  signupUrl?: string;
+  getKeyUrl?: string;
+  guideSteps?: string[];
 };
 
 export type ChannelConfigField = {

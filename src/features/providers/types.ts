@@ -42,6 +42,8 @@ export type ProviderDefinition = {
   models: ProviderModelInfo[];
   supportsCustomEndpoint: boolean;
   supportsAccessToken: boolean;
+  signupUrl?: string;
+  guideSteps?: string[];
 };
 
 export type ProviderModelInfo = {

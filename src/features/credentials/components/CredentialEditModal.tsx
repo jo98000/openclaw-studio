@@ -2,14 +2,18 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useTranslations } from "next-intl";
-import { X, Plus, Trash2 } from "lucide-react";
+import { X, Plus, Trash2, ExternalLink, Info } from "lucide-react";
 import type {
   CredentialEntry,
   CredentialField,
   CredentialServiceType,
 } from "../types";
-import { CREDENTIAL_TEMPLATES } from "../credentialTemplates";
+import {
+  CREDENTIAL_TEMPLATES,
+  getTemplateByServiceType,
+} from "../credentialTemplates";
 import { CredentialFieldInput } from "./CredentialFieldInput";
+import { ServiceLogo } from "@/components/ServiceLogo";
 import { randomUUID } from "@/lib/uuid";
 
 type CredentialEditModalProps = {
@@ -140,13 +144,12 @@ export const CredentialEditModal = ({
                     onClick={() => handleSelectTemplate(tmpl.serviceType)}
                     data-testid={`template-${tmpl.serviceType}`}
                   >
-                    <div
-                      className="flex h-7 w-7 items-center justify-center rounded-lg text-[10px] font-bold text-white"
-                      style={{ backgroundColor: tmpl.iconColor }}
-                      aria-hidden="true"
-                    >
-                      {tmpl.name.slice(0, 2).toUpperCase()}
-                    </div>
+                    <ServiceLogo
+                      serviceId={tmpl.serviceType}
+                      name={tmpl.name}
+                      fallbackColor={tmpl.iconColor}
+                      size={28}
+                    />
                     <span className="text-[11px] font-semibold text-foreground">
                       {tmpl.name}
                     </span>
@@ -162,6 +165,83 @@ export const CredentialEditModal = ({
           {/* Form step */}
           {step === "form" ? (
             <div className="flex flex-col gap-4">
+              {/* Guide + Links */}
+              {(() => {
+                const tmpl = getTemplateByServiceType(serviceType);
+                if (!tmpl) return null;
+                const hasGuide = tmpl.guideSteps && tmpl.guideSteps.length > 0;
+                const hasLinks = tmpl.signupUrl || tmpl.getKeyUrl;
+                const hasMcp = !!tmpl.mcpServerHint;
+                if (!hasGuide && !hasLinks && !hasMcp) return null;
+                return (
+                  <div className="flex flex-col gap-2">
+                    {hasLinks ? (
+                      <div className="flex flex-wrap gap-2">
+                        {tmpl.signupUrl ? (
+                          <a
+                            href={tmpl.signupUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 rounded-md border border-border px-2.5 py-1.5 text-[11px] font-medium text-primary transition-colors hover:bg-surface-2"
+                          >
+                            <ExternalLink
+                              className="h-3 w-3"
+                              aria-hidden="true"
+                            />
+                            {t("signUp")}
+                          </a>
+                        ) : null}
+                        {tmpl.getKeyUrl ? (
+                          <a
+                            href={tmpl.getKeyUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 rounded-md border border-primary/30 bg-primary/5 px-2.5 py-1.5 text-[11px] font-semibold text-primary transition-colors hover:bg-primary/10"
+                          >
+                            <ExternalLink
+                              className="h-3 w-3"
+                              aria-hidden="true"
+                            />
+                            {t("getApiKey")}
+                          </a>
+                        ) : null}
+                      </div>
+                    ) : null}
+                    {hasGuide ? (
+                      <details className="group">
+                        <summary className="cursor-pointer text-[11px] font-medium text-muted-foreground hover:text-foreground">
+                          {t("setupGuide")}
+                        </summary>
+                        <ol className="mt-1.5 flex flex-col gap-1 pl-4">
+                          {tmpl.guideSteps!.map((step, i) => (
+                            <li
+                              key={i}
+                              className="list-decimal text-[11px] text-muted-foreground"
+                            >
+                              {step}
+                            </li>
+                          ))}
+                        </ol>
+                      </details>
+                    ) : null}
+                    {hasMcp ? (
+                      <div className="flex items-start gap-1.5 rounded-md bg-primary/5 px-2.5 py-2 text-[10px] text-primary">
+                        <Info
+                          className="mt-0.5 h-3 w-3 shrink-0"
+                          aria-hidden="true"
+                        />
+                        <span>
+                          MCP:{" "}
+                          <code className="rounded bg-primary/10 px-1 font-mono text-[10px]">
+                            {tmpl.mcpServerHint}
+                          </code>
+                        </span>
+                      </div>
+                    ) : null}
+                  </div>
+                );
+              })()}
+
               {/* Label */}
               <div>
                 <label

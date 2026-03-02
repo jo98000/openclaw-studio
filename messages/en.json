@@ -101,7 +101,22 @@
     "connectionValid": "Connection successful",
     "connectionFailed": "Connection failed: {error}",
     "showSecret": "Show secret",
-    "hideSecret": "Hide secret"
+    "hideSecret": "Hide secret",
+    "setupGuide": "Setup guide",
+    "getApiKey": "Get API Key",
+    "importEnv": "Import from .env",
+    "envImportTitle": "Import from .env",
+    "envImportDescription": "Paste your .env file content or upload a file to automatically detect API keys and credentials.",
+    "envImportUpload": "Upload .env file",
+    "envImportPlaceholder": "OPENAI_API_KEY=sk-...\nANTHROPIC_API_KEY=sk-ant-...",
+    "envImportScan": "Scan for keys",
+    "envImportProviders": "Providers",
+    "envImportCredentials": "Credentials",
+    "envImportNoResults": "No recognized API keys or credentials found in this content.",
+    "envImportUnmatched": "Unrecognized keys",
+    "envImportButton": "Import selected",
+    "testAll": "Test all",
+    "testingAll": "Testing..."
   },
   "credentials": {
     "title": "Credentials",
@@ -119,7 +134,17 @@
     "addField": "Add field",
     "removeField": "Remove",
     "showValue": "Show value",
-    "hideValue": "Hide value"
+    "hideValue": "Hide value",
+    "setupGuide": "Setup guide",
+    "signUp": "Sign up",
+    "getApiKey": "Get API key",
+    "importFromCli": "Auto-detect from CLI",
+    "importFromEnv": "Import from .env",
+    "cliDetecting": "Detecting...",
+    "cliDetected": "{count} credential(s) detected",
+    "cliNoneDetected": "No CLI credentials detected on this system.",
+    "cliImportFrom": "from {source}",
+    "cliImportButton": "Import"
   },
   "channels": {
     "title": "Channels",
@@ -129,7 +154,10 @@
     "close": "Close",
     "cancel": "Cancel",
     "save": "Save",
-    "remove": "Remove"
+    "remove": "Remove",
+    "setupGuide": "Setup guide",
+    "signUp": "Sign up",
+    "getCredentials": "Get credentials"
   },
   "routing": {
     "title": "Routing",

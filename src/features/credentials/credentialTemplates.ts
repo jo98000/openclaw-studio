@@ -12,6 +12,11 @@ export const CREDENTIAL_TEMPLATES: CredentialTemplate[] = [
       { key: "username", sensitive: false },
       { key: "password", sensitive: true },
     ],
+    guideSteps: [
+      "Get SMTP credentials from your email provider (Gmail, Outlook, SendGrid, etc.)",
+      "Enter your SMTP host (e.g. smtp.gmail.com) and port (587 for TLS)",
+      "Use your email as username and an app-specific password",
+    ],
   },
   {
     serviceType: "twitter",
@@ -24,6 +29,14 @@ export const CREDENTIAL_TEMPLATES: CredentialTemplate[] = [
       { key: "accessToken", sensitive: true },
       { key: "accessTokenSecret", sensitive: true },
     ],
+    signupUrl: "https://developer.twitter.com",
+    getKeyUrl: "https://developer.twitter.com/en/portal/dashboard",
+    guideSteps: [
+      "Go to developer.twitter.com and sign in",
+      "Create a new project and app",
+      "Go to Keys and tokens tab",
+      "Generate API Key, API Secret, Access Token, and Access Token Secret",
+    ],
   },
   {
     serviceType: "instagram",
@@ -35,15 +48,30 @@ export const CREDENTIAL_TEMPLATES: CredentialTemplate[] = [
       { key: "appId", sensitive: false },
       { key: "appSecret", sensitive: true },
     ],
+    signupUrl: "https://developers.facebook.com",
+    getKeyUrl: "https://developers.facebook.com/apps",
+    guideSteps: [
+      "Go to developers.facebook.com and create a new app",
+      "Add the Instagram Graph API product",
+      "Generate a long-lived access token in Graph API Explorer",
+      "Copy App ID and App Secret from Settings > Basic",
+    ],
   },
   {
     serviceType: "github",
     name: "GitHub",
     description: "Personal access tokens or app credentials",
     iconColor: "#24292F",
-    defaultFields: [
-      { key: "token", sensitive: true },
+    defaultFields: [{ key: "token", sensitive: true }],
+    signupUrl: "https://github.com/signup",
+    getKeyUrl: "https://github.com/settings/tokens/new",
+    guideSteps: [
+      "Go to GitHub Settings > Developer settings > Personal access tokens",
+      "Click 'Generate new token (classic)' or 'Fine-grained token'",
+      "Select the scopes your agent needs (repo, read:org, etc.)",
+      "Copy the generated token",
     ],
+    mcpServerHint: "@modelcontextprotocol/server-github",
   },
   {
     serviceType: "slack",
@@ -54,6 +82,15 @@ export const CREDENTIAL_TEMPLATES: CredentialTemplate[] = [
       { key: "botToken", sensitive: true },
       { key: "webhookUrl", sensitive: false },
     ],
+    signupUrl: "https://api.slack.com/apps",
+    getKeyUrl: "https://api.slack.com/apps",
+    guideSteps: [
+      "Go to api.slack.com/apps and click 'Create New App'",
+      "Choose 'From scratch' and select your workspace",
+      "Go to OAuth & Permissions and add bot scopes",
+      "Install the app to your workspace and copy the Bot User OAuth Token (xoxb-...)",
+    ],
+    mcpServerHint: "@modelcontextprotocol/server-slack",
   },
   {
     serviceType: "whatsapp",
@@ -66,14 +103,28 @@ export const CREDENTIAL_TEMPLATES: CredentialTemplate[] = [
       { key: "verifyToken", sensitive: true },
       { key: "appSecret", sensitive: true },
     ],
+    signupUrl: "https://business.facebook.com",
+    getKeyUrl: "https://developers.facebook.com/apps",
+    guideSteps: [
+      "Go to developers.facebook.com and create a new app (type: Business)",
+      "Add the WhatsApp product to your app",
+      "Go to WhatsApp > API Setup to get a temporary access token",
+      "Copy your Phone Number ID, Access Token, and set a Verify Token",
+      "For production: create a System User and generate a permanent token",
+    ],
   },
   {
     serviceType: "telegram",
     name: "Telegram Bot",
     description: "Telegram Bot API token",
     iconColor: "#26A5E4",
-    defaultFields: [
-      { key: "botToken", sensitive: true },
+    defaultFields: [{ key: "botToken", sensitive: true }],
+    getKeyUrl: "https://t.me/BotFather",
+    guideSteps: [
+      "Open Telegram and search for @BotFather",
+      "Send /newbot and follow the prompts to name your bot",
+      "BotFather will give you an API token (e.g. 123456:ABC-DEF...)",
+      "Copy and paste that token here",
     ],
   },
   {
@@ -86,6 +137,15 @@ export const CREDENTIAL_TEMPLATES: CredentialTemplate[] = [
       { key: "applicationId", sensitive: false },
       { key: "publicKey", sensitive: false },
     ],
+    signupUrl: "https://discord.com/developers",
+    getKeyUrl: "https://discord.com/developers/applications",
+    guideSteps: [
+      "Go to discord.com/developers/applications",
+      "Click 'New Application' and give it a name",
+      "Go to the Bot section and click 'Reset Token' to get your bot token",
+      "Copy Application ID from General Information and Public Key",
+      "Invite the bot to your server with the OAuth2 URL Generator",
+    ],
   },
   {
     serviceType: "teams",
@@ -96,6 +156,15 @@ export const CREDENTIAL_TEMPLATES: CredentialTemplate[] = [
       { key: "appId", sensitive: false },
       { key: "appPassword", sensitive: true },
       { key: "tenantId", sensitive: false },
+    ],
+    signupUrl: "https://portal.azure.com",
+    getKeyUrl:
+      "https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationsListBlade",
+    guideSteps: [
+      "Go to Azure Portal > App registrations > New registration",
+      "Register the application and copy the Application (client) ID",
+      "Go to Certificates & secrets and create a new client secret",
+      "Copy the Tenant ID from the Overview page",
     ],
   },
   {
@@ -108,6 +177,12 @@ export const CREDENTIAL_TEMPLATES: CredentialTemplate[] = [
       { key: "botToken", sensitive: true },
       { key: "teamId", sensitive: false },
     ],
+    guideSteps: [
+      "Go to your Mattermost admin panel",
+      "Navigate to Integrations > Bot Accounts and create a new bot",
+      "Copy the bot access token",
+      "Enter your Mattermost server URL and team ID",
+    ],
   },
   {
     serviceType: "twilio",
@@ -119,14 +194,27 @@ export const CREDENTIAL_TEMPLATES: CredentialTemplate[] = [
       { key: "authToken", sensitive: true },
       { key: "phoneNumber", sensitive: false },
     ],
+    signupUrl: "https://www.twilio.com/try-twilio",
+    getKeyUrl: "https://console.twilio.com",
+    guideSteps: [
+      "Sign up at twilio.com/try-twilio for a free trial",
+      "Go to the Console Dashboard to find your Account SID and Auth Token",
+      "Get a phone number from the Phone Numbers section",
+    ],
   },
   {
     serviceType: "sendgrid",
     name: "SendGrid",
     description: "Transactional and marketing email API",
     iconColor: "#1A82E2",
-    defaultFields: [
-      { key: "apiKey", sensitive: true },
+    defaultFields: [{ key: "apiKey", sensitive: true }],
+    signupUrl: "https://signup.sendgrid.com",
+    getKeyUrl: "https://app.sendgrid.com/settings/api_keys",
+    guideSteps: [
+      "Sign up at signup.sendgrid.com",
+      "Go to Settings > API Keys",
+      "Click 'Create API Key' and select permissions",
+      "Copy the generated API key (you can only see it once)",
     ],
   },
   {
@@ -139,6 +227,14 @@ export const CREDENTIAL_TEMPLATES: CredentialTemplate[] = [
       { key: "webhookSecret", sensitive: true },
       { key: "publishableKey", sensitive: false },
     ],
+    signupUrl: "https://dashboard.stripe.com/register",
+    getKeyUrl: "https://dashboard.stripe.com/apikeys",
+    guideSteps: [
+      "Sign up at dashboard.stripe.com/register",
+      "Go to Developers > API keys",
+      "Copy your Secret key (sk_test_... or sk_live_...)",
+      "For webhooks: go to Developers > Webhooks to get the signing secret",
+    ],
   },
   {
     serviceType: "aws",
@@ -150,6 +246,16 @@ export const CREDENTIAL_TEMPLATES: CredentialTemplate[] = [
       { key: "secretAccessKey", sensitive: true },
       { key: "region", sensitive: false },
     ],
+    signupUrl: "https://aws.amazon.com/free",
+    getKeyUrl: "https://console.aws.amazon.com/iam/home#/security_credentials",
+    guideSteps: [
+      "Go to AWS Console > IAM > Users",
+      "Create a new user or select an existing one",
+      "Go to Security credentials > Create access key",
+      "Copy the Access Key ID and Secret Access Key",
+      "Set your preferred region (e.g. us-east-1)",
+    ],
+    mcpServerHint: "@modelcontextprotocol/server-aws-kb-retrieval",
   },
   {
     serviceType: "gcp",
@@ -160,6 +266,14 @@ export const CREDENTIAL_TEMPLATES: CredentialTemplate[] = [
       { key: "projectId", sensitive: false },
       { key: "clientEmail", sensitive: false },
       { key: "privateKey", sensitive: true },
+    ],
+    signupUrl: "https://console.cloud.google.com",
+    getKeyUrl: "https://console.cloud.google.com/iam-admin/serviceaccounts",
+    guideSteps: [
+      "Go to Google Cloud Console > IAM & Admin > Service Accounts",
+      "Create a new service account or select an existing one",
+      "Click 'Create Key' and choose JSON format",
+      "Open the downloaded JSON and copy projectId, client_email, and private_key",
     ],
   },
   {
@@ -172,24 +286,44 @@ export const CREDENTIAL_TEMPLATES: CredentialTemplate[] = [
       { key: "anonKey", sensitive: false },
       { key: "serviceRoleKey", sensitive: true },
     ],
+    signupUrl: "https://supabase.com/dashboard",
+    getKeyUrl: "https://supabase.com/dashboard/project/_/settings/api",
+    guideSteps: [
+      "Go to supabase.com/dashboard and create a new project",
+      "Go to Project Settings > API",
+      "Copy the Project URL, anon (public) key, and service_role key",
+    ],
   },
   {
     serviceType: "notion",
     name: "Notion",
     description: "Notion integration access token",
     iconColor: "#000000",
-    defaultFields: [
-      { key: "integrationToken", sensitive: true },
+    defaultFields: [{ key: "integrationToken", sensitive: true }],
+    signupUrl: "https://www.notion.so/signup",
+    getKeyUrl: "https://www.notion.so/my-integrations",
+    guideSteps: [
+      "Go to notion.so/my-integrations",
+      "Click 'New integration' and configure capabilities",
+      "Copy the Internal Integration Secret",
+      "Share the pages/databases you want to access with the integration",
     ],
+    mcpServerHint: "@notionhq/notion-mcp-server",
   },
   {
     serviceType: "linear",
     name: "Linear",
     description: "Linear project management API key",
     iconColor: "#5E6AD2",
-    defaultFields: [
-      { key: "apiKey", sensitive: true },
+    defaultFields: [{ key: "apiKey", sensitive: true }],
+    signupUrl: "https://linear.app/signup",
+    getKeyUrl: "https://linear.app/settings/api",
+    guideSteps: [
+      "Go to linear.app and sign in",
+      "Go to Settings > API > Personal API Keys",
+      "Click 'Create Key' and copy the generated key",
     ],
+    mcpServerHint: "@modelcontextprotocol/server-linear",
   },
   {
     serviceType: "jira",
@@ -201,6 +335,14 @@ export const CREDENTIAL_TEMPLATES: CredentialTemplate[] = [
       { key: "email", sensitive: false },
       { key: "apiToken", sensitive: true },
     ],
+    signupUrl: "https://www.atlassian.com/software/jira",
+    getKeyUrl: "https://id.atlassian.com/manage-profile/security/api-tokens",
+    guideSteps: [
+      "Go to id.atlassian.com/manage-profile/security/api-tokens",
+      "Click 'Create API token' and give it a label",
+      "Copy the token, enter your Jira domain (e.g. mycompany.atlassian.net)",
+      "Use the email associated with your Atlassian account",
+    ],
   },
   {
     serviceType: "gitlab",
@@ -211,14 +353,28 @@ export const CREDENTIAL_TEMPLATES: CredentialTemplate[] = [
       { key: "token", sensitive: true },
       { key: "baseUrl", sensitive: false },
     ],
+    signupUrl: "https://gitlab.com/users/sign_up",
+    getKeyUrl: "https://gitlab.com/-/user_settings/personal_access_tokens",
+    guideSteps: [
+      "Go to GitLab > User Settings > Access Tokens",
+      "Create a new Personal Access Token with needed scopes (api, read_repository, etc.)",
+      "Copy the generated token",
+      "If using self-hosted GitLab, enter your instance URL as Base URL",
+    ],
+    mcpServerHint: "@modelcontextprotocol/server-gitlab",
   },
   {
     serviceType: "hubspot",
     name: "HubSpot",
     description: "HubSpot CRM access token",
     iconColor: "#FF7A59",
-    defaultFields: [
-      { key: "accessToken", sensitive: true },
+    defaultFields: [{ key: "accessToken", sensitive: true }],
+    signupUrl: "https://app.hubspot.com/signup",
+    getKeyUrl: "https://app.hubspot.com/settings/private-apps",
+    guideSteps: [
+      "Go to HubSpot > Settings > Integrations > Private Apps",
+      "Create a new private app and define scopes",
+      "Copy the access token from the Auth tab",
     ],
   },
   {
@@ -230,6 +386,13 @@ export const CREDENTIAL_TEMPLATES: CredentialTemplate[] = [
       { key: "apiKey", sensitive: true },
       { key: "appKey", sensitive: true },
     ],
+    signupUrl: "https://www.datadoghq.com/free-datadog-trial",
+    getKeyUrl: "https://app.datadoghq.com/organization-settings/api-keys",
+    guideSteps: [
+      "Go to Datadog > Organization Settings > API Keys",
+      "Create a new API key and copy it",
+      "Go to Application Keys tab and create an Application Key",
+    ],
   },
   {
     serviceType: "sentry",
@@ -240,6 +403,14 @@ export const CREDENTIAL_TEMPLATES: CredentialTemplate[] = [
       { key: "dsn", sensitive: false },
       { key: "authToken", sensitive: true },
     ],
+    signupUrl: "https://sentry.io/signup",
+    getKeyUrl: "https://sentry.io/settings/auth-tokens/",
+    guideSteps: [
+      "Go to sentry.io and create a project",
+      "Find the DSN in Project Settings > Client Keys",
+      "Create an Auth Token at Settings > Auth Tokens",
+    ],
+    mcpServerHint: "@modelcontextprotocol/server-sentry",
   },
   {
     serviceType: "firebase",
@@ -250,6 +421,13 @@ export const CREDENTIAL_TEMPLATES: CredentialTemplate[] = [
       { key: "projectId", sensitive: false },
       { key: "apiKey", sensitive: true },
       { key: "authDomain", sensitive: false },
+    ],
+    signupUrl: "https://console.firebase.google.com",
+    getKeyUrl: "https://console.firebase.google.com/project/_/settings/general",
+    guideSteps: [
+      "Go to Firebase Console and create or select a project",
+      "Go to Project Settings > General",
+      "Find the Web API Key and Auth Domain in the web app config",
     ],
   },
   {

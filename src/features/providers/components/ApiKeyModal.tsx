@@ -16,6 +16,7 @@ import type {
   ProviderConfig,
   ProviderAuthType,
 } from "../types";
+import { ServiceLogo } from "@/components/ServiceLogo";
 
 type ApiKeyModalProps = {
   provider: ProviderDefinition;
@@ -134,13 +135,12 @@ export const ApiKeyModal = ({
       >
         <div className="flex items-center justify-between border-b border-border px-5 py-4">
           <div className="flex items-center gap-2.5">
-            <div
-              className="flex h-7 w-7 items-center justify-center rounded-lg text-[10px] font-bold text-white"
-              style={{ backgroundColor: provider.iconColor }}
-              aria-hidden="true"
-            >
-              {provider.name.slice(0, 2).toUpperCase()}
-            </div>
+            <ServiceLogo
+              serviceId={provider.id}
+              name={provider.name}
+              fallbackColor={provider.iconColor}
+              size={28}
+            />
             <h2 className="text-sm font-semibold text-foreground">
               {provider.name}
             </h2>
@@ -309,17 +309,49 @@ export const ApiKeyModal = ({
             ) : null}
           </div>
 
-          {provider.docsUrl ? (
-            <a
-              href={provider.docsUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-[11px] text-primary hover:underline"
-            >
-              <ExternalLink className="h-3 w-3" aria-hidden="true" />
-              {t("documentation", { name: provider.name })}
-            </a>
+          {/* Guide + Links */}
+          {provider.guideSteps && provider.guideSteps.length > 0 ? (
+            <details className="group">
+              <summary className="cursor-pointer text-[11px] font-medium text-muted-foreground hover:text-foreground">
+                {t("setupGuide")}
+              </summary>
+              <ol className="mt-1.5 flex flex-col gap-1 pl-4">
+                {provider.guideSteps.map((step, i) => (
+                  <li
+                    key={i}
+                    className="list-decimal text-[11px] text-muted-foreground"
+                  >
+                    {step}
+                  </li>
+                ))}
+              </ol>
+            </details>
           ) : null}
+
+          <div className="flex flex-wrap gap-2">
+            {provider.signupUrl ? (
+              <a
+                href={provider.signupUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 rounded-md border border-primary/30 bg-primary/5 px-2.5 py-1.5 text-[11px] font-semibold text-primary transition-colors hover:bg-primary/10"
+              >
+                <ExternalLink className="h-3 w-3" aria-hidden="true" />
+                {t("getApiKey")}
+              </a>
+            ) : null}
+            {provider.docsUrl ? (
+              <a
+                href={provider.docsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-[11px] text-primary hover:underline"
+              >
+                <ExternalLink className="h-3 w-3" aria-hidden="true" />
+                {t("documentation", { name: provider.name })}
+              </a>
+            ) : null}
+          </div>
 
           {provider.models.length > 0 ? (
             <div>
