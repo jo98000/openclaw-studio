@@ -58,7 +58,7 @@ export const AGENT_TEMPLATES: AgentTemplate[] = [
   {
     id: "general",
     icon: "\u{1F4AC}",
-    defaultModel: "anthropic/claude-sonnet-4-5-20250414",
+    defaultModel: "anthropic/claude-sonnet-4-6-20260301",
     capabilities: { commandMode: "ask", webAccess: true, fileTools: true },
     ...p("general"),
   },
@@ -72,7 +72,7 @@ export const AGENT_TEMPLATES: AgentTemplate[] = [
   {
     id: "coder",
     icon: "\u{1F4BB}",
-    defaultModel: "anthropic/claude-opus-4-5-20250414",
+    defaultModel: "anthropic/claude-opus-4-6-20260301",
     capabilities: { commandMode: "auto", webAccess: true, fileTools: true },
     ...p("coder"),
   },
@@ -93,7 +93,7 @@ export const AGENT_TEMPLATES: AgentTemplate[] = [
   {
     id: "support",
     icon: "\u{1F3A7}",
-    defaultModel: "anthropic/claude-sonnet-4-5-20250414",
+    defaultModel: "anthropic/claude-sonnet-4-6-20260301",
     capabilities: { commandMode: "ask", webAccess: true, fileTools: true },
     ...p("support"),
   },
@@ -107,7 +107,7 @@ export const AGENT_TEMPLATES: AgentTemplate[] = [
   {
     id: "devops",
     icon: "\u{1F527}",
-    defaultModel: "anthropic/claude-opus-4-5-20250414",
+    defaultModel: "anthropic/claude-opus-4-6-20260301",
     capabilities: { commandMode: "auto", webAccess: true, fileTools: true },
     ...p("devops"),
   },
@@ -121,21 +121,21 @@ export const AGENT_TEMPLATES: AgentTemplate[] = [
   {
     id: "strategist",
     icon: "\u{1F4DD}",
-    defaultModel: "anthropic/claude-sonnet-4-5-20250414",
+    defaultModel: "anthropic/claude-sonnet-4-6-20260301",
     capabilities: { commandMode: "off", webAccess: true, fileTools: true },
     ...p("strategist"),
   },
   {
     id: "sales",
     icon: "\u{1F3AF}",
-    defaultModel: "anthropic/claude-sonnet-4-5-20250414",
+    defaultModel: "anthropic/claude-sonnet-4-6-20260301",
     capabilities: { commandMode: "ask", webAccess: true, fileTools: true },
     ...p("sales"),
   },
   {
     id: "assistant",
     icon: "\u{1F5D3}\uFE0F",
-    defaultModel: "anthropic/claude-sonnet-4-5-20250414",
+    defaultModel: "anthropic/claude-sonnet-4-6-20260301",
     capabilities: { commandMode: "ask", webAccess: true, fileTools: true },
     ...p("assistant"),
   },
@@ -145,6 +145,13 @@ export const AGENT_TEMPLATES: AgentTemplate[] = [
     defaultModel: "openai/gpt-4o",
     capabilities: { commandMode: "off", webAccess: true, fileTools: false },
     ...p("translator"),
+  },
+  {
+    id: "master-orchestrator",
+    icon: "\u{1F9E0}",
+    defaultModel: "anthropic/claude-opus-4-6-20260301",
+    capabilities: { commandMode: "auto", webAccess: true, fileTools: true },
+    ...p("master-orchestrator"),
   },
   {
     id: "custom",

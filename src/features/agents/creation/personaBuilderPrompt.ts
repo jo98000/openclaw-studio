@@ -35,7 +35,7 @@ Guidelines:
 - Boundaries should be 2-4 clear limits
 - Rules should be 3-6 operating guidelines
 - Keep the mission to 1-2 sentences max
-- Suggest a model that fits the use case (anthropic/claude-sonnet-4-5-20250414 for general, anthropic/claude-opus-4-5-20250414 for complex reasoning, openai/gpt-4o for multimodal)
+- Suggest a model that fits the use case (anthropic/claude-sonnet-4-6-20260301 for general, anthropic/claude-opus-4-6-20260301 for complex reasoning, anthropic/claude-haiku-4-5-20251001 for fast/cheap tasks, openai/gpt-4o for multimodal)
 
 Respond ONLY with valid JSON. No markdown, no explanations.`;
 

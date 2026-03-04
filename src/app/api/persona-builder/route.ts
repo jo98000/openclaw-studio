@@ -66,7 +66,7 @@ export async function POST(request: Request) {
         priorities: "1. Accuracy\n2. Helpfulness\n3. Clarity",
         outputFormat: "Flexible — adapt to the task.",
       },
-      suggestedModel: "anthropic/claude-sonnet-4-5-20250414",
+      suggestedModel: "anthropic/claude-sonnet-4-6-20260301",
     };
 
     const result = parsePersonaBuilderResult(fallbackResult);
